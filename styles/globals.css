@@ -4,18 +4,19 @@
 @tailwind utilities;
 html,
 body {
-  @apply text-[12px] md:text-[14px] xl:text-[14px];
+  @apply text-[13px] md:text-[16px] xl:text-[16px];
   padding: 0;
   margin: 0;
   font-family: "Roboto Mono", -apple-system, BlinkMacSystemFont, Segoe UI,
     Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
     sans-serif;
   background-color: white;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer components {
   .btn {
-    @apply rounded-xl transition-all duration-150 select-none cursor-pointer;
+    @apply transition-all duration-150 select-none cursor-pointer;
   }
   .btn:hover {
     @apply scale-[102%];
@@ -23,16 +24,59 @@ body {
   .btn:active {
     @apply scale-95;
   }
-  .btn-large {
+  .shadowBox {
+    @apply transition-all duration-150 select-none flex flex-col w-full ring-2 ring-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+  }
+  .shadowBoxBtn {
+    @apply transition-all duration-150 select-none cursor-pointer flex flex-col w-full ring-2 ring-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+  }
+  .shadowBoxBtn:hover {
+    @apply scale-[101%] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)];
+  }
+  .shadowBoxBtn:active {
+    @apply scale-[100%] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+  }
+
+  .btn-primary-large {
     @apply rounded-[10px] f-16-px bg-[#ED4E59] text-white px-7 h-[41px] transition-all duration-150 select-none cursor-pointer;
   }
+  .btn-secondary {
+    @apply rounded-[10px] f-16-px border-[1px] border-black bg-white text-black font-medium px-6 h-[41px] transition-all duration-150 select-none cursor-pointer;
+  }
   .highlight {
-    @apply border-b-[3px] border-[#ED4E59];
+    @apply border-b-[4px] border-[#ED4E59];
+  }
+  .title-primary {
+    @apply text-[16px] md:text-[24px] xl:text-[24px] font-medium;
+  }
+  .title-secondary {
+    @apply text-[16px] md:text-[16px] xl:text-[16px] font-medium;
+  }
+  .subtitle {
+    @apply text-[#ED4E59] font-medium;
+  }
+  .border-active {
+    @apply border-[#E42333];
+  }
+  .icons {
+    @apply max-w-[18px] md:max-w-[18px] xl:max-w-[22px];
   }
 }
 
 .non-highlight {
   color: #828f9a;
+}
+
+.bg-primary {
+  background-color: #f38498;
+}
+
+.bg-highlight {
+  background-color: #ed4e59;
+}
+
+.bg-active {
+  background-color: #e42333;
 }
 
 .line {

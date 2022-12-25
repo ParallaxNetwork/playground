@@ -3,6 +3,9 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useConnect, useNetwork } from "wagmi";
 import { generateNonce, SiweMessage } from "siwe";
+import { LayoutTop } from "../elements/Container";
+import Image from "next/image";
+import SEO from "./SEO";
 export const NavBar = () => {
   const router = useRouter();
   const [path, setPath] = useState("");
@@ -73,9 +76,18 @@ export const NavBar = () => {
 
   return (
     <>
-      <div className="flex flex-col w-full px-[45px] pt-[20px] ">
+      <SEO />
+      <LayoutTop>
         <div className="flex flex-row justify-between items-center w-full">
-          <img src={"/assets/picture/MainLogo.svg"} />
+          <Link href={'/'}>
+            <Image
+              src={"/assets/picture/MainLogo.png"}
+              width={228}
+              height={60}
+              alt="mainlogo"
+              priority
+            />
+          </Link>
           <div className="hidden lg:flex flex-row justify-between w-full items-center ">
             <div className="flex flex-row space-x-10 ml-[8%] pt-0 h-[90px]">
               {route.map((el, index) => {
@@ -83,7 +95,7 @@ export const NavBar = () => {
                   <Link
                     href={el.loc}
                     key={index}
-                    className={`font-medium f-16-px px-2 ${
+                    className={`font-medium px-1 ${
                       path == el.loc
                         ? "highlight"
                         : path.includes(el.loc) && el.loc != "/"
@@ -112,13 +124,16 @@ export const NavBar = () => {
               </button>
             ))} */}
 
-            <button onClick={() => handleSign()} className="btn btn-large">
+            <button
+              onClick={() => handleSign()}
+              className="btn btn-primary-large"
+            >
               CONNECT WALLET
             </button>
           </div>
         </div>
-        <hr className="border-[1px] bg-[#DAE1E9] mt-4 lg:mt-0" />
-      </div>
+        <hr className="border-[1px] border-[#DAE1E9] mt-4 lg:mt-0" />
+      </LayoutTop>
     </>
   );
 };

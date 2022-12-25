@@ -15,12 +15,18 @@
     "axios": "^1.2.1",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.7.2",
+    "imagemin-mozjpeg": "^8.0.0",
+    "imagemin-optipng": "^8.0.0",
     "lodash": "^4.17.21",
-    "next": "13.0.7",
+    "next": "^13.1.1",
+    "next-optimized-images": "^2.6.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "sharp": "^0.31.3",
     "siwe": "^1.1.6",
-    "wagmi": "^0.9.4"
+    "url-loader": "^4.1.1",
+    "wagmi": "^0.9.4",
+    "webp-loader": "^0.6.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",

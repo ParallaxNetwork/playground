@@ -1,5 +1,6 @@
+import EngagePage from "../../src/pages/engage/EngagePage"
 const EngagePages = () => {
-    return <div></div>
+    return <EngagePage />
 }
 
 
