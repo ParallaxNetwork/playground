@@ -1,7 +1,8 @@
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CircleAvatar from "../../components/elements/CircleAvatar";
-import VideoStream from "./VideoStream";
+import VideoStream from "../../components/videoplayer/VideoStream";
+import ChatBox from "../../components/chat/ChatBox";
 const EngagePage = () => {
   const account = [
     {
@@ -87,8 +88,7 @@ const EngagePage = () => {
           </div>
           {/* CHAT */}
           <div className="w-full lg:w-1/4 flex flex-col p-3 border-l-0 border-t-2 lg:border-t-0 lg:border-l-2 border-black">
-            <div>asdasd</div>
-            <div>asdasd</div>
+            <ChatBox />
           </div>
           {/* --- */}
         </div>

@@ -100,7 +100,7 @@ export const NavBar = () => {
                         ? "highlight"
                         : path.includes(el.loc) && el.loc != "/"
                         ? "highlight"
-                        : "non-highlight"
+                        : "color-placeholder"
                     }`}
                   >
                     <div className="mt-9">{el.label}</div>

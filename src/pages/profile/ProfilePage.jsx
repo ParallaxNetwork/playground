@@ -3,7 +3,7 @@ import ShadowBox from "../../components/elements/ShadowBox";
 const ProfilePage = () => {
   return (
     <LayoutContainer>
-      <ShadowBox>profile page</ShadowBox>
+      <ShadowBox className={'shadowBox'}>profile page</ShadowBox>
     </LayoutContainer>
   );
 };

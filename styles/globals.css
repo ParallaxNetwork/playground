@@ -70,8 +70,12 @@ body {
   color: #0B1128;
 }
 
-.non-highlight {
-  color: #828f9a;
+.color-placeholder {
+  color: #828F9A;
+}
+
+.color-description{
+  color: #C3C3C3;
 }
 
 .bg-secondary {

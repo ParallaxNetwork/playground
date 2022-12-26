@@ -7,7 +7,7 @@ const CircleAvatar = ({
   return (
     <div className={`relative ${isLive && "pb-2"} btn`}>
       <div
-        className={`bg-cover w-[35px] lg:w-[52px] h-[35px] lg:h-[52px] rounded-full overflow-hidden ${
+        className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${
           isLive || isActive && "border-2 border-active"
         } ${className}`}
       >
