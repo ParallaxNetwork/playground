@@ -237,6 +237,6 @@ module.exports = {
         ...objFontSizes,
       })
     }),
-    require('@tailwindcss/forms')
+   
   ]
 }
