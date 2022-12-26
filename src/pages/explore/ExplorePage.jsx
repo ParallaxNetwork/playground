@@ -123,7 +123,7 @@ const IndexPage = () => {
           {idolData.map((el, index) => {
             return (
               <ShadowBox key={index} className={"shadowBoxBtn"}>
-                <div className="flex flex-row justify-between items-center bg-primary text-white px-5 py-3 title-primary border-b-2 border-black">
+                <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
                   {el.title}
                   <img src="/assets/icons/hearts-icon.svg" alt="" />
                 </div>
@@ -148,7 +148,10 @@ const IndexPage = () => {
                       <div className="mt-2">
                         {el.perks.map((child, i) => {
                           return (
-                            <div key={i} className="block font-medium">
+                            <div
+                              key={i}
+                              className="block font-medium text-fill"
+                            >
                               {child}
                             </div>
                           );

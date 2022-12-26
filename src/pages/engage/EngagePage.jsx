@@ -1,7 +1,7 @@
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CircleAvatar from "../../components/elements/CircleAvatar";
-
+import VideoStream from "./VideoStream";
 const EngagePage = () => {
   const account = [
     {
@@ -39,7 +39,7 @@ const EngagePage = () => {
         <div className="flex flex-col lg:flex-row">
           <div className="w-full lg:w-3/4">
             {/* TAB */}
-            <div className="flex flex-row justify-start items-center bg-primary text-white border-b-2 border-black">
+            <div className="flex flex-row justify-start items-center bg-secondary text-white border-b-2 border-black">
               <div className="flex flex-row w-full max-w-[300px]">
                 {tabs.map((el, index) => {
                   return (
@@ -58,7 +58,7 @@ const EngagePage = () => {
               <div className="ml-4 font-medium"> Live Streaming!</div>
             </div>
             {/* ---- */}
-            <div className="flex flex-row">
+            <div className="flex flex-row ">
               {/* CIRCLEACCOUNT */}
               <div className="pt-3 pb-2 border-r-2 border-black flex flex-col justify-between">
                 <div className="space-y-5 pb-3">
@@ -81,15 +81,7 @@ const EngagePage = () => {
               </div>
               {/* ---- */}
               {/* VIDEO */}
-              <div className="bg-[url('/assets/misc/pattern.svg')] w-full">
-                <div className="p-5">
-                  <img
-                    src="/assets/picture/sample2.png"
-                    className="rounded-lg m-auto w-full"
-                    alt=""
-                  />
-                </div>
-              </div>
+              <VideoStream />
               {/* --- */}
             </div>
           </div>

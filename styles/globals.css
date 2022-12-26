@@ -55,6 +55,9 @@ body {
   .subtitle {
     @apply text-[#ED4E59] font-medium;
   }
+  .subtitle-secondary {
+    @apply text-[#E42333] font-medium;
+  }
   .border-active {
     @apply border-[#E42333];
   }
@@ -63,11 +66,15 @@ body {
   }
 }
 
+.text-fill{
+  color: #0B1128;
+}
+
 .non-highlight {
   color: #828f9a;
 }
 
-.bg-primary {
+.bg-secondary {
   background-color: #f38498;
 }
 

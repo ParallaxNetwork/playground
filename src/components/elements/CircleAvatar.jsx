@@ -2,12 +2,13 @@ const CircleAvatar = ({
   className = "",
   src = "/assets/picture/sample1.png",
   isLive = false,
+  isActive = false,
 }) => {
   return (
     <div className={`relative ${isLive && "pb-2"} btn`}>
       <div
         className={`bg-cover w-[35px] lg:w-[52px] h-[35px] lg:h-[52px] rounded-full overflow-hidden ${
-          isLive && "border-2 border-active"
+          isLive || isActive && "border-2 border-active"
         } ${className}`}
       >
         <img
