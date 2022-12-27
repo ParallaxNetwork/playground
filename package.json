@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0",
     "@tailwindcss/forms": "^0.5.3",
+    "@truffle/hdwallet-provider": "^2.1.4",
     "@unlock-protocol/contracts": "^0.0.14",
     "@unlock-protocol/unlock-js": "^0.32.13",
     "axios": "^1.2.1",
@@ -24,14 +26,17 @@
     "react-dom": "18.2.0",
     "sharp": "^0.31.3",
     "siwe": "^1.1.6",
+    "truffle": "^5.7.1",
     "url-loader": "^4.1.1",
     "wagmi": "^0.9.4",
     "webp-loader": "^0.6.0"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "autoprefixer": "^10.4.13",
     "eslint": "8.30.0",
     "eslint-config-next": "13.0.7",
+    "hardhat": "^2.12.4",
     "postcss": "^8.4.20",
     "tailwindcss": "^3.2.4"
   }
