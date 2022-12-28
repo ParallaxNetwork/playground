@@ -1,25 +1,37 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useConnect, useNetwork } from "wagmi";
+import { useAccount, useConnect, useNetwork, useSignMessage } from "wagmi";
 import { generateNonce, SiweMessage } from "siwe";
 import { LayoutTop } from "../elements/Container";
 import Image from "next/image";
 import SEO from "./SEO";
-export const NavBar = () => {
+import { Zoom } from "@mui/material";
+import ClickAwayListener from "@mui/base/ClickAwayListener";
+import axios from "axios";
+import { shortAddress } from "../../../utilities/addressUtils";
+import CircularProgress from "@mui/material/CircularProgress";
+import { disconnect } from "@wagmi/core";
+const NavBar = () => {
   const router = useRouter();
-  const [path, setPath] = useState("");
-  const { connect, connectors, isLoading, pendingConnector } = useConnect();
+  const path = router.pathname;
+  const { connect, connectors, isLoading, pendingConnector, isSuccess } =
+    useConnect();
   const { chain, chains } = useNetwork();
-  const [availConnectors, setAvailConnectors] = useState();
+  const [openMiniDialog, setOpenMiniDialog] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync, onSuccess } = useSignMessage();
+  const [showButton, setShowButton] = useState();
   useEffect(() => {
-    setPath(router.pathname);
-
-    console.log(router);
-  }, [router]);
+    if (isSuccess && isConnected) {
+      handleSign();
+    }
+  }, [isSuccess]);
 
   useEffect(() => {
-    setAvailConnectors(connectors);
+    setTimeout(() => {
+      setShowButton(true);
+    }, 200);
   }, []);
 
   const route = [
@@ -115,28 +127,58 @@ export const NavBar = () => {
                 );
               })}
             </div>
-            {/* {connectors.map((connector) => (
-              <button
-                disabled={!connector.ready}
-                key={connector.id}
-                onClick={() => connect({ connector })}
-              >
-                {connector.name}
-                {isLoading &&
-                  pendingConnector?.id === connector.id &&
-                  " (connecting)"}
-                <div className="rounded-full overflow-hidden">
-                  <img src={walletIcons[connector.id]} className="w-10 h-10" />
-                </div>
-              </button>
-            ))} */}
 
-            <button
-              onClick={() => connect({})}
-              className="btn btn-primary-large"
-            >
-              CONNECT WALLET
-            </button>
+            <ClickAwayListener onClickAway={() => setOpenMiniDialog(false)}>
+              <div className="relative">
+                <button
+                  onClick={async () => {
+                    if (isConnected) {
+                      return await disconnect();
+                    }
+                    setOpenMiniDialog(true);
+                  }}
+                  className="btn btn-primary-large"
+                >
+                  {showButton ? (
+                    address ? (
+                      shortAddress(address)
+                    ) : (
+                      "CONNECT WALLET"
+                    )
+                  ) : (
+                    <CircularProgress
+                      color="inherit"
+                      className="!w-5 !h-5 mt-1"
+                    />
+                  )}
+                </button>
+
+                <Zoom in={openMiniDialog}>
+                  <div className="shadowBox absolute border-2 border-black bg-white rounded-md top-[55px] z-10">
+                    {connectors.map((connector) => (
+                      <button
+                        // disabled={!connector.ready}
+                        key={connector.id}
+                        onClick={() => {
+                          setOpenMiniDialog(false);
+                          connect({ connector });
+                        }}
+                        className="flex flex-row p-2 items-center gap-2"
+                      >
+                        <img
+                          src={walletIcons[connector.id]}
+                          className="w-7 h-7 rounded-md"
+                        />
+                        {connector.name}
+                        {isLoading &&
+                          pendingConnector?.id === connector.id &&
+                          " (connecting)"}
+                      </button>
+                    ))}
+                  </div>
+                </Zoom>
+              </div>
+            </ClickAwayListener>
           </div>
         </div>
         <hr className="border-[1px] border-[#DAE1E9] mt-4 lg:mt-0" />
@@ -144,3 +186,5 @@ export const NavBar = () => {
     </>
   );
 };
+
+export default NavBar;

@@ -122,7 +122,7 @@ const IndexPage = () => {
   return (
     <>
       <LayoutContainer>
-        <div className="space-y-10">
+        <div className="space-y-10 mb-10">
           {idolData.map((el, index) => {
             return (
               <ShadowBox key={index} className={"shadowBoxBtnSmall"}>

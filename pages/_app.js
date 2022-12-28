@@ -4,7 +4,10 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
-import { NavBar } from '../src/components/navBar/NavBar'
+import dynamic from 'next/dynamic'
+const NavBar = dynamic(() => import('../src/components/navBar/NavBar'), {
+  ssr: true
+})
 import '../styles/globals.css'
 function MyApp({ Component, pageProps }) {
   const { chains, provider, webSocketProvider } = configureChains(
