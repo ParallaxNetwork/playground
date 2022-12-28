@@ -12,6 +12,9 @@ body {
     sans-serif;
   background-color: white;
   -webkit-tap-highlight-color: transparent;
+  background-image: url("/assets/picture/background.svg");
+  background-size: cover;
+  background-repeat: no-repeat
 }
 
 @layer components {
@@ -101,6 +104,10 @@ input {
   -webkit-appearance: none;
 }
 
+.c-kxrkoX::after {
+  border-color: #fd24a0 transparent #fd24a0 transparent !important;
+}
+
 *:focus {
   outline: none !important;
 }
@@ -122,7 +129,7 @@ input {
 }
 
 .bg-secondary {
-  background-color: #f38498;
+  background-color: #fd24a0;
 }
 
 .bg-highlight {
@@ -137,8 +144,8 @@ input {
   background-color: #f8f8f8;
 }
 
-.bg-red{
-  background-color: #FF1828;
+.bg-red {
+  background-color: #ff1828;
 }
 
 .line {

@@ -1,7 +1,13 @@
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CircleAvatar from "../../components/elements/CircleAvatar";
-import VideoStream from "../../components/videoplayer/VideoStream";
+import dynamic from "next/dist/shared/lib/dynamic";
+const VideoStream = dynamic(
+  () => import("../../components/videoplayer/VideoStream"),
+  {
+    ssr: false,
+  }
+);
 import ChatBox from "../../components/chat/ChatBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
 const EngagePage = () => {
@@ -94,8 +100,10 @@ const EngagePage = () => {
             </div>
             {/* ---- */}
             {/* REPLY BOX */}
-            <div className="bg-input h-[4.61440
-              rem] bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4 pt-4">
+            <div
+              className="bg-input h-[4.61440
+              rem] bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4 pt-4"
+            >
               <div className="flex flex-row h-full space-x-3">
                 <input className="inputBox border-placeholder rounded-md h-full w-full" />
                 <button className="w-[50px] shadowBoxBtnSmall bg-placeholder rounded-md">

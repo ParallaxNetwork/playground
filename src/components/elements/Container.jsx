@@ -8,7 +8,7 @@ const LayoutContainer = ({ children, className }) => {
 
 export const LayoutTop = ({ children }) => {
   return (
-    <div className="flex flex-col w-full px-[20px] md:px-[80px] xxl:px-[250px] pt-[20px] ">
+    <div className="flex flex-col w-full px-[20px] md:px-[80px] xxl:px-[250px] pt-[20px] bg-white">
       {children}
     </div>
   );

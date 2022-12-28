@@ -11,9 +11,16 @@ export const NavBar = () => {
   const [path, setPath] = useState("");
   const { connect, connectors, isLoading, pendingConnector } = useConnect();
   const { chain, chains } = useNetwork();
+  const [availConnectors, setAvailConnectors] = useState();
   useEffect(() => {
     setPath(router.pathname);
+
+    console.log(router);
   }, [router]);
+
+  useEffect(() => {
+    setAvailConnectors(connectors);
+  }, []);
 
   const route = [
     {
@@ -79,7 +86,7 @@ export const NavBar = () => {
       <SEO />
       <LayoutTop>
         <div className="flex flex-row justify-between items-center w-full">
-          <Link href={'/'}>
+          <Link href={"/"}>
             <Image
               src={"/assets/picture/MainLogo.png"}
               width={228}
@@ -125,7 +132,7 @@ export const NavBar = () => {
             ))} */}
 
             <button
-              onClick={() => handleSign()}
+              onClick={() => connect({})}
               className="btn btn-primary-large"
             >
               CONNECT WALLET
