@@ -89,7 +89,7 @@ const EngagePage = () => {
           </div>
           {/* CHAT */}
           <div className="lg:w-1/4  border-l-0 border-t-2 lg:border-t-0 lg:border-l-2 border-black secondary min-h-[530px] relative">
-            <div className="absolute overflow-auto h-full p-3 pb-[6vh]">
+            <div className="absolute overflow-auto h-full p-3 pb-[8vh]">
               <ChatBox />
             </div>
             {/* ---- */}

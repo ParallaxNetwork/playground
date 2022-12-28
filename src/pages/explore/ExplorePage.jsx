@@ -11,6 +11,7 @@ import {
 import LayoutContainer from "../../components/elements/Container";
 import CollectionImage from "../../components/elements/CollectionImage";
 import ShadowBox from "../../components/elements/ShadowBox";
+import Link from "next/link";
 const IndexPage = () => {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -125,43 +126,49 @@ const IndexPage = () => {
           {idolData.map((el, index) => {
             return (
               <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
-                <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
-                  {el.title}
-                  <img src="/assets/icons/hearts-icon.svg" alt="" />
-                </div>
-                <div className="flex m-5 flex-col lg:flex-row p-2">
-                  <CollectionImage
-                    src={el.image}
-                    className="aspect-[1/1] max-w-[340px] w-full"
-                  />
-                  <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                    <div className="max-w-full lg:pr-5">
-                      <div className="subtitle">DESCRIPTION</div>
-                      <div>{el.description}</div>
-                      <div className="subtitle mt-4">Interest</div>
-                      <div>{el.interest}</div>
-                      <div className="subtitle mt-4">NFT Collection</div>
-                    </div>
-                    <div className="max-w-full ml-0 mt-5 lg:mt-0 lg:ml-5">
-                      <div className="flex flex-row space-x-3">
-                        <img src="/assets/icons/verified-icon.svg" alt="" />
-                        <div className="subtitle">NFT PERKS</div>
+                <Link
+                  href={{
+                    pathname: "/purchase",
+                  }}
+                >
+                  <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
+                    {el.title}
+                    <img src="/assets/icons/hearts-icon.svg" alt="" />
+                  </div>
+                  <div className="flex m-5 flex-col lg:flex-row p-2">
+                    <CollectionImage
+                      src={el.image}
+                      className="aspect-[1/1] max-w-[340px] w-full"
+                    />
+                    <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
+                      <div className="max-w-full lg:pr-5">
+                        <div className="subtitle">DESCRIPTION</div>
+                        <div>{el.description}</div>
+                        <div className="subtitle mt-4">Interest</div>
+                        <div>{el.interest}</div>
+                        <div className="subtitle mt-4">NFT Collection</div>
                       </div>
-                      <div className="mt-2">
-                        {el.perks.map((child, i) => {
-                          return (
-                            <div
-                              key={i}
-                              className="block font-medium text-fill"
-                            >
-                              {child}
-                            </div>
-                          );
-                        })}
+                      <div className="max-w-full ml-0 mt-5 lg:mt-0 lg:ml-5">
+                        <div className="flex flex-row space-x-3">
+                          <img src="/assets/icons/verified-icon.svg" alt="" />
+                          <div className="subtitle">NFT PERKS</div>
+                        </div>
+                        <div className="mt-2">
+                          {el.perks.map((child, i) => {
+                            return (
+                              <div
+                                key={i}
+                                className="block font-medium text-fill"
+                              >
+                                {child}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </ShadowBox>
             );
           })}

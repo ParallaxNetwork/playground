@@ -1,6 +1,6 @@
-const LayoutContainer = ({ children }) => {
+const LayoutContainer = ({ children, className }) => {
   return (
-    <div className="px-[20px] md:px-[80px] xxl:px-[250px] py-[20px] mb-10">
+    <div className={`px-[20px] md:px-[80px] xxl:px-[250px] py-[20px] mb-10`}>
       {children}
     </div>
   );

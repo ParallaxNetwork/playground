@@ -23,34 +23,6 @@ const ChatBox = () => {
             positif buat BBTN, karena kebanyakan pembiayaan properti kebanyakan
             dari kredit yang mana BBTN pegang market share sekitar 39%`,
     },
-    {
-      username: "Sinka",
-      date: "12/12/2022 10:57PM",
-      chats: `Dengan katalis, peningkatan demand akan properti menjadi sentimen
-              positif buat BBTN, karena kebanyakan pembiayaan properti kebanyakan
-              dari kredit yang mana BBTN pegang market share sekitar 39%`,
-    },
-    {
-      username: "Sinka",
-      date: "12/12/2022 10:57PM",
-      chats: `Dengan katalis, peningkatan demand akan properti menjadi sentimen
-              positif buat BBTN, karena kebanyakan pembiayaan properti kebanyakan
-              dari kredit yang mana BBTN pegang market share sekitar 39%`,
-    },
-    {
-      username: "Sinka",
-      date: "12/12/2022 10:57PM",
-      chats: `Dengan katalis, peningkatan demand akan properti menjadi sentimen
-              positif buat BBTN, karena kebanyakan pembiayaan properti kebanyakan
-              dari kredit yang mana BBTN pegang market share sekitar 39%`,
-    },
-    {
-      username: "Sinka",
-      date: "12/12/2022 10:57PM",
-      chats: `Dengan katalis, peningkatan demand akan properti menjadi sentimen
-              positif buat BBTN, karena kebanyakan pembiayaan properti kebanyakan
-              dari kredit yang mana BBTN pegang market share sekitar 39%`,
-    },
   ];
 
   return (

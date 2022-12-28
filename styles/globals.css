@@ -137,6 +137,10 @@ input {
   background-color: #f8f8f8;
 }
 
+.bg-red{
+  background-color: #FF1828;
+}
+
 .line {
   color: #dae1e9;
   height: 2px;
