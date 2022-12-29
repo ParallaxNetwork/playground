@@ -163,7 +163,7 @@ const ProfilePage = () => {
               onClick={handleSaveProfile}
               className="btn btn-primary-large"
             >
-              Save
+              SAVE
             </button>
           </div>
         </div>

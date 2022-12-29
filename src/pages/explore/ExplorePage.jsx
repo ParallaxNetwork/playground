@@ -184,17 +184,17 @@ const IndexPage = () => {
                         <div className="mt-3 space-y-2">
                           {el.perks.map((child, i) => {
                             return (
-                              <div className="flex flex-row border-2 border-black">
+                              <div
+                                key={i}
+                                className="flex flex-row border-2 border-black"
+                              >
                                 <div className="border-r-2 border-black p-3">
                                   <SvgIconStyle
                                     src={child.icons}
                                     className="w-6 h-6 bg-highlight"
                                   />
                                 </div>
-                                <div
-                                  key={i}
-                                  className="block font-medium text-fill p-3"
-                                >
+                                <div className="block font-medium text-fill p-3">
                                   {child.value}
                                 </div>
                               </div>
