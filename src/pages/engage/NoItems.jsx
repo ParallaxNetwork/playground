@@ -10,7 +10,7 @@ const NoItems = () => {
             <Image alt="empty-box" src={"/assets/misc/empty-box.svg"} fill></Image>
           </div>
           <div className="max-w-md">
-            You don't have any NFT right now, Buy NFT to engage with your idol
+            You don't have any subscription right now, Buy NFT to engage with your idol
           </div>
           <Link href={'/'}>
             <button className="shadowBoxBtnSmall py-2 max-w-[230px] rounded-md p-3 text-center flex flex-row">

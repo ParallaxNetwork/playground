@@ -12,6 +12,7 @@ import LayoutContainer from "../../components/elements/Container";
 import CollectionImage from "../../components/elements/CollectionImage";
 import ShadowBox from "../../components/elements/ShadowBox";
 import Link from "next/link";
+import SvgIconStyle from "../../components/elements/SvgIconStyle";
 const IndexPage = () => {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -85,9 +86,18 @@ const IndexPage = () => {
       interest: "Listening Music, Singing, Swimming",
       nftCollection: [],
       perks: [
-        "• Group Chat",
-        "• Private Chat",
-        "• Exclusive Live Video Access",
+        {
+          icons: "/assets/icons/chat-icon.svg",
+          value: "Group Chat",
+        },
+        {
+          icons: "/assets/icons/private-icon.svg",
+          value: "Private Chat",
+        },
+        {
+          icons: "/assets/icons/live-icon.svg",
+          value: "Exclusive Live Video Access",
+        },
       ],
     },
     {
@@ -98,9 +108,18 @@ const IndexPage = () => {
       interest: "Listening Music, Singing, Swimming",
       nftCollection: [],
       perks: [
-        "• Group Chat",
-        "• Private Chat",
-        "• Exclusive Live Video Access",
+        {
+          icons: "/assets/icons/chat-icon.svg",
+          value: "Group Chat",
+        },
+        {
+          icons: "/assets/icons/private-icon.svg",
+          value: "Private Chat",
+        },
+        {
+          icons: "/assets/icons/live-icon.svg",
+          value: "Exclusive Live Video Access",
+        },
       ],
     },
     {
@@ -112,9 +131,18 @@ const IndexPage = () => {
       interest: "Listening Music, Singing, Swimming",
       nftCollection: [],
       perks: [
-        "• Group Chat",
-        "• Private Chat",
-        "• Exclusive Live Video Access",
+        {
+          icons: "/assets/icons/chat-icon.svg",
+          value: "Group Chat",
+        },
+        {
+          icons: "/assets/icons/private-icon.svg",
+          value: "Private Chat",
+        },
+        {
+          icons: "/assets/icons/live-icon.svg",
+          value: "Exclusive Live Video Access",
+        },
       ],
     },
   ];
@@ -141,26 +169,34 @@ const IndexPage = () => {
                       className="aspect-[1/1] max-w-[340px] w-full"
                     />
                     <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                      <div className="max-w-full lg:pr-5">
+                      <div className="max-w-full lg:max-w-[30vw] lg:pr-5">
                         <div className="subtitle">DESCRIPTION</div>
                         <div>{el.description}</div>
                         <div className="subtitle mt-4">Interest</div>
                         <div>{el.interest}</div>
                         <div className="subtitle mt-4">NFT Collection</div>
                       </div>
-                      <div className="max-w-full ml-0 mt-5 lg:mt-0 lg:ml-5">
+                      <div className="max-w-full mt-5 lg:mt-0 ml-0 xl:ml-10">
                         <div className="flex flex-row space-x-3">
                           <img src="/assets/icons/verified-icon.svg" alt="" />
                           <div className="subtitle">NFT PERKS</div>
                         </div>
-                        <div className="mt-2">
+                        <div className="mt-3 space-y-2">
                           {el.perks.map((child, i) => {
                             return (
-                              <div
-                                key={i}
-                                className="block font-medium text-fill"
-                              >
-                                {child}
+                              <div className="flex flex-row border-2 border-black">
+                                <div className="border-r-2 border-black p-3">
+                                  <SvgIconStyle
+                                    src={child.icons}
+                                    className="w-6 h-6 bg-highlight"
+                                  />
+                                </div>
+                                <div
+                                  key={i}
+                                  className="block font-medium text-fill p-3"
+                                >
+                                  {child.value}
+                                </div>
                               </div>
                             );
                           })}

@@ -2,7 +2,7 @@ import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CollectionImage from "../../components/elements/CollectionImage";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { Slide } from "@mui/material";
+import { Zoom } from "@mui/material";
 import { useState } from "react";
 const PurchasePages = () => {
   const perks = [
@@ -40,7 +40,7 @@ const PurchasePages = () => {
             </div>
           </div>
           <div className="mt-10">
-            <Slide in direction="right" timeout={250}>
+            <Zoom in={true}>
               <div
                 className={`flex flex-col lg:flex-row border-2 border-black p-3  w-full`}
               >
@@ -66,7 +66,10 @@ const PurchasePages = () => {
                     <div className="mt-2">
                       {perks.map((el, index) => {
                         return (
-                          <div key={index} className="block font-medium text-fill">
+                          <div
+                            key={index}
+                            className="block font-medium text-fill"
+                          >
                             {el}
                           </div>
                         );
@@ -80,7 +83,7 @@ const PurchasePages = () => {
                   </div>
                 </div>
               </div>
-            </Slide>
+            </Zoom>
           </div>
         </div>
       </ShadowBox>

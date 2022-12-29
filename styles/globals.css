@@ -90,6 +90,9 @@ body {
   .border-placeholder {
     @apply border-[1px] border-[#828F9A];
   }
+  [aria-labelledBy="alert-dialog-title"] {
+    @apply shadowBox;
+  }
 }
 
 @layer base {
