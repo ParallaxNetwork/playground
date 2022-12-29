@@ -168,15 +168,15 @@ const IndexPage = () => {
                       src={el.image}
                       className="aspect-[1/1] max-w-[340px] w-full"
                     />
-                    <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                      <div className="max-w-full lg:max-w-[30vw] lg:pr-5">
+                    <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full gap-0 xl:gap-8">
+                      <div className="max-w-full ">
                         <div className="subtitle">DESCRIPTION</div>
                         <div>{el.description}</div>
                         <div className="subtitle mt-4">Interest</div>
                         <div>{el.interest}</div>
                         <div className="subtitle mt-4">NFT Collection</div>
                       </div>
-                      <div className="max-w-full mt-5 lg:mt-0 ml-0 xl:ml-10">
+                      <div className="max-w-full mt-5 lg:mt-0">
                         <div className="flex flex-row space-x-3">
                           <img src="/assets/icons/verified-icon.svg" alt="" />
                           <div className="subtitle">NFT PERKS</div>

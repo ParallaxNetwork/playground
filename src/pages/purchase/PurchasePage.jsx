@@ -5,6 +5,7 @@ import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { Zoom } from "@mui/material";
 import { useState } from "react";
 import AlertDialog from "../../components/elements/AlertDialog";
+import Link from "next/link";
 const PurchasePages = () => {
   const [openPurchaseDialog, setOpenPurchaseDialog] = useState(false);
 
@@ -35,6 +36,18 @@ const PurchasePages = () => {
   return (
     <>
       <LayoutContainer>
+        <Link href="/">
+          <button className="shadowBoxBtnSmall py-2 max-w-[115px] rounded-[10px] text-center flex flex-row mb-5 bg-white">
+            <div className="text-center m-auto font-medium flex flex-row">
+              <SvgIconStyle
+                src={"/assets/icons/arrowprev-icon.svg"}
+                className="bg-red w-[25px] h-[15px] mt-[1px] md:mt-1"
+              />
+              Explore
+            </div>
+          </button>
+        </Link>
+
         <ShadowBox className={"shadowBox "}>
           <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
             {"SINKA - JKT 48 #128"}
@@ -64,53 +77,58 @@ const PurchasePages = () => {
             <div className="mt-10">
               <Zoom in={true}>
                 <div
-                  className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full`}
+                  className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full gap-5`}
                 >
                   <CollectionImage
                     src={"/assets/picture/sample3.png"}
-                    className="max-w-[136px] w-full max-h-[181px] aspect-[1/3] m-auto mt-5 mb-5 lg:m-0"
+                    className="max-w-[136px] w-full max-h-[195px] aspect-[1/3] m-auto mt-5 mb-5 lg:m-0"
                   />
-                  <div className="ml-0 lg:ml-5 mt-3 lg:mt-0 flex flex-col lg:flex-row justify-between w-full">
-                    <div className="max-w-full w-full lg:w-1/3  flex flex-col justify-between">
+
+                  <div className="mt-3 lg:mt-0 flex flex-col justify-between w-full gap-3 p-2">
+                    <div className="max-w-full w-full flex flex-col justify-between ">
                       <div>
                         <div className="title-primary">SINKA 123</div>
                         <div className="subtitle">0.2 MATIC</div>
                       </div>
-                      <div className="space-y-3">
+                    </div>
+                    <div className="flex flex-col lg:flex-row w-full">
+                      <div className="space-y-3 max-w-[380px]">
                         <div className="subtitle">DESCRIPTION</div>
                         <div>
                           Sinka Juliaah is a member of the Indonesian idol group
                           JKT48.
                         </div>
                       </div>
-                    </div>
-                    <div className="max-w-full w-full lg:w-1/3 ml-0 mt-5 lg:mt-0 lg:ml-5 justify-end flex flex-col">
-                      <div className="flex flex-row space-x-3">
-                        <img src="/assets/icons/verified-icon.svg" alt="" />
-                        <div className="subtitle">NFT PERKS</div>
+                      <div className="flex flex-col lg:flex-row w-full justify-between">
+                        <div className="mt-5 lg:mt-0 justify-end flex flex-col space-y-3">
+                          <div className="flex flex-row space-x-3">
+                            <img src="/assets/icons/verified-icon.svg" alt="" />
+                            <div className="subtitle">NFT PERKS</div>
+                          </div>
+                          <div className="mt-2">
+                            {perks.map((el, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="block font-medium text-fill"
+                                >
+                                  {el.title}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <div className="h-full flex flex-col justify-end mt-3 mb-2 lg:mt-0 lg:mb-0">
+                          <button
+                            onClick={() => {
+                              setOpenPurchaseDialog(true);
+                            }}
+                            className="btn btn-primary-large px-10"
+                          >
+                            BUY ACCESS
+                          </button>
+                        </div>
                       </div>
-                      <div className="mt-2">
-                        {perks.map((el, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="block font-medium text-fill"
-                            >
-                              {el.title}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className="h-full flex flex-col justify-end mt-3 mb-2 lg:mt-0 lg:mb-0">
-                      <button
-                        onClick={() => {
-                          setOpenPurchaseDialog(true);
-                        }}
-                        className="btn btn-primary-large px-10"
-                      >
-                        BUY ACCESS
-                      </button>
                     </div>
                   </div>
                 </div>
