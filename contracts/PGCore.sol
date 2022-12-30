@@ -16,6 +16,28 @@ interface PublicLock {
         uint256 _maxNumberOfKeys,
         uint256 _maxKeysPerAcccount
     ) external;
+
+    function setLockMetadata(
+        string calldata _lockName,
+        string calldata _lockSymbol,
+        string calldata _baseTokenURI
+    ) external;
+
+    function addLockManager(address account) external;
+
+    function balanceOf(address _owner) external view returns (uint256 balance);
+
+    function purchase(
+        uint256[] calldata _values,
+        address[] calldata _recipients,
+        address[] calldata _referrers,
+        address[] calldata _keyManagers,
+        bytes[] calldata _data
+    ) external payable returns (uint256[] memory tokenIds);
+
+    function ownerOf(uint256 tokenId) external view returns (address _owner);
+
+    function keyPrice() external view returns (uint256);
 }
 
 interface Unlock {
@@ -29,7 +51,118 @@ interface Unlock {
     ) external returns (address);
 }
 
+//SUB
+import "../contracts_lib/ERC721A.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+pragma solidity ^0.8.17;
+
+contract PGSubs is ERC721A {
+    event ERRINTERACTION(string msg);
+    event CALLDATA(
+        uint256[] val,
+        address[] recipient,
+        address[] referrer,
+        address[] keyManager,
+        bytes[] data
+    );
+
+    uint256 public maxSupply = 3456;
+    uint256 randNonce = 938472992419148174;
+    string private baseUri =
+        "ipfs://QmQUnp86owydqdrW6sHtwGb26Uj161t2jJQ7B6DtfUy2ZE/";
+
+    PublicLock public lock;
+
+    mapping(uint256 => uint256) private realTokenId;
+
+    constructor(
+        address _lockAddress,
+        uint256 _maxSupply,
+        string memory _baseUri
+    ) ERC721A("Playground Subscription", "PGS") {
+        lock = PublicLock(_lockAddress);
+        maxSupply = _maxSupply;
+        baseUri = _baseUri;
+    }
+
+    modifier onlyEOA() {
+        require(msg.sender == tx.origin, "Only EOA");
+        _;
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
+
+        return
+            bytes(baseUri).length != 0
+                ? string(
+                    abi.encodePacked(
+                        baseUri,
+                        Strings.toString(realTokenId[tokenId])
+                    )
+                )
+                : "";
+    }
+
+    function purchaseSub() external payable onlyEOA {
+        require(msg.value >= lock.keyPrice(), "value is underprice");
+        address[] memory recipient = new address[](1);
+        address[] memory referrer = new address[](1);
+        address[] memory keyManager = new address[](1);
+        bytes[] memory data = new bytes[](1);
+        uint256[] memory val = new uint256[](1);
+        recipient[0] = msg.sender;
+        referrer[0] = address(0);
+        keyManager[0] = address(0);
+        data[0] = "";
+        val[0] = msg.value;
+        emit CALLDATA(val, recipient, referrer, keyManager, data);
+        try
+            lock.purchase{value: msg.value}(
+                val,
+                recipient,
+                referrer,
+                keyManager,
+                data
+            )
+        {} catch Error(string memory _err) {
+            emit ERRINTERACTION(_err);
+            revert();
+        }
+        require(totalSupply() + 1 <= maxSupply, "Max Supply reached");
+        _safeMint(msg.sender, 1);
+        realTokenId[totalSupply()] = rand();
+    }
+
+    function numberminted(address owner) public view returns (uint256) {
+        return _numberMinted(owner);
+    }
+
+    function _startTokenId() internal pure override returns (uint256) {
+        return 1;
+    }
+
+    function rand() public view returns (uint256) {
+        return
+            (uint256(
+                keccak256(
+                    abi.encodePacked(block.timestamp, msg.sender, randNonce)
+                )
+            ) % maxSupply) + 1;
+    }
+}
+
+//-------------
+
 contract PGCore is Ownable {
+    event ERRWITHDRAW(string _err);
+
     uint256 private DIVIDER = 1000000;
     uint256 private BASIS_POINT = 9000;
     uint256 public IDOL_COUNT = 0;
@@ -42,6 +175,7 @@ contract PGCore is Ownable {
     struct IdolProfile {
         address lockAddress;
         address idolAddress;
+        address nftKeyAddress;
         uint256 createdAt;
         string lockName;
     }
@@ -62,7 +196,10 @@ contract PGCore is Ownable {
         uint256 _expirationDuration,
         uint256 _keyPrice,
         uint256 _maxNumberOfKeys,
-        string calldata _lockName
+        uint256 _maxSupply,
+        string calldata _lockName,
+        string calldata _keyImage,
+        string calldata _baseUri
     ) external returns (address lock) {
         require(_expirationDuration > 0, "invalid duration");
         require(_keyPrice > 0, "invalid price");
@@ -77,9 +214,16 @@ contract PGCore is Ownable {
             _lockName,
             ""
         );
+        //---
+        PublicLock(createdLock).addLockManager(msg.sender);
+        //---
+        PublicLock(createdLock).setLockMetadata(_lockName, "KEY", _keyImage);
         IDOL_COUNT++;
         IdolProfile storage Idols = idolData[IDOL_COUNT];
         Idols.lockAddress = createdLock;
+        Idols.nftKeyAddress = address(
+            new PGSubs(createdLock, _maxSupply, _baseUri)
+        );
         Idols.idolAddress = msg.sender;
         Idols.createdAt = block.timestamp;
         Idols.lockName = _lockName;
@@ -87,8 +231,18 @@ contract PGCore is Ownable {
         return createdLock;
     }
 
+    function createNewSubscription(uint256 _maxSupply, string calldata _baseUri)
+        external
+    {
+        uint256 index = idolIndex[msg.sender];
+        IdolProfile storage Idols = idolData[index];
+        Idols.nftKeyAddress = address(
+            new PGSubs(Idols.lockAddress, _maxSupply, _baseUri)
+        );
+    }
+
     /**
-     * @dev Called by idol to withdraw sales
+     * @dev Called by subscription owner to withdraw sales
      */
     function withdrawSales() external onlyEOA {
         uint256 index = idolIndex[msg.sender];
@@ -97,13 +251,16 @@ contract PGCore is Ownable {
         PublicLock publock = PublicLock(Idols.lockAddress);
         uint256 lockBalance = address(Idols.lockAddress).balance;
         require(lockBalance > 0, "low balance");
-        require(
-            publock.withdraw(address(0), payable(address(this)), 0) == true,
-            "tx failed"
-        );
-        require(address(this).balance > 0, "no balance");
+
+        try
+            publock.withdraw(address(0), payable(address(this)), 0)
+        {} catch Error(string memory _err) {
+            emit ERRWITHDRAW(_err);
+            revert();
+        }
 
         Address.sendValue(payable(msg.sender), splitPercentage(lockBalance));
+        // payable(msg.sender).transfer(address(this).balance);
     }
 
     /**
@@ -145,14 +302,30 @@ contract PGCore is Ownable {
 
     /**
      * @dev Called to get single all available idol data
+     * @param start specifies start index of loop
+     * @param end specifies end index of loop
      */
-    function getAllIdolData() public view returns (IdolProfile[] memory) {
-        IdolProfile[] memory id = new IdolProfile[](IDOL_COUNT);
-        for (uint256 i = 1; i <= IDOL_COUNT; i++) {
+    function getAllIdolData(uint256 start, uint256 end)
+        public
+        view
+        returns (IdolProfile[] memory)
+    {
+        IdolProfile[] memory id = new IdolProfile[](start + end);
+        for (uint256 i = start; i <= end; i++) {
             IdolProfile storage member = idolData[i];
             id[i] = member;
         }
         return id;
+    }
+
+    /**
+     * @dev Called to get users eligibility for subscription
+     * @param idolAddress specifies subscription owner address
+     */
+    function tokenGate(address idolAddress) public view returns (uint256) {
+        uint256 index = idolIndex[idolAddress];
+        IdolProfile storage Idols = idolData[index];
+        return PublicLock(Idols.lockAddress).balanceOf(msg.sender);
     }
 
     receive() external payable {}

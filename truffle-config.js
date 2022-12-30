@@ -1,10 +1,11 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+require("dotenv").config();
 const privateKey = process.env.PRIVATE_KEY;
 const fs = require("fs");
+
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 // const PrivateKeyProvider = require("truffle-privatekey-provider");
 
-require("dotenv").config();
 
 module.exports = {
   plugins: ["truffle-plugin-verify"],
@@ -12,7 +13,9 @@ module.exports = {
     bscscan: process.env.BSC_API_KEY,
     etherscan: process.env.ETHERSCAN_API_KEY,
     arbiscan: process.env.ETHERSCAN_API_KEY,
-    goerli_etherscan: process.env.ETHERSCAN_API_KEY
+    goerli_etherscan: process.env.ETHERSCAN_API_KEY,
+    polygonscan: process.env.POLYGON_API_KEY,
+    testnet_polygonscan: process.env.POLYGON_API_KEY
   },
   networks: {
     development: {
@@ -23,7 +26,6 @@ module.exports = {
       websockets: true,
     },
     bsc_testnet: {
-      //  provider: () => new PrivateKeyProvider(privateKey, "https://speedy-nodes-nyc.moralis.io/0212872149a06ee76bd7aa5a/bsc/testnet"),
       provider: () =>
         new HDWalletProvider(
           privateKey,
@@ -57,10 +59,31 @@ module.exports = {
           privateKey,
           "https://rpc.ankr.com/eth_goerli"
         ),
-      // provider: () => new HDWalletProvider(privateKey, "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"),
       network_id: 5,
       // network_id: 3,
       confirmations: 2,
+      timeoutBlocks: 300,
+      skipDryRun: true,
+    },
+    mumbai: {
+      provider: () =>
+        new HDWalletProvider(
+          privateKey,
+          "https://rpc.ankr.com/polygon_mumbai"
+        ),
+      network_id: 80001,
+      confirmations: 2,
+      timeoutBlocks: 300,
+      skipDryRun: true,
+    },
+    polygon: {
+      provider: () =>
+        new HDWalletProvider(
+          privateKey,
+          "https://polygon-rpc.com/"
+        ),
+      network_id: 137,
+      confirmations: 4,
       timeoutBlocks: 300,
       skipDryRun: true,
     },

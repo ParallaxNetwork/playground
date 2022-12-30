@@ -67,7 +67,10 @@ const NavBar = () => {
     });
     const signature = await signMessageAsync({
       message: message.prepareMessage(),
-    }).catch((e) => console.log(e));
+    }).catch(async (e) => {
+      console.log(e);
+      return await disconnect();
+    });
 
     let data = JSON.stringify({
       message: message.toMessage(),

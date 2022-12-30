@@ -18,43 +18,27 @@ interface IPublicLock {
     function ownerOf(uint256 tokenId) external view returns (address _owner);
 
     function keyPrice() external view returns (uint256);
-
-    function withdraw(
-        address _tokenAddress,
-        address payable _recipient,
-        uint256 _amount
-    ) external;
-
-    function updateLockConfig(
-        uint256 _newExpirationDuration,
-        uint256 _maxNumberOfKeys,
-        uint256 _maxKeysPerAcccount
-    ) external;
 }
 
 contract PGSubs is ERC721A {
     uint256 public maxSupply = 3456;
-    mapping(uint256 => bool) private tokenIdState;
+    uint256 randNonce = 938472992419148174;
+
     string private baseUri =
         "ipfs://QmQUnp86owydqdrW6sHtwGb26Uj161t2jJQ7B6DtfUy2ZE/";
-    string private baseExtension = ".json";
+
     IPublicLock public lock;
 
+    mapping(uint256 => uint256) private realTokenId;
+
     constructor(
-        IPublicLock _lockAddress,
+        address _lockAddress,
         uint256 _maxSupply,
-        string memory _baseUri,
-        uint256 _newExpirationDuration,
-        uint256 _maxKeysPerAcccount
+        string memory _baseUri
     ) ERC721A("Playground Subscription", "PGS") {
-        lock = _lockAddress;
+        lock = IPublicLock(_lockAddress);
         maxSupply = _maxSupply;
         baseUri = _baseUri;
-        lock.updateLockConfig(
-            _newExpirationDuration,
-            _maxSupply,
-            _maxKeysPerAcccount
-        );
     }
 
     modifier onlyEOA() {
@@ -76,22 +60,24 @@ contract PGSubs is ERC721A {
                 ? string(
                     abi.encodePacked(
                         baseUri,
-                        Strings.toString(tokenId),
-                        baseExtension
+                        Strings.toString(realTokenId[tokenId])
                     )
                 )
                 : "";
     }
 
-    function mintSpecial() external onlyEOA {
+    function purchaseSub() external payable onlyEOA {
+        uint256 price = lock.keyPrice();
+        require(msg.value >= price, "value is underprice");
         address[] memory t = new address[](1);
         bytes[] memory k = new bytes[](0);
         uint256[] memory v = new uint256[](1);
         t[0] = msg.sender;
-        v[0] = lock.keyPrice();
+        v[0] = price;
         lock.purchase(v, t, t, t, k);
         require(totalSupply() + 1 <= maxSupply, "Max Supply reached");
         _safeMint(msg.sender, 1);
+        realTokenId[totalSupply()] = rand();
     }
 
     function numberminted(address owner) public view returns (uint256) {
@@ -100,5 +86,14 @@ contract PGSubs is ERC721A {
 
     function _startTokenId() internal pure override returns (uint256) {
         return 1;
+    }
+
+    function rand() public view returns (uint256) {
+        return
+            (uint256(
+                keccak256(
+                    abi.encodePacked(block.timestamp, msg.sender, randNonce)
+                )
+            ) % maxSupply) + 1;
     }
 }
