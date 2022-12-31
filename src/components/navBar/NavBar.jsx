@@ -89,7 +89,9 @@ const NavBar = () => {
 
     axios(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        var resData = KSON.stringify(response.data);
+        localStorage.setItem("accessToken", resData.accessToken);
+        console.log(resData.accessToken);
       })
       .catch((error) => {
         console.log(error);

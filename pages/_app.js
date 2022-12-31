@@ -9,6 +9,7 @@ const NavBar = dynamic(() => import('../src/components/navBar/NavBar'), {
   ssr: true
 })
 import '../styles/globals.css'
+import { Toaster } from "react-hot-toast";
 function MyApp({ Component, pageProps }) {
   const { chains, provider, webSocketProvider } = configureChains(
     [polygon, polygonMumbai],
@@ -33,6 +34,11 @@ function MyApp({ Component, pageProps }) {
   })
 
   return <WagmiConfig client={wagmiClient}>
+    <Toaster 
+    gutter={15}
+    toastOptions={{
+      duration: 3500,
+    }} />
     <NavBar />
     <Component
       {...pageProps} />

@@ -8,7 +8,7 @@ const VideoStream = dynamic(
     ssr: false,
   }
 );
-import NoItems from "./NoItems";
+import NoItems from "../../components/elements/NoItems";
 import ChatBox from "../../components/chat/ChatBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { useEffect, useState } from "react";

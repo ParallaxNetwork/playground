@@ -9,7 +9,7 @@ interface PublicLock {
         address _tokenAddress,
         address payable _recipient,
         uint256 _amount
-    ) external returns (bool);
+    ) external;
 
     function updateLockConfig(
         uint256 _newExpirationDuration,
@@ -70,7 +70,7 @@ contract PGSubs is ERC721A {
     uint256 randNonce = 938472992419148174;
     string private baseUri =
         "ipfs://QmQUnp86owydqdrW6sHtwGb26Uj161t2jJQ7B6DtfUy2ZE/";
-
+    uint256 public numberOfImages = 0;
     PublicLock public lock;
 
     mapping(uint256 => uint256) private realTokenId;
@@ -78,11 +78,13 @@ contract PGSubs is ERC721A {
     constructor(
         address _lockAddress,
         uint256 _maxSupply,
-        string memory _baseUri
+        string memory _baseUri,
+        uint256 _numberOfImages
     ) ERC721A("Playground Subscription", "PGS") {
         lock = PublicLock(_lockAddress);
         maxSupply = _maxSupply;
         baseUri = _baseUri;
+        numberOfImages = _numberOfImages;
     }
 
     modifier onlyEOA() {
@@ -154,14 +156,16 @@ contract PGSubs is ERC721A {
                 keccak256(
                     abi.encodePacked(block.timestamp, msg.sender, randNonce)
                 )
-            ) % maxSupply) + 1;
+            ) % numberOfImages) + 1;
     }
 }
 
 //-------------
 
 contract PGCore is Ownable {
-    event ERRWITHDRAW(string _err);
+    event ErrorWithdraw(string _err);
+    event InitWithdraw(address idol, uint256 amount);
+    event IdolWithdraw(address idol, uint256 amount);
 
     uint256 private DIVIDER = 1000000;
     uint256 private BASIS_POINT = 9000;
@@ -177,6 +181,7 @@ contract PGCore is Ownable {
         address idolAddress;
         address nftKeyAddress;
         uint256 createdAt;
+        uint256 balance;
         string lockName;
     }
 
@@ -196,7 +201,7 @@ contract PGCore is Ownable {
         uint256 _expirationDuration,
         uint256 _keyPrice,
         uint256 _maxNumberOfKeys,
-        uint256 _maxSupply,
+        uint256 _numberOfImages,
         string calldata _lockName,
         string calldata _keyImage,
         string calldata _baseUri
@@ -222,7 +227,7 @@ contract PGCore is Ownable {
         IdolProfile storage Idols = idolData[IDOL_COUNT];
         Idols.lockAddress = createdLock;
         Idols.nftKeyAddress = address(
-            new PGSubs(createdLock, _maxSupply, _baseUri)
+            new PGSubs(createdLock, _maxNumberOfKeys, _baseUri, _numberOfImages)
         );
         Idols.idolAddress = msg.sender;
         Idols.createdAt = block.timestamp;
@@ -231,20 +236,27 @@ contract PGCore is Ownable {
         return createdLock;
     }
 
-    function createNewSubscription(uint256 _maxSupply, string calldata _baseUri)
-        external
-    {
+    function createNewSubscription(
+        uint256 _keyNumbers,
+        uint256 _numberOfImages,
+        string calldata _baseUri
+    ) external {
         uint256 index = idolIndex[msg.sender];
         IdolProfile storage Idols = idolData[index];
         Idols.nftKeyAddress = address(
-            new PGSubs(Idols.lockAddress, _maxSupply, _baseUri)
+            new PGSubs(
+                Idols.lockAddress,
+                _keyNumbers,
+                _baseUri,
+                _numberOfImages
+            )
         );
     }
 
     /**
-     * @dev Called by subscription owner to withdraw sales
+     * @dev Called by subscription owner to init withdraw sales
      */
-    function withdrawSales() external onlyEOA {
+    function initWithdraw() external onlyEOA {
         uint256 index = idolIndex[msg.sender];
         IdolProfile storage Idols = idolData[index];
         require(Idols.idolAddress == msg.sender, "not owner");
@@ -255,12 +267,24 @@ contract PGCore is Ownable {
         try
             publock.withdraw(address(0), payable(address(this)), 0)
         {} catch Error(string memory _err) {
-            emit ERRWITHDRAW(_err);
+            emit ErrorWithdraw(_err);
             revert();
         }
-
-        Address.sendValue(payable(msg.sender), splitPercentage(lockBalance));
+        emit InitWithdraw(msg.sender, lockBalance);
+        Idols.balance = lockBalance;
         // payable(msg.sender).transfer(address(this).balance);
+    }
+
+    /**
+     * @dev Called by owner to withdraw sales
+     */
+    function withdrawSales() external onlyEOA {
+        uint256 index = idolIndex[msg.sender];
+        IdolProfile storage Idols = idolData[index];
+        require(Idols.idolAddress == msg.sender, "not owner");
+        require(Idols.balance > 0, "nothing to withdraw");
+        Address.sendValue(payable(msg.sender), splitPercentage(Idols.balance));
+        emit IdolWithdraw(msg.sender, Idols.balance);
     }
 
     /**
