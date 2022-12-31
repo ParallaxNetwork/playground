@@ -11,10 +11,17 @@
 const CollectionImage = ({ src, className }) => {
   return (
     <div className={`relative ring-2 ring-black ${className}`}>
-      <img alt="collectionimage" className="w-full h-full" src={src}/>
+      <img
+        alt="collectionimage"
+        className="w-full h-full"
+        src={src}
+        onError={({ currentTarget }) => {
+          currentTarget.onerror = null;
+          currentTarget.src = "/assets/picture/placeholder.png";
+        }}
+      />
     </div>
   );
 };
-
 
 export default CollectionImage;

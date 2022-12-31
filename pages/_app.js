@@ -10,38 +10,50 @@ const NavBar = dynamic(() => import('../src/components/navBar/NavBar'), {
 })
 import '../styles/globals.css'
 import { Toaster } from "react-hot-toast";
+import { Orbis } from '@orbisclub/orbis-sdk'
+import { OrbisProvider } from '../src/context/OrbisContext'
+
+const orbisOptions = {
+  PINATA_API_KEY: process.env.PINATA_API_KEY,
+  PINATA_SECRET_API_KEY: process.env.PINATA_SECRET_API_KEY
+}
+const orbis = new Orbis(orbisOptions)
+const { chains, provider, webSocketProvider } = configureChains(
+  [polygon, polygonMumbai],
+  [
+    infuraProvider({ apiKey: process.env.INFURA_API_KEY }),
+    publicProvider()
+  ]
+)
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        qrcode: true,
+      }
+    })
+  ],
+  provider,
+  webSocketProvider
+})
+
 function MyApp({ Component, pageProps }) {
-  const { chains, provider, webSocketProvider } = configureChains(
-    [polygon, polygonMumbai],
-    [
-      infuraProvider({ apiKey: '7950ebd555374a918221ed0a1fdf0376' }),
-      publicProvider()
-    ]
-  )
-  const wagmiClient = createClient({
-    autoConnect: true,
-    connectors: [
-      new MetaMaskConnector({ chains }),
-      new WalletConnectConnector({
-        chains,
-        options: {
-          qrcode: true,
-        }
-      })
-    ],
-    provider,
-    webSocketProvider
-  })
 
   return <WagmiConfig client={wagmiClient}>
-    <Toaster 
-    gutter={15}
-    toastOptions={{
-      duration: 3500,
-    }} />
-    <NavBar />
-    <Component
-      {...pageProps} />
+    <OrbisProvider orbis={orbis}>
+      <Toaster
+        gutter={15}
+        toastOptions={{
+          duration: 3500,
+        }} />
+      <NavBar />
+
+      <Component
+        {...pageProps} />
+    </OrbisProvider>
   </WagmiConfig>
 }
 

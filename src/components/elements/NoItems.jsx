@@ -21,6 +21,7 @@ const NoItems = ({
               alt="empty-box"
               src={"/assets/misc/empty-box.svg"}
               fill
+              priority
             ></Image>
           </div>
           <div className="max-w-md">{description}</div>

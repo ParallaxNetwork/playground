@@ -1,32 +1,57 @@
+import { Web3Provider } from "@ethersproject/providers";
+import ClickAwayListener from "@mui/base/ClickAwayListener";
+import { Zoom } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import { disconnect } from "@wagmi/core";
+import axios from "axios";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useNetwork, useSignMessage } from "wagmi";
 import { generateNonce, SiweMessage } from "siwe";
+import {
+  useAccount,
+  useConnect,
+  useNetwork,
+  useSignMessage,
+  useSigner,
+} from "wagmi";
+import { shortAddress, didToAddress } from "../../../utilities/addressUtils";
+import { useOrbis } from "../../context/OrbisContext";
 import { LayoutTop } from "../elements/Container";
-import Image from "next/image";
 import SEO from "./SEO";
-import { Zoom } from "@mui/material";
-import ClickAwayListener from "@mui/base/ClickAwayListener";
-import axios from "axios";
-import { shortAddress } from "../../../utilities/addressUtils";
-import CircularProgress from "@mui/material/CircularProgress";
-import { disconnect } from "@wagmi/core";
 const NavBar = () => {
   const router = useRouter();
   const path = router.pathname;
-  const { connect, connectors, isLoading, pendingConnector, isSuccess } =
-    useConnect();
+  const {
+    connect,
+    connectAsync,
+    connectors,
+    isLoading,
+    pendingConnector,
+    isSuccess,
+  } = useConnect();
   const { chain, chains } = useNetwork();
   const [openMiniDialog, setOpenMiniDialog] = useState(false);
   const { address, isConnected } = useAccount();
   const { signMessageAsync, onSuccess } = useSignMessage();
   const [showButton, setShowButton] = useState();
+  const { data: signer } = useSigner();
+  const { connectOrbis, profile, checkOrbisConnection, disconnectOrbis } =
+    useOrbis();
+  // useEffect(() => {
+  //   if (isSuccess && isConnected) {
+  //     handleSign();
+  //   }
+  // }, [isSuccess]);
+
   useEffect(() => {
-    if (isSuccess && isConnected) {
-      handleSign();
+    if (address && !profile) {
+      checkOrbisConnection(signer?.provider?.provider, true);
+    } else if (address?.toLowerCase() !== didToAddress(profile?.did)) {
+      disconnectOrbis();
     }
-  }, [isSuccess]);
+  }, [address, profile]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -54,8 +79,8 @@ const NavBar = () => {
     walletConnect: "/assets/icons/walletConnect.svg",
   };
 
-  const handleSign = async () => {
-    const chainId = chain.id;
+  const handleSign = async (prov) => {
+    const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID);
     const message = new SiweMessage({
       domain: window.location.host,
       address,
@@ -65,6 +90,12 @@ const NavBar = () => {
       chainId,
       nonce: generateNonce(),
     });
+    try {
+      await connectOrbis(prov);
+    } catch (e) {
+      console.log(e);
+      return await disconnect();
+    }
     const signature = await signMessageAsync({
       message: message.prepareMessage(),
     }).catch(async (e) => {
@@ -89,7 +120,7 @@ const NavBar = () => {
 
     axios(config)
       .then((response) => {
-        var resData = KSON.stringify(response.data);
+        var resData = response.data;
         localStorage.setItem("accessToken", resData.accessToken);
         console.log(resData.accessToken);
       })
@@ -164,9 +195,17 @@ const NavBar = () => {
                       <button
                         // disabled={!connector.ready}
                         key={connector.id}
-                        onClick={() => {
+                        onClick={async () => {
                           setOpenMiniDialog(false);
-                          connect({ connector });
+                          const res = await connectAsync({
+                            connector,
+                            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+                          });
+                          if (res) {
+                            handleSign(res.provider);
+                          }
+
+                          //connect({ connector });
                         }}
                         className="flex flex-row p-2 items-center gap-2"
                       >

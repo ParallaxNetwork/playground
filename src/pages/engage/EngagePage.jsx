@@ -1,18 +1,17 @@
-import LayoutContainer from "../../components/elements/Container";
-import ShadowBox from "../../components/elements/ShadowBox";
-import CircleAvatar from "../../components/elements/CircleAvatar";
 import dynamic from "next/dist/shared/lib/dynamic";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import Discussion from "../../components/chat/Discussion";
+import CircleAvatar from "../../components/elements/CircleAvatar";
+import LayoutContainer from "../../components/elements/Container";
+import NoItems from "../../components/elements/NoItems";
+import ShadowBox from "../../components/elements/ShadowBox";
 const VideoStream = dynamic(
   () => import("../../components/videoplayer/VideoStream"),
   {
     ssr: false,
   }
 );
-import NoItems from "../../components/elements/NoItems";
-import ChatBox from "../../components/chat/ChatBox";
-import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 const EngagePage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { address, isConnected } = useAccount();
@@ -113,25 +112,7 @@ const EngagePage = () => {
             </div>
             {/* CHAT */}
             <div className="lg:w-1/4  border-l-0 border-t-2 lg:border-t-0 lg:border-l-2 border-black secondary min-h-[530px] relative">
-              <div className="absolute overflow-auto h-full p-3 pb-[8vh]">
-                <ChatBox />
-              </div>
-              {/* ---- */}
-              {/* REPLY BOX */}
-              <div
-                className="bg-input h-[4.61440
-              rem] bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4 pt-4"
-              >
-                <div className="flex flex-row h-full space-x-3">
-                  <input className="inputBox border-placeholder rounded-md h-full w-full" />
-                  <button className="w-[50px] shadowBoxBtnSmall bg-placeholder rounded-md">
-                    <SvgIconStyle
-                      src={"/assets/icons/send-icon.svg"}
-                      className="w-7 h-7 bg-highlight m-auto"
-                    />
-                  </button>
-                </div>
-              </div>
+              <Discussion orbisContext={'test123'} />
               {/* ---- */}
             </div>
             {/* --- */}

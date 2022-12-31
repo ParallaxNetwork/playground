@@ -183,6 +183,8 @@ contract PGCore is Ownable {
         uint256 createdAt;
         uint256 balance;
         string lockName;
+        string lockImage;
+        string playbackID;
     }
 
     modifier onlyEOA() {
@@ -203,7 +205,7 @@ contract PGCore is Ownable {
         uint256 _maxNumberOfKeys,
         uint256 _numberOfImages,
         string calldata _lockName,
-        string calldata _keyImage,
+        string calldata _lockImage,
         string calldata _baseUri
     ) external returns (address lock) {
         require(_expirationDuration > 0, "invalid duration");
@@ -222,7 +224,7 @@ contract PGCore is Ownable {
         //---
         PublicLock(createdLock).addLockManager(msg.sender);
         //---
-        PublicLock(createdLock).setLockMetadata(_lockName, "KEY", _keyImage);
+        PublicLock(createdLock).setLockMetadata(_lockName, "KEY", _lockImage);
         IDOL_COUNT++;
         IdolProfile storage Idols = idolData[IDOL_COUNT];
         Idols.lockAddress = createdLock;
@@ -231,6 +233,7 @@ contract PGCore is Ownable {
         );
         Idols.idolAddress = msg.sender;
         Idols.createdAt = block.timestamp;
+        Idols.lockImage = _lockImage;
         Idols.lockName = _lockName;
         idolIndex[msg.sender] = IDOL_COUNT;
         return createdLock;
@@ -251,6 +254,13 @@ contract PGCore is Ownable {
                 _numberOfImages
             )
         );
+    }
+
+    function updatePlaybackID(string calldata playbackId) external onlyEOA {
+        uint256 index = idolIndex[msg.sender];
+        IdolProfile storage Idols = idolData[index];
+        require(Idols.idolAddress == msg.sender, "not owner");
+        Idols.playbackID = playbackId;
     }
 
     /**

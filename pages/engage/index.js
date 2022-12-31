@@ -1,26 +1,23 @@
-import EngagePage from "../../src/pages/engage/EngagePage"
 import {
-    LivepeerConfig,
-    ThemeConfig,
-    createReactClient,
-    studioProvider,
+    createReactClient, LivepeerConfig, studioProvider
 } from "@livepeer/react";
+import EngagePage from "../../src/pages/engage/EngagePage";
 
-async function getServerSideProps({ req, params }) {
+export function getServerSideProps({ req, params }) {
     return {
         props: {
             data: {
-                API_KEY: "265866e6-712c-43dd-8366-d2f823fb34c5"
+                API_KEY: process.env.LIVEPEER_API_KEY
             }
         }
     }
 }
 
 
-const EngagePages = ({ props }) => {
+const EngagePages = ({ data }) => {
     const livepeerClient = createReactClient({
         provider: studioProvider({
-            apiKey: props,
+            apiKey: data.API_KEY,
         }),
     });
     return <LivepeerConfig client={livepeerClient}><EngagePage /></LivepeerConfig>

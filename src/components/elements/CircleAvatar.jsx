@@ -1,9 +1,68 @@
+import { useOrbis } from "../../context/OrbisContext";
+import { useState, useEffect } from "react";
+import makeBlockie from "ethereum-blockies-base64";
 const CircleAvatar = ({
   className = "",
-  src = "/assets/picture/sample1.png",
   isLive = false,
   isActive = false,
+  image = null,
+  address = null,
 }) => {
+  const { orbis } = useOrbis();
+  const [src, setSrc] = useState();
+  const getAvatarCache = () => {
+    const avatarCache = localStorage.getItem("avatarCache");
+    if (avatarCache === null) {
+      localStorage.setItem(
+        "avatarCache",
+        JSON.stringify({ info: "mindblowon" })
+      );
+    }
+
+    return JSON.parse(localStorage.getItem("avatarCache"));
+  };
+
+  const getImage = async () => {
+    if (image) {
+      // If image is provided
+      setSrc(image);
+    } else if (!address && !image) {
+      // Revert to default image
+      setSrc(null);
+    } else {
+      // If address is provided
+      const avatarCache = getAvatarCache();
+
+      if (avatarCache[address]) {
+        setSrc(avatarCache[address]);
+      }
+
+      const { data, error } = await orbis.getDids(address);
+
+      if (!error && data.length > 0) {
+        if (data[0].details?.profile?.pfp) {
+          setSrc(data[0].details?.profile?.pfp);
+
+          const tempAvatar = `{"${address}": "${data[0].details?.profile?.pfp}"}`;
+          const avatarData = JSON.parse(tempAvatar);
+          const assigned = Object.assign(avatarCache, avatarData);
+
+          localStorage.setItem("avatarCache", JSON.stringify(assigned));
+        } else {
+          setSrc(makeBlockie(address));
+        }
+      } else {
+        setSrc(makeBlockie(address));
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!src) {
+      getImage();
+    }
+  }, [image, address]);
+
   return (
     <div className={`relative ${isLive && "pb-2"} btn`}>
       <div
@@ -12,7 +71,7 @@ const CircleAvatar = ({
         } ${className}`}
       >
         <img
-          src={src}
+          src={src ?? "/assets/picture/sample1.png"}
           className="w-full h-full object-cover object-center rounded-full"
         />
         {isLive && (

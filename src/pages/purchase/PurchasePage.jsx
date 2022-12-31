@@ -33,6 +33,21 @@ const PurchasePages = () => {
     },
   ];
 
+  const sellItem = [
+    {
+      title: "Bucket Hat",
+      image: "/assets/picture/bucket-hat.jpg",
+      description: "Sinka's preloved bucket hat, i bet you like it",
+      price: "0.01 MATIC",
+    },
+    {
+      title: "BY Cardigan",
+      image: "/assets/picture/cardigan.jpg",
+      description: "Rewind back a few years ago, such a memorable items",
+      price: "0.02 MATIC",
+    },
+  ];
+
   return (
     <>
       <LayoutContainer>
@@ -133,6 +148,38 @@ const PurchasePages = () => {
                   </div>
                 </div>
               </Zoom>
+            </div>
+
+            <div className="mt-10">
+              <div className="border-2 border-black">
+                <div className="grid grid-rows-1 lg:grid-cols-5 p-2 gap-3 m-4">
+                  {sellItem.map((el, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                      >
+                        <CollectionImage
+                          src={el.image}
+                          className="w-full max-w-[413px] aspect-[1/1]"
+                        />
+                        <div className="flex gap-2 mt-3 subtitle items-center">
+                          {el.title}
+                        </div>
+                        <div className="flex flex-wrap f-12-px text-center mt-3">
+                          {el.description}
+                        </div>
+                        <div className="f-12-px bg-placeholder mt-5">
+                          {el.price}
+                        </div>
+                        <button className="btn btn-primary-large mt-2 mb-3">
+                          BUY MERCHANDISE
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </ShadowBox>

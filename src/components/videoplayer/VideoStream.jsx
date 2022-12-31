@@ -42,7 +42,7 @@ const VideoStream = () => {
         )} */}
         <Player
           showTitle={false}
-          playbackId={"5538zgcby74dtpu7"}
+          playbackId={"8d77i7yrboof2fod"}
           autoPlay
           showPipButton
           id="vidPlayer"
