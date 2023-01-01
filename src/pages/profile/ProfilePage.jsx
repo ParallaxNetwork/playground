@@ -94,13 +94,14 @@ const ProfilePage = () => {
   };
 
   const getUserProfile = async () => {
-    const { data: userDids, error: errorDids } = await orbis.getDids(address);
-    if (!errorDids && userDids.length) {
-      const { data: profileData, error: profileError } = await orbis.getProfile(
-        userDids[0].did
-      );
-      console.log(profileData);
-      if (!profileError) setProfileData(profileData.details.profile);
+    if (address) {
+      const { data: userDids, error: errorDids } = await orbis.getDids(address);
+      if (!errorDids && userDids.length) {
+        const { data: profileData, error: profileError } =
+          await orbis.getProfile(userDids[0].did);
+
+        if (!profileError) setProfileData(profileData.details.profile);
+      }
     }
   };
 
@@ -319,6 +320,10 @@ const ProfilePage = () => {
   }, []);
 
   useEffect(() => {
+    getUserProfile();
+  }, [address]);
+
+  useEffect(() => {
     setTimeout(() => {
       if (streamData || status) {
         handleUpdateMetaData();
@@ -494,19 +499,21 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex m-5 flex-row p-2">
                       <CollectionImage
-                        src={`${profileData.pfp}`}
+                        src={`${
+                          profileData?.pfp ?? "/assets/picture/placeholder.png"
+                        }`}
                         className="max-w-[114px] h-[114px] w-full"
                       />
                       <div className="ml-5 lg:mt-[-9px] flex flex-row justify-start w-full  flex-wrap break-all">
                         <div className="max-w-full lg:pr-5">
                           <div className="subtitle">Name</div>
-                          <div>{profileData.name}</div>
+                          <div>{profileData?.name ?? "NOT SET"}</div>
                           <div className="subtitle lg:mt-5">Join Since</div>
                           <div>{"-"}</div>
                         </div>
                         <div className="max-w-full ml-0 lg:mt-0 lg:ml-5">
                           <div className="subtitle">Bio</div>
-                          <div>{profileData.bio}</div>
+                          <div>{profileData?.bio ?? "NOT SET"}</div>
                         </div>
                       </div>
                     </div>
@@ -640,7 +647,7 @@ const ProfilePage = () => {
                 </ShadowBox>
               </>
             )}
-            {isEmpty(keyList) ? (
+            {isEmpty(keyList) || isEmpty(address) ? (
               <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
                 <NoItems
                   isFullPage={isEmpty(address) ? true : false}
