@@ -65,8 +65,8 @@ const EngagePage = () => {
         const idolorbis = await getUserProfile(result[i].idolAddress);
 
         tempData.push({
-          img: idolorbis.profile.pfp,
-          idolDid: idolorbis.did,
+          img: idolorbis.profile.pfp ?? "/assets/picture/placeholder.png",
+          idolDid: idolorbis.did ?? "",
           lockName: result[i].lockName,
           lockAddress: result[i].lockAddress,
           lockImage: result[i].lockImage,
@@ -77,7 +77,7 @@ const EngagePage = () => {
           description: tempMeta.description,
           interest: tempMeta.interest,
           perks: tempMeta.perks,
-          userName: idolorbis.profile.name,
+          userName: idolorbis.profile.name ?? "-",
           isLive: false,
           address: result[i].userAddress,
           groupRoom: [
