@@ -128,7 +128,7 @@ const IndexPage = () => {
                       <div className="flex m-5 flex-col lg:flex-row p-2">
                         <CollectionImage
                           src={el.lockImage}
-                          className="aspect-[1/1] max-w-[340px] w-full"
+                          className="aspect-[1/1] max-w-[310px] w-full"
                         />
                         <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full gap-0 xl:gap-8 flex-wrap">
                           <div className="max-w-full ">
