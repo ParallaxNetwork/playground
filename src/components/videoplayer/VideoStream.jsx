@@ -3,13 +3,14 @@ import SvgIconStyle from "../elements/SvgIconStyle";
 import { Player, useCreateStream } from "@livepeer/react";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import VideoControl from "./VideoControl";
-const VideoStream = () => {
-  const [streamName, setStreamName] = useState("Stream");
-  const {
-    mutate: createStream,
-    data: stream,
-    status,
-  } = useCreateStream(streamName ? { name: streamName } : null);
+import Image from "next/image";
+const VideoStream = ({
+  playbackID,
+  userName,
+  title,
+  idolAddress,
+  isBlocked,
+}) => {
   const isLoading = useMemo(() => status === "loading", [status]);
   const [vidRef, setVidRef] = useState();
 
@@ -40,25 +41,34 @@ const VideoStream = () => {
             muted
           />
         )} */}
-        <Player
-          showTitle={false}
-          playbackId={"8d77i7yrboof2fod"}
-          autoPlay
-          showPipButton
-          id="vidPlayer"
-          mediaElementRef={mediaElementRef}
-          priority
-          controls={{ autohide: 1500, hotkeys: true }}
-        />
+        {isBlocked ? (
+            <img
+              src="/assets/picture/blockbanner.png"
+              className="rounded-lg m-auto w-full"
+              alt="blocked"
+            />
+      
+        ) : (
+          <Player
+            showTitle={false}
+            playbackId={playbackID}
+            autoPlay
+            showPipButton
+            id="vidPlayer"
+            mediaElementRef={mediaElementRef}
+            priority
+            controls={{ autohide: 1500, hotkeys: true }}
+          />
+        )}
 
         <div className="flex flex-row pt-4 items-center flex-wrap pt-3">
-          <CircleAvatar isActive={true} />
+          <CircleAvatar address={idolAddress} isActive={true} />
           <div className="pl-3">
-            <div className="subtitle-secondary">AITAKATA CONCERT</div>
-            <p className="text-black">Yoaenale</p>
+            <div className="subtitle-secondary">{title}</div>
+            <p className="text-black">{userName}</p>
           </div>
 
-          <VideoControl vidRef={vidRef} />
+          <VideoControl disabled={isBlocked} vidRef={vidRef} />
         </div>
       </div>
     </div>

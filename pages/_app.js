@@ -19,7 +19,7 @@ const orbisOptions = {
 }
 const orbis = new Orbis(orbisOptions)
 const { chains, provider, webSocketProvider } = configureChains(
-  [polygon, polygonMumbai],
+  process.env.NODE_ENV == 'production' ? [polygon] : [polygonMumbai],
   [
     infuraProvider({ apiKey: process.env.INFURA_API_KEY }),
     publicProvider()
@@ -47,7 +47,7 @@ function MyApp({ Component, pageProps }) {
       <Toaster
         gutter={15}
         toastOptions={{
-          duration: 3500,
+          duration: 3000,
         }} />
       <NavBar />
 

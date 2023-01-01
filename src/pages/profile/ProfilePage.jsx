@@ -19,6 +19,7 @@ import { Player, useCreateStream } from "@livepeer/react";
 import axios from "axios";
 import { useOrbis } from "../../context/OrbisContext";
 import { Zoom } from "@mui/material";
+import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 const ProfilePage = () => {
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
@@ -28,6 +29,18 @@ const ProfilePage = () => {
   const { chain, chains } = useNetwork();
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   const [idolData, setIdolData] = useState();
+  const [keyList, setKeyList] = useState();
+  const [streamID, setStreamID] = useState();
+  const [playbackID, setPlaybackID] = useState();
+  const [streamKey, setStreamKey] = useState();
+  const [isDoneDeploy, setIsDoneDeploy] = useState(false);
+  const [registerData, setRegisterData] = useState();
+  const [profileData, setProfileData] = useState({
+    pfp: "/assets/picture/placeholder.png",
+    bio: "",
+    join_since: "",
+  });
+
   const [salesAndWithdrawAble, setSalesAndWithdrawAble] = useState({
     wdable: 0.0,
     sales: 0.0,
@@ -49,18 +62,46 @@ const ProfilePage = () => {
     setOpenRegisterDialog(false);
   };
 
-  const handleSaveProfile = () => {
-    // setFormData({
-    //   ...formData,
-    //   pfp: nft.media[0]?.gateway || nft.media[0]?.raw,
-    //   pfpIsNft: {
-    //     chain: 'ethereum',
-    //     contract: nft.contract.address,
-    //     tokenId: nft.tokenId,
-    //     timestamp: Math.floor(Date.now() / 1000).toString()
-    //   }
-    // })
-    //    let res = await orbis.updateProfile(formData)
+  const handleSaveProfile = async (formData) => {
+    handleCloseDialog();
+    ShowToast({
+      message: "Uploading Profile",
+    });
+    const cid = await uploadToIPFS([formData.pfp.target.files[0]]);
+    const fileName = formData.pfp.target.files[0].name;
+    const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+
+    setProfileData({
+      ...formData,
+      pfp: pfp,
+      data: {
+        name: formData.name,
+        bio: formData.bio,
+        join_since: "",
+      },
+    });
+
+    let res = await orbis.updateProfile({
+      ...formData,
+      pfp: pfp,
+      data: {
+        name: formData.name,
+        bio: formData.bio,
+        join_since: "",
+      },
+    });
+    getUserProfile();
+  };
+
+  const getUserProfile = async () => {
+    const { data: userDids, error: errorDids } = await orbis.getDids(address);
+    if (!errorDids && userDids.length) {
+      const { data: profileData, error: profileError } = await orbis.getProfile(
+        userDids[0].did
+      );
+      console.log(profileData);
+      if (!profileError) setProfileData(profileData.details.profile);
+    }
   };
 
   const handleRegisterIdol = async (data) => {
@@ -74,8 +115,10 @@ const ProfilePage = () => {
       nftImageURI,
       collectionImageURI,
       amount,
+      description,
+      interest,
     } = data;
-    console.log(data);
+    setRegisterData(data);
     const contracts = new Contract(
       contractConfig.PGCORE_ADDRESS,
       PGCORE_ABI.abi,
@@ -93,6 +136,7 @@ const ProfilePage = () => {
         collectionImageURI,
         nftImageURI
       );
+
       setIsLoadingSubscription(true);
       ShowToast({
         message: "Working on it~",
@@ -108,10 +152,7 @@ const ProfilePage = () => {
           message: "Subscription Created!",
         });
         await getIdolData();
-
-        setTimeout(async () => {
-          await handleCreateStream();
-        }, 2000);
+        setIsDoneDeploy(true);
       }
     } catch (e) {
       console.log(e);
@@ -124,28 +165,33 @@ const ProfilePage = () => {
   };
 
   const getIdolData = async () => {
-    try {
-      setIsLoadingSubscription(true);
-      const contracts = new Contract(
-        contractConfig.PGCORE_ADDRESS,
-        PGCORE_ABI.abi,
-        signer
-      );
-      const result = await contracts.getSingleIdolData(address);
-      setStreamName(result.lockName);
-      setIsLoadingSubscription(false);
-      if (result.lockAddress == "0x0000000000000000000000000000000000000000") {
-        setIdolData(null);
-      } else {
-        setIdolData(result);
-        getSalesAndWithdrawAble(result);
-      }
+    return new Promise(async (resolve) => {
+      try {
+        setIsLoadingSubscription(true);
+        const contracts = new Contract(
+          contractConfig.PGCORE_ADDRESS,
+          PGCORE_ABI.abi,
+          signer
+        );
+        const result = await contracts.getSingleIdolData(address);
+        setStreamName(result.lockName);
+        setIsLoadingSubscription(false);
+        if (
+          result.lockAddress == "0x0000000000000000000000000000000000000000"
+        ) {
+          setIdolData(null);
+        } else {
+          setIdolData(result);
+          getMetaData(result);
+          getSalesAndWithdrawAble(result);
+        }
 
-      return result;
-    } catch (e) {
-      console.log(e);
-      setIsLoadingSubscription(false);
-    }
+        return resolve(result);
+      } catch (e) {
+        console.log(e);
+        setIsLoadingSubscription(false);
+      }
+    });
   };
 
   const handleCreateStream = async () => {
@@ -155,6 +201,46 @@ const ProfilePage = () => {
       });
       createStream?.();
       resolve();
+    });
+  };
+
+  const getMetaData = (result) => {
+    let data = {};
+    let config = {
+      method: "GET",
+      url: `https://locksmith.unlock-protocol.com/v2/api/metadata/${chain.id}/locks/${result.lockAddress}`,
+
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      data: data,
+    };
+
+    axios(config).then(async (response) => {
+      fetchStreamDetails(response.data.stream_id);
+    });
+  };
+
+  const fetchStreamDetails = async (id) => {
+    var data = {
+      streamId: id,
+    };
+    let config = {
+      method: "POST",
+      url: `/api/getstreamkey`,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      data: JSON.stringify(data),
+    };
+
+    axios(config).then(async (response) => {
+      setStreamKey(response.data.streamKey);
+      setStreamID(response.data.id);
+      setPlaybackID(response.data.playbackId);
     });
   };
 
@@ -170,13 +256,25 @@ const ProfilePage = () => {
       metadata: {
         stream_playbackId: streamData.playbackId,
         stream_name: streamData.name,
+        stream_id: streamData.id,
         stream_url: streamData.playbackUrl,
         lockAddress: idolData.lockAddress,
-        userAddress: idolData.idolAddress,
+        idolAddress: idolData.idolAddress,
+        description: registerData.description,
+        price: ethers.utils.parseUnits(registerData.price, "ether"),
+        collectionImageURI: registerData.collectionImageURI,
+        nftImageURI: registerData.nftImageURI,
+        interest: registerData.interest,
+        duration: registerData.duration,
+        perks: [
+          `Group Chat ${registerData.duration / 86400} days`,
+          "Private Chat",
+          "Exlusive Live Video Access",
+        ],
       },
     });
     let config = {
-      method: "post",
+      method: "put",
       //  url: `https://locksmith.unlock-protocol.com/v2/api/metadata/${chain.id}/users`,
       url: `https://locksmith.unlock-protocol.com/v2/api/metadata/${chain.id}/locks/${idolData.lockAddress}`,
 
@@ -192,30 +290,10 @@ const ProfilePage = () => {
       .then(async (response) => {
         var resData = response.data;
         console.log(resData);
-        const contracts = new Contract(
-          contractConfig.PGCORE_ADDRESS,
-          PGCORE_ABI.abi,
-          signer
-        );
-        let transactionResponse;
-        try {
-          handleCloseRegisterDialog();
-          transactionResponse = await contracts.updatePlaybackID(
-            streamData.playbackId
-          );
-          setIsLoadingSubscription(true);
-          ShowToast({
-            message: "Updating Stream Channel",
-          });
-          const receipt = await transactionResponse.wait();
-          if (receipt.status == 1) {
-            ShowToast({
-              msg: "Stream Channel Created",
-            });
-          }
-        } catch (e) {
-          console.log(e);
-        }
+        ShowToast({
+          message: "Stream Channel Created",
+        });
+        getIdolData();
       })
       .catch((error) => {
         console.log(error);
@@ -234,15 +312,25 @@ const ProfilePage = () => {
 
   useEffect(() => {
     setTimeout(() => {
+      getAllKey();
       setInitEverything(true);
+      getUserProfile();
     }, 1);
   }, []);
 
   useEffect(() => {
     setTimeout(() => {
-      handleUpdateMetaData();
-    }, 2000);
-  }, [streamData]);
+      if (streamData || status) {
+        handleUpdateMetaData();
+      }
+    }, 1000);
+  }, [streamData, status]);
+
+  useEffect(() => {
+    if (isDoneDeploy) {
+      handleCreateStream();
+    }
+  }, [isDoneDeploy]);
 
   const handleInitWithdraw = async () => {
     const contracts = new Contract(
@@ -272,7 +360,7 @@ const ProfilePage = () => {
       console.log(e);
       ShowToast({
         message: "Something went wrong :(",
-        state : 'error'
+        state: "error",
       });
       getSalesAndWithdrawAble(idolData);
     }
@@ -285,7 +373,6 @@ const ProfilePage = () => {
 
     const wdable = ethers.utils.formatEther(data.balance);
 
-    console.log(wdable, sales);
     setSalesAndWithdrawAble({
       wdable: wdable,
       sales: sales,
@@ -324,20 +411,58 @@ const ProfilePage = () => {
     }
   };
 
-  const nftCollection = [
-    // {
-    //   title: "Sinka's NFT",
-    //   image: "/assets/picture/sample1.png",
-    //   description: "asdasdasdasdasdasdasdsad",
-    //   expired: "5 January 2024",
-    // },
-  ];
+  const getAllKey = () => {
+    if (!address) {
+      return;
+    }
+    let data = JSON.stringify({
+      query:
+        "query AllKeys($first: Int = 1, $skip: Int, $where: Key_filter, $orderBy: Key_orderBy, $orderDirection: OrderDirection) {\n  keys(\n    first: $first\n    skip: $skip\n    where: $where\n    orderBy: $orderBy\n    orderDirection: $orderDirection\n  ) {\n    id\n    lock {\n      id\n      address\n      name\n      expirationDuration\n      tokenAddress\n      price\n      lockManagers\n      version\n      createdAtBlock\n      totalKeys\n    }\n    tokenId\n    owner\n    manager\n    expiration\n    tokenURI\n    createdAtBlock\n    cancelled\n  }\n}",
+      variables: {
+        first: 1000,
+        where: {
+          owner: address,
+        },
+        orderBy: "expiration",
+        orderDirection: "desc",
+      },
+      operationName: "AllKeys",
+    });
+    let config = {
+      method: "post",
+      url:
+        process.env.NODE_ENV == "production"
+          ? process.env.NEXT_PUBLIC_SUBGRAPH_MAINNET
+          : process.env.NEXT_PUBLIC_SUBGRAPH_TESTNET,
+
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then(async (response) => {
+        console.log(response.data.data.keys);
+        setKeyList(response.data.data.keys);
+      })
+      .catch((e) => {});
+  };
+
+  const handleRenewKey = (keyID) => {
+    const contracts = new Contract(
+      contractConfig.PGCORE_ADDRESS,
+      PGCORE_ABI.abi,
+      signer
+    );
+  };
 
   return (
     <Zoom in={true}>
       <div>
         {initEverything ? (
-          <LayoutContainer>
+          <LayoutContainer className={"pb-10"}>
             {isEmpty(address) ? (
               ""
             ) : (
@@ -369,19 +494,19 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex m-5 flex-row p-2">
                       <CollectionImage
-                        src={"/assets/picture/sample1.png"}
+                        src={`${profileData.pfp}`}
                         className="max-w-[114px] h-[114px] w-full"
                       />
                       <div className="ml-5 lg:mt-[-9px] flex flex-row justify-start w-full  flex-wrap break-all">
                         <div className="max-w-full lg:pr-5">
                           <div className="subtitle">Name</div>
-                          <div>{"SINKA"}</div>
+                          <div>{profileData.name}</div>
                           <div className="subtitle lg:mt-5">Join Since</div>
                           <div>{"-"}</div>
                         </div>
                         <div className="max-w-full ml-0 lg:mt-0 lg:ml-5">
                           <div className="subtitle">Bio</div>
-                          <div>{"JKT 48 Gen 8"}</div>
+                          <div>{profileData.bio}</div>
                         </div>
                       </div>
                     </div>
@@ -401,7 +526,7 @@ const ProfilePage = () => {
                   /> */}
 
                       {idolData ? (
-                        <div className="flex flex-col items-start gap-4 w-full">
+                        <div className="flex flex-col items-start gap-5 w-full">
                           <div className="flex flex-col break-all gap-5">
                             <div>
                               <div className="subtitle">{`Subscription & Stream Name`}</div>
@@ -416,7 +541,42 @@ const ProfilePage = () => {
                               <div>{idolData.nftKeyAddress}</div>
                             </div>
                           </div>
-                          <div className="flex-col items-start justify-start space-y-4 w-full">
+                          <div className="flex flex-col shadowBox p-3 gap-3">
+                            <div>
+                              <div className="subtitle">{`Stream ID`}</div>
+                              <div>
+                                {streamID ?? (
+                                  <CircularProgress
+                                    color="inherit"
+                                    className="!w-4 !h-4"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Playback ID`}</div>
+                              <div>
+                                {playbackID ?? (
+                                  <CircularProgress
+                                    color="inherit"
+                                    className="!w-4 !h-4"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Stream Key`}</div>
+                              <div>
+                                {streamKey ?? (
+                                  <CircularProgress
+                                    color="inherit"
+                                    className="!w-4 !h-4"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-col items-start justify-start space-y-4 w-full shadowBox p-3">
                             <div>
                               <div className="subtitle">{`Sales`}</div>
                               <div
@@ -480,7 +640,7 @@ const ProfilePage = () => {
                 </ShadowBox>
               </>
             )}
-            {isEmpty(nftCollection) ? (
+            {isEmpty(keyList) ? (
               <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
                 <NoItems
                   isFullPage={isEmpty(address) ? true : false}
@@ -495,17 +655,17 @@ const ProfilePage = () => {
             ) : (
               <ShadowBox className={"shadowBox mt-5"}>
                 <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[300px]">
-                  My Collection (5)
+                  My Subscription
                 </div>
                 <div className="grid grid-rows-1 lg:grid-cols-5 p-2 gap-3 m-4">
-                  {nftCollection.map((el, index) => {
+                  {keyList.map((el, index) => {
                     return (
                       <div
                         key={index}
                         className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
                       >
                         <CollectionImage
-                          src={"/assets/picture/sample1.png"}
+                          src={el.tokenURI.slice(0, el.tokenURI.length - 1)}
                           className="w-full max-w-[413px] aspect-[1/1]"
                         />
                         <div className="flex gap-2 mt-3 subtitle items-center">
@@ -513,17 +673,22 @@ const ProfilePage = () => {
                             src={"/assets/icons/verified-icon.svg"}
                             className="w-[18px] h-[18px] bg-red shrink mr-2"
                           />
-                          {el.title.toUpperCase()}
+                          {el.lock.name}
                         </div>
                         <div className="flex flex-wrap f-12-px text-center mt-3">
-                          Sinka Juliaah is a member of the Indonesian idol group
-                          JKT48.
+                          Playground Subscription
                         </div>
                         <div className="f-12-px bg-placeholder mt-5">
-                          {el.expired}
+                          {`Expired at ${new Date(
+                            el.expiration * 1000
+                          ).getDate()} ${new Date(
+                            el.expiration * 1000
+                          ).toLocaleString("default", {
+                            month: "short",
+                          })} ${new Date(el.expiration * 1000).getFullYear()}`}
                         </div>
                         <button className="btn btn-primary-large mt-2 mb-3">
-                          RENEW NFT
+                          RENEW SUBS
                         </button>
                       </div>
                     );

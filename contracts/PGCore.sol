@@ -3,6 +3,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../contracts_lib/ERC721A.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 interface PublicLock {
     function withdraw(
@@ -52,9 +54,6 @@ interface Unlock {
 }
 
 //SUB
-import "../contracts_lib/ERC721A.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-pragma solidity ^0.8.17;
 
 contract PGSubs is ERC721A {
     event ERRINTERACTION(string msg);
@@ -185,6 +184,9 @@ contract PGCore is Ownable {
         string lockName;
         string lockImage;
         string playbackID;
+        string streamID;
+        string description;
+        string[] interest;
     }
 
     modifier onlyEOA() {
@@ -225,6 +227,11 @@ contract PGCore is Ownable {
         PublicLock(createdLock).addLockManager(msg.sender);
         //---
         PublicLock(createdLock).setLockMetadata(_lockName, "KEY", _lockImage);
+        PublicLock(createdLock).updateLockConfig(
+            _expirationDuration,
+            _maxNumberOfKeys,
+            99999999
+        );
         IDOL_COUNT++;
         IdolProfile storage Idols = idolData[IDOL_COUNT];
         Idols.lockAddress = createdLock;
@@ -256,11 +263,19 @@ contract PGCore is Ownable {
         );
     }
 
-    function updatePlaybackID(string calldata playbackId) external onlyEOA {
+    function updatePlaybackID(
+        string calldata _playbackId,
+        string calldata _streamID,
+        string calldata _description,
+        string[] memory _interest
+    ) external onlyEOA {
         uint256 index = idolIndex[msg.sender];
         IdolProfile storage Idols = idolData[index];
         require(Idols.idolAddress == msg.sender, "not owner");
-        Idols.playbackID = playbackId;
+        Idols.playbackID = _playbackId;
+        Idols.streamID = _streamID;
+        Idols.description = _description;
+        Idols.interest = _interest;
     }
 
     /**
@@ -282,7 +297,6 @@ contract PGCore is Ownable {
         }
         emit InitWithdraw(msg.sender, lockBalance);
         Idols.balance = lockBalance;
-        // payable(msg.sender).transfer(address(this).balance);
     }
 
     /**

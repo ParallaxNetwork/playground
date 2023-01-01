@@ -73,7 +73,8 @@ module.exports = {
         ),
       network_id: 80001,
       confirmations: 2,
-      timeoutBlocks: 300,
+      timeoutBlocks: 3000,
+      networkCheckTimeout: 20000,
       skipDryRun: true,
     },
     polygon: {

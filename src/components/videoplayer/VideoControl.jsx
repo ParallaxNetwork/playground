@@ -1,10 +1,11 @@
 import SvgIconStyle from "../elements/SvgIconStyle";
 import { useState } from "react";
-const VideoControl = ({ vidRef }) => {
+const VideoControl = ({ vidRef, disabled }) => {
   const [isPaused, setIsPaused] = useState(false);
   return (
     <div className="space-x-6 flex flex-row justify-center w-full pt-5 lg:pt-0">
       <button
+        disabled={disabled}
         onClick={() => {
           if (vidRef.muted) {
             vidRef.volume = 1;
@@ -21,6 +22,7 @@ const VideoControl = ({ vidRef }) => {
         />
       </button>
       <button
+        disabled={disabled}
         onClick={() => {
           if (isPaused) {
             vidRef.play();
@@ -38,6 +40,7 @@ const VideoControl = ({ vidRef }) => {
         />
       </button>
       <button
+        disabled={disabled}
         onClick={() => {
           vidRef.requestFullscreen();
         }}

@@ -8,6 +8,7 @@ const CircleAvatar = ({
   image = null,
   address = null,
 }) => {
+ 
   const { orbis } = useOrbis();
   const [src, setSrc] = useState();
   const getAvatarCache = () => {

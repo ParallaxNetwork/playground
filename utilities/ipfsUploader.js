@@ -2,7 +2,7 @@ import { NFTStorage, File, Blob } from 'nft.storage'
 
 export const minterKey = {
     NFT_STORAGE_MINTER_KEY:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDJENzg0YzMyNDQ1NTc5MDVlNDJCYTk0MTZjYTNlZTAwQTU3NDU0NjYiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MDUwMTEwMTY3OSwibmFtZSI6Im1iby1kZXYifQ.irEG8EkZBBXPUOCwOQGchoYIQEMgXEkTOXBAZsT6N5Q',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGU5NDk1MDlmNDk0OEI0ODQ5ZTMwRjAyY0E0ODFjNTBhN2ZjYjAxMkEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MjUwNjc0NTM5NCwibmFtZSI6IlBMQVlHUk9VTkQifQ.CRtoWhpiDxSY20R-ff4ahSFtGld-5lcMpdvrPg0vntc',
 }
 export const uploadToIPFS = async (data) => {
     const client = new NFTStorage({ token: minterKey.NFT_STORAGE_MINTER_KEY })

@@ -113,16 +113,16 @@ const OrbisProvider = ({ children, orbis }) => {
     }
   };
 
-  //   useInterval(
-  //     () => {
-  //       getConversations();
-  //     },
-  //     !profile || pauseGetConversations ? null : 10000
-  //   );
+  // useInterval(
+  //   () => {
+  //     getConversations();
+  //   },
+  //   !profile || pauseGetConversations ? null : 10000
+  // );
 
-  //   useEffect(() => {
-  //     if (profile) getConversations();
-  //   }, [profile]);
+  useEffect(() => {
+    if (profile) getConversations();
+  }, [profile]);
 
   return (
     <OrbisContext.Provider

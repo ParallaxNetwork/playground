@@ -20,6 +20,8 @@ const RegisterDialog = ({
     nftImageURI: null,
     collectionImageURI: null,
     amount: null,
+    description: null,
+    interest: null,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -97,28 +99,17 @@ const RegisterDialog = ({
       idolRegisterData.collectionImage.target.files[0],
     ]);
     const fileName = idolRegisterData.collectionImage.target.files[0].name;
-    const fileData = JSON.stringify({
-      name: `${idolRegisterData.subName}`,
-      image: `https://${cid}.ipfs.nftstorage.link/${fileName}`,
-      description: `Collection Image of ${idolRegisterData.subName}`,
-    });
-    const blob = new Blob([fileData], { type: "text/plain" });
-    var file = new File([blob], `data`);
-    const finalCID = await uploadToIPFS([file]);
+
     var tempdatas = idolRegisterData;
     tempdatas[
       "collectionImageURI"
-    ] = `https://${finalCID}.ipfs.nftstorage.link/${fileName}`;
-   
+    ] = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+
     setIdolRegisterData(tempdatas);
-    // setIdolRegisterData({
-    //   ...idolRegisterData,
-    //   collectionImageURI: `https://${finalCID}.ipfs.nftstorage.link/${fileName}`,
-    // });
+
     console.log(
       `cid collection ${`https://${cid}.ipfs.nftstorage.link/${fileName}`}`
     );
-    // setIsLoading(false);
   };
 
   return (
@@ -135,6 +126,8 @@ const RegisterDialog = ({
           nftImageURI: null,
           collectionImageURI: null,
           amount: null,
+          description: null,
+          interest: null,
         });
         setIsLoading(false);
         handleCloseRegisterDialog();
@@ -253,8 +246,8 @@ const RegisterDialog = ({
             </div>
           </div>
         </div>
-        <div className="flex-col flex space-y-10 w-full mt-10">
-          <div className="flex flex-col w-full gap-2 max-h-[60px]">
+        <div className="flex-col flex space-y-4 w-full mt-10">
+          <div className="flex flex-col w-full gap-2 ">
             <div className="title-secondary">Subscription Name</div>
             <input
               disabled={isLoading}
@@ -268,7 +261,22 @@ const RegisterDialog = ({
               placeholder="Name"
             />
           </div>
-          <div className="flex flex-col w-full gap-2 max-h-[60px]">
+          <div className="flex flex-col w-full gap-2">
+            <div className="title-secondary">Description</div>
+            <textarea
+              disabled={isLoading}
+              onChange={(e) => {
+                setIdolRegisterData({
+                  ...idolRegisterData,
+                  description: e.target.value,
+                });
+              }}
+              className=" border-placeholder rounded-md h-full resize-none p-3"
+              placeholder="Description"
+              rows={3}
+            />
+          </div>
+          <div className="flex flex-col w-full gap-2">
             <div className="title-secondary">Duration</div>
             <input
               disabled={isLoading}
@@ -284,7 +292,7 @@ const RegisterDialog = ({
               type={"number"}
             />
           </div>
-          <div className="flex flex-col w-full gap-2 max-h-[60px]">
+          <div className="flex flex-col w-full gap-2">
             <div className="title-secondary">Amount</div>
             <input
               disabled={isLoading}
@@ -299,7 +307,7 @@ const RegisterDialog = ({
               type={"number"}
             />
           </div>
-          <div className="flex flex-col w-full gap-2 max-h-[60px]">
+          <div className="flex flex-col w-full gap-2 ">
             <div className="title-secondary">Price</div>
             <input
               disabled={isLoading}

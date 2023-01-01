@@ -7,7 +7,13 @@ import { DateTime } from "luxon";
 import { shortAddress, didToAddress } from "../../../utilities/addressUtils";
 
 import { CircularProgress } from "@mui/material";
-const Discussion = ({ orbisContext }) => {
+const Discussion = ({
+  orbisContext,
+  isAbsolute = true,
+  fire,
+  isBlocked,
+  isPrivate = false,
+}) => {
   const { orbis } = useOrbis();
   const [isLoading, setIsLoading] = useState();
   const [messageInput, setMessageInput] = useState("");
@@ -19,7 +25,7 @@ const Discussion = ({ orbisContext }) => {
     }
 
     const { data, error } = await orbis.getPosts({ context: orbisContext });
-    //console.log(data);
+    console.log(orbisContext);
     if (!error && data) {
       setDiscussionData(data.reverse());
     }
@@ -28,6 +34,10 @@ const Discussion = ({ orbisContext }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    getOrbisData(true);
+  }, [fire]);
 
   // run getOrbisData(false) function every 7 seconds
   useEffect(() => {
@@ -44,12 +54,20 @@ const Discussion = ({ orbisContext }) => {
     if (isEmpty(messageInput.trim())) {
       return;
     }
-
+    let res;
     setMessageInput("");
-    let res = await orbis.createPost({
-      context: orbisContext,
-      body: messageInput,
-    });
+    if (isPrivate) {
+      res = await orbis.sendMessage({
+        conversation_id: context,
+        body: messageInput,
+      });
+    } else {
+      res = await orbis.createPost({
+        context: orbisContext,
+        body: messageInput,
+      });
+    }
+
     if (res.status == 200) {
       setTimeout(() => {
         if (orbisContext) getOrbisData();
@@ -63,10 +81,26 @@ const Discussion = ({ orbisContext }) => {
     DateTime.fromMillis(timestamp * 1000).toRelative({ style: "short" });
   return (
     <>
-      <div className="absolute overflow-auto h-full p-3 pb-[8vh] w-full">
+      <div
+        className={` ${
+          isAbsolute && "absolute"
+        } overflow-auto h-full p-3 pb-[8vh] w-full max-h-[650px]`}
+      >
         <div>
-          {isLoading ? (
-           <div className="text-center h-full flex flex-col items-center justify-center"><CircularProgress color="error" className="!w-[40px] !h-[40px] mt-[20vh]" /></div>
+          {isBlocked ? (
+            <div className="text-center h-full flex flex-col items-center justify-center">
+              <div className="mt-[15vh]">
+                {" "}
+                You don't have subscription, Please Subscribe to this channel{" "}
+              </div>
+            </div>
+          ) : isLoading ? (
+            <div className="text-center h-full flex flex-col items-center justify-center">
+              <CircularProgress
+                color="error"
+                className="!w-[40px] !h-[40px] mt-[20vh]"
+              />
+            </div>
           ) : (
             discussionData.map((el, index) => {
               return (
@@ -88,7 +122,7 @@ const Discussion = ({ orbisContext }) => {
                       </div>
                     </div>
                     <div className="f-12-px text-[#2E2D44] pt-1">
-                      {el.content?.body}
+                      {isBlocked ? "" : el.content?.body}
                     </div>
                   </div>
                 </div>
@@ -100,18 +134,25 @@ const Discussion = ({ orbisContext }) => {
       {/* ---- */}
       {/* REPLY BOX */}
       <div
-        className="bg-input h-[4.61440
-              rem] bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4 pt-4"
+        className={`flex ${
+          isAbsolute ? "h-[4.61440rem]" : "h-[4rem]"
+        } bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4  justify-end ${
+          isAbsolute && "pt-4"
+        }`}
       >
-        <div className="flex flex-row h-full space-x-3">
+        <div
+          className={`flex flex-row h-full w-full w-[1000px] md:w-[1000px] lg:w-[77%] xl:w-[80%] space-x-3 ${
+            isAbsolute && "!w-full"
+          } `}
+        >
           <input
             onChange={(e) => setMessageInput(e.target.value)}
             value={messageInput}
-            className="inputBox border-placeholder rounded-md h-full w-full"
+            className="inputBox border-placeholder rounded-md h-full w-full bg-input "
           />
           <button
             onClick={handleSend}
-            disabled={isSending}
+            disabled={isSending || isBlocked}
             className="w-[50px] shadowBoxBtnSmall bg-placeholder rounded-md"
           >
             {isSending ? (

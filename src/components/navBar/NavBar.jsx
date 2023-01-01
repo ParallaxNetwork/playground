@@ -37,13 +37,14 @@ const NavBar = () => {
   const { signMessageAsync, onSuccess } = useSignMessage();
   const [showButton, setShowButton] = useState();
   const { data: signer } = useSigner();
+  const [resprovider, setresprovider] = useState();
   const { connectOrbis, profile, checkOrbisConnection, disconnectOrbis } =
     useOrbis();
-  // useEffect(() => {
-  //   if (isSuccess && isConnected) {
-  //     handleSign();
-  //   }
-  // }, [isSuccess]);
+  useEffect(() => {
+    if (isSuccess && isConnected) {
+      handleSign(resprovider);
+    }
+  }, [isSuccess]);
 
   useEffect(() => {
     if (address && !profile) {
@@ -79,7 +80,7 @@ const NavBar = () => {
     walletConnect: "/assets/icons/walletConnect.svg",
   };
 
-  const handleSign = async (prov) => {
+  const handleSign = async () => {
     const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID);
     const message = new SiweMessage({
       domain: window.location.host,
@@ -90,12 +91,6 @@ const NavBar = () => {
       chainId,
       nonce: generateNonce(),
     });
-    try {
-      await connectOrbis(prov);
-    } catch (e) {
-      console.log(e);
-      return await disconnect();
-    }
     const signature = await signMessageAsync({
       message: message.prepareMessage(),
     }).catch(async (e) => {
@@ -108,6 +103,13 @@ const NavBar = () => {
       signature: signature,
     });
 
+    try {
+      await connectOrbis(resprovider);
+    } catch (e) {
+      console.log(e);
+      return await disconnect();
+    }
+
     let config = {
       method: "post",
       url: "https://locksmith.unlock-protocol.com/v2/auth/login",
@@ -119,7 +121,7 @@ const NavBar = () => {
     };
 
     axios(config)
-      .then((response) => {
+      .then(async (response) => {
         var resData = response.data;
         localStorage.setItem("accessToken", resData.accessToken);
         console.log(resData.accessToken);
@@ -201,9 +203,7 @@ const NavBar = () => {
                             connector,
                             chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
                           });
-                          if (res) {
-                            handleSign(res.provider);
-                          }
+                          setresprovider(res.provider);
 
                           //connect({ connector });
                         }}

@@ -1,10 +1,29 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
-
 import "../contracts_lib/ERC721A.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+pragma solidity ^0.8.17;
 
-interface IPublicLock {
+interface PublicLock {
+    function withdraw(
+        address _tokenAddress,
+        address payable _recipient,
+        uint256 _amount
+    ) external;
+
+    function updateLockConfig(
+        uint256 _newExpirationDuration,
+        uint256 _maxNumberOfKeys,
+        uint256 _maxKeysPerAcccount
+    ) external;
+
+    function setLockMetadata(
+        string calldata _lockName,
+        string calldata _lockSymbol,
+        string calldata _baseTokenURI
+    ) external;
+
+    function addLockManager(address account) external;
+
     function balanceOf(address _owner) external view returns (uint256 balance);
 
     function purchase(
@@ -21,24 +40,34 @@ interface IPublicLock {
 }
 
 contract PGSubs is ERC721A {
+    event ERRINTERACTION(string msg);
+    event CALLDATA(
+        uint256[] val,
+        address[] recipient,
+        address[] referrer,
+        address[] keyManager,
+        bytes[] data
+    );
+
     uint256 public maxSupply = 3456;
     uint256 randNonce = 938472992419148174;
-
     string private baseUri =
         "ipfs://QmQUnp86owydqdrW6sHtwGb26Uj161t2jJQ7B6DtfUy2ZE/";
-
-    IPublicLock public lock;
+    uint256 public numberOfImages = 0;
+    PublicLock public lock;
 
     mapping(uint256 => uint256) private realTokenId;
 
     constructor(
         address _lockAddress,
         uint256 _maxSupply,
-        string memory _baseUri
+        string memory _baseUri,
+        uint256 _numberOfImages
     ) ERC721A("Playground Subscription", "PGS") {
-        lock = IPublicLock(_lockAddress);
+        lock = PublicLock(_lockAddress);
         maxSupply = _maxSupply;
         baseUri = _baseUri;
+        numberOfImages = _numberOfImages;
     }
 
     modifier onlyEOA() {
@@ -67,14 +96,30 @@ contract PGSubs is ERC721A {
     }
 
     function purchaseSub() external payable onlyEOA {
-        uint256 price = lock.keyPrice();
-        require(msg.value >= price, "value is underprice");
-        address[] memory t = new address[](1);
-        bytes[] memory k = new bytes[](0);
-        uint256[] memory v = new uint256[](1);
-        t[0] = msg.sender;
-        v[0] = price;
-        lock.purchase(v, t, t, t, k);
+        require(msg.value >= lock.keyPrice(), "value is underprice");
+        address[] memory recipient = new address[](1);
+        address[] memory referrer = new address[](1);
+        address[] memory keyManager = new address[](1);
+        bytes[] memory data = new bytes[](1);
+        uint256[] memory val = new uint256[](1);
+        recipient[0] = msg.sender;
+        referrer[0] = address(0);
+        keyManager[0] = address(0);
+        data[0] = "";
+        val[0] = msg.value;
+        emit CALLDATA(val, recipient, referrer, keyManager, data);
+        try
+            lock.purchase{value: msg.value}(
+                val,
+                recipient,
+                referrer,
+                keyManager,
+                data
+            )
+        {} catch Error(string memory _err) {
+            emit ERRINTERACTION(_err);
+            revert();
+        }
         require(totalSupply() + 1 <= maxSupply, "Max Supply reached");
         _safeMint(msg.sender, 1);
         realTokenId[totalSupply()] = rand();
@@ -94,6 +139,6 @@ contract PGSubs is ERC721A {
                 keccak256(
                     abi.encodePacked(block.timestamp, msg.sender, randNonce)
                 )
-            ) % maxSupply) + 1;
+            ) % numberOfImages) + 1;
     }
 }
