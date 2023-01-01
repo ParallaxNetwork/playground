@@ -66,11 +66,13 @@ const IndexPage = () => {
       providers.entries().next().value[1]
     );
     const result = await contracts.getAllIdolData(1, 10);
+ 
     let tempData = [];
     for (var i = 0; i < result.length; i++) {
       if (
         result[i].idolAddress != "0x0000000000000000000000000000000000000000"
       ) {
+       
         var tempMeta = await lockMeta(chain, result[i].lockAddress);
         tempData.push({
           lockName: result[i].lockName,

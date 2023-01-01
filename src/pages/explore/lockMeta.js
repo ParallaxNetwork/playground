@@ -1,6 +1,13 @@
 import axios from "axios";
+import { isEmpty } from "lodash";
 
 export const lockMeta = async (chain, lockAddress) => {
+    if (isEmpty(chain) || chain == undefined) {
+        chain = {
+            id: process.env.NEXT_PUBLIC_CHAIN_ID
+        }
+
+    }
     let data = {};
     let config = {
         method: "GET",
