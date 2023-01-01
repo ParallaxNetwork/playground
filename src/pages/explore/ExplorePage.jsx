@@ -135,7 +135,7 @@ const IndexPage = () => {
                             <div className="subtitle">DESCRIPTION</div>
                             <div>{el.description}</div>
                             <div className="subtitle mt-4">Interest</div>
-                            <div>{el.interest?.join()}</div>
+                            <div>{el.interest?.join()?? '-'}</div>
                           </div>
                           <div className="max-w-full mt-5 lg:mt-0">
                             <div className="flex flex-row space-x-3">
@@ -146,7 +146,9 @@ const IndexPage = () => {
                               <div className="subtitle">NFT PERKS</div>
                             </div>
                             <div className="mt-3 space-y-2">
-                              {el.perks.map((child, i) => {
+                              {
+                              isEmpty(el.perks)? <></> :
+                              el.perks.map((child, i) => {
                                 return (
                                   <div
                                     key={i}
