@@ -1,40 +1,74 @@
 import CircleAvatar from "../elements/CircleAvatar";
 import SvgIconStyle from "../elements/SvgIconStyle";
-const VideoStream = () => {
+import { Player, useCreateStream } from "@livepeer/react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import VideoControl from "./VideoControl";
+import Image from "next/image";
+const VideoStream = ({
+  playbackID,
+  userName,
+  title,
+  idolAddress,
+  isBlocked,
+}) => {
+  const isLoading = useMemo(() => status === "loading", [status]);
+  const [vidRef, setVidRef] = useState();
+
+  const mediaElementRef = useCallback((ref) => {
+    setVidRef(ref);
+  }, []);
+
+  useEffect(() => {
+    // setTimeout(() => {
+    //   simulateClick(k[3]);
+    // }, 3500);
+  }, []);
+
   return (
     <div className="bg-[url('/assets/misc/pattern.svg')] w-full">
       <div className="p-5">
-        <img
+        {/* <img
           src="/assets/picture/sample2.png"
           className="rounded-lg m-auto w-full"
           alt=""
-        />
+        /> */}
+
+        {/* {stream?.playbackId && (
+          <Player
+            title={stream?.name}
+            playbackId={stream?.playbackId}
+            autoPlay
+            muted
+          />
+        )} */}
+        {isBlocked ? (
+            <img
+              src="/assets/picture/blockbanner.png"
+              className="rounded-lg m-auto w-full"
+              alt="blocked"
+            />
+      
+        ) : (
+          <Player
+            showTitle={false}
+            playbackId={playbackID}
+            autoPlay
+            showPipButton
+            id="vidPlayer"
+            mediaElementRef={mediaElementRef}
+            priority
+            controls={{ autohide: 1500, hotkeys: true }}
+          />
+        )}
+
         <div className="flex flex-row pt-4 items-center flex-wrap pt-3">
-          <CircleAvatar isActive={true} />
+          <CircleAvatar address={idolAddress} isActive={true} />
           <div className="pl-3">
-            <div className="subtitle-secondary">AITAKATA CONCERT</div>
-            <p className="text-black">Yoaenale</p>
+            <div className="subtitle-secondary">{title}</div>
+            <p className="text-black">{userName}</p>
           </div>
-          <div className="space-x-6 flex flex-row justify-center w-full pt-5 lg:pt-0">
-            <div className="btn p-[8px] bg-white border-2 border-black rounded-lg w-[48px] h-[48px] text-center">
-              <SvgIconStyle
-                src={"/assets/icons/mute-icon.svg"}
-                className="w-[26px] h-[26px] bg-highlight"
-              />
-            </div>
-            <div className="btn p-[11.5px] bg-white border-2 border-black rounded-lg w-[48px] h-[48px] text-center m-auto">
-              <SvgIconStyle
-                src={"/assets/icons/pause-icon.svg"}
-                className="w-[20px] h-[20px] bg-highlight"
-              />
-            </div>
-            <div className="btn p-[9.5px] bg-white border-2 border-black rounded-lg w-[48px] h-[48px] text-center">
-              <SvgIconStyle
-                src={"/assets/icons/expand-icon.svg"}
-                className="w-[24px] h-[24px] bg-highlight"
-              />
-            </div>
-          </div>
+
+          <VideoControl disabled={isBlocked} vidRef={vidRef} />
         </div>
       </div>
     </div>

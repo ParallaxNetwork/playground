@@ -1,19 +1,64 @@
+import { Web3Provider } from "@ethersproject/providers";
+import ClickAwayListener from "@mui/base/ClickAwayListener";
+import { Zoom } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import { disconnect } from "@wagmi/core";
+import axios from "axios";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useConnect, useNetwork } from "wagmi";
 import { generateNonce, SiweMessage } from "siwe";
+import {
+  useAccount,
+  useConnect,
+  useNetwork,
+  useSignMessage,
+  useSigner,
+} from "wagmi";
+import { shortAddress, didToAddress } from "../../../utilities/addressUtils";
+import { useOrbis } from "../../context/OrbisContext";
 import { LayoutTop } from "../elements/Container";
-import Image from "next/image";
 import SEO from "./SEO";
-export const NavBar = () => {
+const NavBar = () => {
   const router = useRouter();
-  const [path, setPath] = useState("");
-  const { connect, connectors, isLoading, pendingConnector } = useConnect();
+  const path = router.pathname;
+  const {
+    connect,
+    connectAsync,
+    connectors,
+    isLoading,
+    pendingConnector,
+    isSuccess,
+  } = useConnect();
   const { chain, chains } = useNetwork();
+  const [openMiniDialog, setOpenMiniDialog] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync, onSuccess } = useSignMessage();
+  const [showButton, setShowButton] = useState();
+  const { data: signer } = useSigner();
+  const [resprovider, setresprovider] = useState();
+  const { connectOrbis, profile, checkOrbisConnection, disconnectOrbis } =
+    useOrbis();
   useEffect(() => {
-    setPath(router.pathname);
-  }, [router]);
+    if (isSuccess && isConnected) {
+      handleSign(resprovider);
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (address && !profile) {
+      checkOrbisConnection(signer?.provider?.provider, true);
+    } else if (address?.toLowerCase() !== didToAddress(profile?.did)) {
+      disconnectOrbis();
+    }
+  }, [address, profile]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowButton(true);
+    }, 200);
+  }, []);
 
   const route = [
     {
@@ -36,7 +81,7 @@ export const NavBar = () => {
   };
 
   const handleSign = async () => {
-    const chainId = chain.id;
+    const chainId = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID);
     const message = new SiweMessage({
       domain: window.location.host,
       address,
@@ -48,12 +93,22 @@ export const NavBar = () => {
     });
     const signature = await signMessageAsync({
       message: message.prepareMessage(),
-    }).catch((e) => console.log(e));
+    }).catch(async (e) => {
+      console.log(e);
+      return await disconnect();
+    });
 
     let data = JSON.stringify({
       message: message.toMessage(),
       signature: signature,
     });
+
+    try {
+      await connectOrbis(resprovider);
+    } catch (e) {
+      console.log(e);
+      return await disconnect();
+    }
 
     let config = {
       method: "post",
@@ -66,8 +121,10 @@ export const NavBar = () => {
     };
 
     axios(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
+      .then(async (response) => {
+        var resData = response.data;
+        localStorage.setItem("accessToken", resData.accessToken);
+        console.log(resData.accessToken);
       })
       .catch((error) => {
         console.log(error);
@@ -79,7 +136,7 @@ export const NavBar = () => {
       <SEO />
       <LayoutTop>
         <div className="flex flex-row justify-between items-center w-full">
-          <Link href={'/'}>
+          <Link href={"/"}>
             <Image
               src={"/assets/picture/MainLogo.png"}
               width={228}
@@ -108,28 +165,64 @@ export const NavBar = () => {
                 );
               })}
             </div>
-            {/* {connectors.map((connector) => (
-              <button
-                disabled={!connector.ready}
-                key={connector.id}
-                onClick={() => connect({ connector })}
-              >
-                {connector.name}
-                {isLoading &&
-                  pendingConnector?.id === connector.id &&
-                  " (connecting)"}
-                <div className="rounded-full overflow-hidden">
-                  <img src={walletIcons[connector.id]} className="w-10 h-10" />
-                </div>
-              </button>
-            ))} */}
 
-            <button
-              onClick={() => handleSign()}
-              className="btn btn-primary-large"
-            >
-              CONNECT WALLET
-            </button>
+            <ClickAwayListener onClickAway={() => setOpenMiniDialog(false)}>
+              <div className="relative">
+                <button
+                  onClick={async () => {
+                    if (isConnected) {
+                      return await disconnect();
+                    }
+                    setOpenMiniDialog(true);
+                  }}
+                  className="btn btn-primary-large"
+                >
+                  {showButton ? (
+                    address ? (
+                      shortAddress(address)
+                    ) : (
+                      "CONNECT WALLET"
+                    )
+                  ) : (
+                    <CircularProgress
+                      color="inherit"
+                      className="!w-5 !h-5 mt-1"
+                    />
+                  )}
+                </button>
+
+                <Zoom in={openMiniDialog}>
+                  <div className="shadowBox absolute border-2 border-black bg-white rounded-md top-[55px] z-10">
+                    {connectors.map((connector) => (
+                      <button
+                        // disabled={!connector.ready}
+                        key={connector.id}
+                        onClick={async () => {
+                          setOpenMiniDialog(false);
+                          const res = await connectAsync({
+                            connector,
+                            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+                          });
+                          setresprovider(res.provider);
+
+                          //connect({ connector });
+                        }}
+                        className="flex flex-row p-2 items-center gap-2"
+                      >
+                        <img
+                          src={walletIcons[connector.id]}
+                          className="w-7 h-7 rounded-md"
+                        />
+                        {connector.name}
+                        {isLoading &&
+                          pendingConnector?.id === connector.id &&
+                          " (connecting)"}
+                      </button>
+                    ))}
+                  </div>
+                </Zoom>
+              </div>
+            </ClickAwayListener>
           </div>
         </div>
         <hr className="border-[1px] border-[#DAE1E9] mt-4 lg:mt-0" />
@@ -137,3 +230,5 @@ export const NavBar = () => {
     </>
   );
 };
+
+export default NavBar;
