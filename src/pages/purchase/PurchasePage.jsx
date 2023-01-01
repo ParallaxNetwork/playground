@@ -184,7 +184,7 @@ const PurchasePages = () => {
               />
               <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
                 <div className="max-w-full lg:pr-5">
-                  <div className="subtitle">Proflie</div>
+                  <div className="subtitle">Profile</div>
                   <div>{`${profileData.name}`}</div>
                   <div className="subtitle mt-4">Interest</div>
                   <div>{`${lockDetail.interest ?? "-"}`}</div>
