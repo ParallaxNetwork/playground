@@ -90,8 +90,7 @@ const Discussion = ({
           {isBlocked ? (
             <div className="text-center h-full flex flex-col items-center justify-center">
               <div className="mt-[15vh]">
-                {" "}
-                You don't have subscription, Please Subscribe to this channel{" "}
+                {`You don't have subscription, Please Subscribe to this channel`}
               </div>
             </div>
           ) : isLoading ? (
