@@ -1,27 +1,24 @@
-import { WalletService } from "@unlock-protocol/unlock-js";
+import { Contract } from "@ethersproject/contracts";
+import { Zoom } from "@mui/material";
 import { InjectedConnector } from "@wagmi/core";
+import { isEmpty } from "lodash";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   useAccount,
   useClient,
   useConnect,
   useNetwork,
   useProvider,
-  useSigner,
-  useSignMessage,
+  useSigner
 } from "wagmi";
-import LayoutContainer from "../../components/elements/Container";
-import CollectionImage from "../../components/elements/CollectionImage";
-import ShadowBox from "../../components/elements/ShadowBox";
-import Link from "next/link";
-import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { useEffect, useState } from "react";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
-import { Contract } from "@ethersproject/contracts";
-import { ethers } from "ethers";
-import { isEmpty } from "lodash";
+import CollectionImage from "../../components/elements/CollectionImage";
+import LayoutContainer from "../../components/elements/Container";
 import NoItems from "../../components/elements/NoItems";
-import { CircularProgress, Zoom } from "@mui/material";
+import ShadowBox from "../../components/elements/ShadowBox";
+import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { lockMeta } from "./lockMeta";
 const IndexPage = () => {
   const { connect } = useConnect({
@@ -66,13 +63,12 @@ const IndexPage = () => {
       providers.entries().next().value[1]
     );
     const result = await contracts.getAllIdolData(1, 10);
- 
+
     let tempData = [];
     for (var i = 0; i < result.length; i++) {
       if (
         result[i].idolAddress != "0x0000000000000000000000000000000000000000"
       ) {
-       
         var tempMeta = await lockMeta(chain, result[i].lockAddress);
         tempData.push({
           lockName: result[i].lockName,
@@ -103,8 +99,33 @@ const IndexPage = () => {
         <LayoutContainer>
           <div className="space-y-10 mb-10">
             {isLoading ? (
-              <div className="w-full h-screen text-center">
-                <CircularProgress color="inherit" className="m-auto" />
+              <div className="w-full h-screen text-center space-y-10">
+                {[1, 2, 3].map((el, index) => {
+                  return (
+                    <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
+                      <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
+                        <img src="/assets/icons/hearts-icon.svg" alt="" />
+                      </div>
+                      <div className="flex m-5 flex-col lg:flex-row p-2">
+                        <div className="w-full max-w-[300px] rounded-md animate-pulse h-[300px] bg-gray-200"></div>
+                        <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
+                          <div className="max-w-full ">
+                            <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                          </div>
+                          <div className="max-w-full ">
+                            <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                          </div>
+                          <div className="max-w-full ">
+                            <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                          </div>
+                          <div className="max-w-full ">
+                            <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </ShadowBox>
+                  );
+                })}
               </div>
             ) : isEmpty(idolData) ? (
               <NoItems description="no idol registered at this time, come back later" />
@@ -130,14 +151,14 @@ const IndexPage = () => {
                           src={el.lockImage}
                           className="aspect-[1/1] max-w-[300px] w-full"
                         />
-                        <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full gap-0 xl:gap-8 flex-wrap">
-                          <div className="max-w-full ">
+                        <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-0 xl:gap-8 ">
+                          <div className="w-full">
                             <div className="subtitle">DESCRIPTION</div>
                             <div>{el.description}</div>
                             <div className="subtitle mt-4">Interest</div>
-                            <div>{el.interest?.join()?? '-'}</div>
+                            <div>{el.interest?.join() ?? "-"}</div>
                           </div>
-                          <div className="max-w-full mt-5 lg:mt-0">
+                          <div className="max-w-full mt-5">
                             <div className="flex flex-row space-x-3">
                               <img
                                 src="/assets/icons/verified-icon.svg"
@@ -146,26 +167,28 @@ const IndexPage = () => {
                               <div className="subtitle">NFT PERKS</div>
                             </div>
                             <div className="mt-3 space-y-2">
-                              {
-                              isEmpty(el.perks)? <></> :
-                              el.perks.map((child, i) => {
-                                return (
-                                  <div
-                                    key={i}
-                                    className="flex flex-row border-2 border-black"
-                                  >
-                                    <div className="border-r-2 border-black p-3">
-                                      <SvgIconStyle
-                                        src={"/assets/icons/star-icon.svg"}
-                                        className="w-6 h-6 bg-highlight"
-                                      />
+                              {isEmpty(el.perks) ? (
+                                <></>
+                              ) : (
+                                el.perks.map((child, i) => {
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="flex flex-row border-2 border-black"
+                                    >
+                                      <div className="border-r-2 border-black p-3">
+                                        <SvgIconStyle
+                                          src={"/assets/icons/star-icon.svg"}
+                                          className="w-6 h-6 bg-highlight"
+                                        />
+                                      </div>
+                                      <div className="block font-medium text-fill p-3">
+                                        {child}
+                                      </div>
                                     </div>
-                                    <div className="block font-medium text-fill p-3">
-                                      {child}
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })
+                              )}
                             </div>
                           </div>
                         </div>

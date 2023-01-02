@@ -356,18 +356,18 @@ const ProfilePage = () => {
       }, 2000);
       const receipt = await transactionResponse.wait();
       if (receipt.status == 1) {
-        ShowToast({
-          message: "Withdraw Initialized!",
-        });
         getSalesAndWithdrawAble(idolData);
+        ShowToast({
+          message: "Withdraw Initialized! now you can proceed to withdrawable button",
+        });
       }
     } catch (e) {
       console.log(e);
+      getSalesAndWithdrawAble(idolData);
       ShowToast({
         message: "Something went wrong :(",
         state: "error",
       });
-      getSalesAndWithdrawAble(idolData);
     }
   };
 
@@ -403,6 +403,7 @@ const ProfilePage = () => {
       }, 2000);
       const receipt = await transactionResponse.wait();
       if (receipt.status == 1) {
+        getSalesAndWithdrawAble(idolData);
         ShowToast({
           message: "Withdraw Success!",
         });
@@ -527,11 +528,6 @@ const ProfilePage = () => {
                       </div>
                     </div>
                     <div className="flex m-5 flex-row p-2">
-                      {/* <CollectionImage
-                    src={"/assets/picture/sample1.png"}
-                    className="max-w-[114px] h-[114px] w-full"
-                  /> */}
-
                       {idolData ? (
                         <div className="flex flex-col items-start gap-5 w-full">
                           <div className="flex flex-col break-all gap-5">
@@ -548,67 +544,63 @@ const ProfilePage = () => {
                               <div>{idolData.nftKeyAddress}</div>
                             </div>
                           </div>
-                          <div className="flex flex-col shadowBox p-3 gap-3">
-                            <div>
-                              <div className="subtitle">{`Stream ID`}</div>
-                              <div>
-                                {streamID ?? (
-                                  <CircularProgress
-                                    color="inherit"
-                                    className="!w-4 !h-4"
-                                  />
-                                )}
-                              </div>
+                          <div className="flex-col items-start justify-start space-y-0 w-full shadowBox mt-3">
+                            <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black">
+                              STREAM CONFIG
                             </div>
-                            <div>
-                              <div className="subtitle">{`Playback ID`}</div>
+                            <div className="p-4 gap-3 flex flex-col pb-8">
                               <div>
-                                {playbackID ?? (
-                                  <CircularProgress
-                                    color="inherit"
-                                    className="!w-4 !h-4"
-                                  />
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="subtitle">{`Stream Key`}</div>
-                              <div>
-                                {streamKey ?? (
-                                  <CircularProgress
-                                    color="inherit"
-                                    className="!w-4 !h-4"
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex-col items-start justify-start space-y-4 w-full shadowBox p-3">
-                            <div>
-                              <div className="subtitle">{`Sales`}</div>
-                              <div
-                                onClick={() => handleInitWithdraw()}
-                                className="px-2 py-1 rounded-lg shadowBoxBtnSmall mt-2 flex flex-row items-center justify-between"
-                              >
-                                <div>{salesAndWithdrawAble.sales} MATIC</div>
+                                <div className="subtitle">{`Stream ID`}</div>
                                 <div>
-                                  <button className="title-secondary color-pink bg-transparent rounded-md ">
-                                    <div className="p-2 m-auto">INITIALIZE</div>
-                                  </button>
+                                  {streamID ?? (
+                                    <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="subtitle">{`Playback ID`}</div>
+                                <div>
+                                  {playbackID ?? (
+                                    <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="subtitle">{`Stream Key`}</div>
+                                <div>
+                                  {streamKey ?? (
+                                    <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            <div>
-                              <div className="subtitle">{`Withdrawable`}</div>
-                              <div
-                                onClick={() => handleWithdraw()}
-                                className="px-2 py-1 rounded-lg shadowBoxBtnSmall mt-2 flex flex-row items-center justify-between"
-                              >
-                                <div>{salesAndWithdrawAble.wdable} MATIC</div>
-                                <div>
-                                  <button className="title-secondary color-pink rounded-md ">
-                                    <div className="p-2 m-auto">WITHDRAW</div>
-                                  </button>
+                          </div>
+                          <div className="flex-col items-start justify-start space-y-4 w-full shadowBox">
+                            <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black">
+                              SALES
+                            </div>
+                            <div className="px-4 max-w-[1000px]">
+                              initialize your withdraw request by tapping on the
+                              total button then proceed to withdrawable button
+                              after confirmation
+                            </div>
+                            <div className="flex p-4 gap-10 flex-wrap pb-8 mt-0">
+                              <div>
+                                <div className="subtitle">{`Total`}</div>
+                                <div
+                                  onClick={() => handleInitWithdraw()}
+                                  className="p-3 rounded-lg shadowBoxBtnSmall mt-2 flex flex-row items-center justify-between"
+                                >
+                                  <div>{salesAndWithdrawAble.sales} MATIC</div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="subtitle">{`Withdrawable`}</div>
+                                <div
+                                  onClick={() => handleWithdraw()}
+                                  className="p-3 rounded-lg shadowBoxBtnSmall mt-2 flex flex-row items-center justify-between"
+                                >
+                                  <div>{salesAndWithdrawAble.wdable} MATIC</div>
                                 </div>
                               </div>
                             </div>
@@ -661,10 +653,10 @@ const ProfilePage = () => {
               </div>
             ) : (
               <ShadowBox className={"shadowBox mt-5"}>
-                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[300px]">
-                  My Subscription
+                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                  MY SUBSCRIPTION
                 </div>
-                <div className="grid grid-rows-1 lg:grid-cols-5 p-2 gap-3 m-4">
+                <div className="grid grid-rows-1 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
                   {keyList.map((el, index) => {
                     return (
                       <div
@@ -673,19 +665,19 @@ const ProfilePage = () => {
                       >
                         <CollectionImage
                           src={el.tokenURI.slice(0, el.tokenURI.length - 1)}
-                          className="w-full max-w-[413px] aspect-[1/1]"
+                          className="max-w-[222px] md:max-w-[413px] h-full "
                         />
-                        <div className="flex gap-2 mt-3 subtitle items-center">
+                        <div className="flex gap-2 mt-5 subtitle items-center truncate items-start justify-start">
                           <SvgIconStyle
                             src={"/assets/icons/verified-icon.svg"}
-                            className="w-[18px] h-[18px] bg-red shrink mr-2"
+                            className="w-[18px] h-[18px] bg-red shrink mr-1"
                           />
                           {el.lock.name}
                         </div>
                         <div className="flex flex-wrap f-12-px text-center mt-3">
                           Playground Subscription
                         </div>
-                        <div className="f-12-px bg-placeholder mt-5">
+                        <div className="f-12-px bg-description mt-5">
                           {`Expired at ${new Date(
                             el.expiration * 1000
                           ).getDate()} ${new Date(
@@ -694,8 +686,8 @@ const ProfilePage = () => {
                             month: "short",
                           })} ${new Date(el.expiration * 1000).getFullYear()}`}
                         </div>
-                        <button className="btn btn-primary-large mt-2 mb-3">
-                          RENEW SUBS
+                        <button className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                          RENEW
                         </button>
                       </div>
                     );

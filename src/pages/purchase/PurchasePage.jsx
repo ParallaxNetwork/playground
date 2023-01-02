@@ -300,7 +300,7 @@ const PurchasePages = () => {
                           }}
                           className="btn btn-primary-large mt-2 mb-3"
                         >
-                          BUY MERCHANDISE
+                          BUY
                         </button>
                       </div>
                     );

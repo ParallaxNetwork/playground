@@ -29,7 +29,6 @@ const EngagePage = () => {
   const [selectedAccount, setSelectedAccount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { providers, provider, getProvider } = useClient();
-  const [initialized, setInit] = useState(false);
   const { chain, chains } = useNetwork();
   const { orbis, getConversations, conversations, createConversation } =
     useOrbis();
@@ -65,8 +64,8 @@ const EngagePage = () => {
         const idolorbis = await getUserProfile(result[i].idolAddress);
 
         tempData.push({
-          img: idolorbis.profile.pfp ?? "/assets/picture/placeholder.png",
-          idolDid: idolorbis.did ?? "",
+          img: idolorbis?.profile?.pfp ?? "/assets/picture/placeholder.png",
+          idolDid: idolorbis?.did ?? "",
           lockName: result[i].lockName,
           lockAddress: result[i].lockAddress,
           lockImage: result[i].lockImage,
@@ -77,7 +76,7 @@ const EngagePage = () => {
           description: tempMeta.description,
           interest: tempMeta.interest,
           perks: tempMeta.perks,
-          userName: idolorbis.profile.name ?? "-",
+          userName: idolorbis?.profile.name ?? "-",
           isLive: false,
           address: result[i].userAddress,
           groupRoom: [
@@ -91,9 +90,10 @@ const EngagePage = () => {
     }
     setCurrentPBID(tempData[0].playbackID);
     console.log(tempData);
-    setAccount(tempData);
+    if (tempData.length > 0) {
+      setAccount(tempData);
+    }
     setIsLoading(false);
-    setInit(true);
   };
 
   const checkTokenGate = async (idolAddress) => {
@@ -157,17 +157,19 @@ const EngagePage = () => {
       console.log(conversations);
     });
     setActiveRoom(account[selectedAccount].groupRoom[0]);
-    if (signer && initialized) {
+    if (signer && !isLoading && account[0].address != "") {
       checkTokenGate(account[selectedAccount].idolAddress);
     }
-  }, [selectedAccount, initialized]);
+  }, [selectedAccount, account]);
 
   return (
     <Zoom in={true}>
       <div>
         <LayoutContainer>
-          {!initialized ? (
-            <NoItems />
+          {isLoading ? (
+            <div className="h-[660px] w-full bg-gray-200 animate-pulse shadowBox"></div>
+          ) : account[0].address == "" ? (
+            <NoItems description="No idol registered yet at this time, please come back later" />
           ) : (
             <ShadowBox className={"shadowBox"}>
               <div className="flex flex-col lg:flex-row">
