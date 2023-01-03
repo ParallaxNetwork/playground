@@ -10,7 +10,7 @@ import {
   useConnect,
   useNetwork,
   useProvider,
-  useSigner
+  useSigner,
 } from "wagmi";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
@@ -147,10 +147,12 @@ const IndexPage = () => {
                         <img src="/assets/icons/hearts-icon.svg" alt="" />
                       </div>
                       <div className="flex m-5 flex-col lg:flex-row p-2">
-                        <CollectionImage
-                          src={el.lockImage}
-                          className="aspect-[1/1] max-w-[300px] w-full"
-                        />
+                        <div className="w-full lg:w-[30%] lg:max-w-[300px]">
+                          <CollectionImage
+                            src={el.lockImage}
+                            className=""
+                          />
+                        </div>
                         <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-0 xl:gap-8 ">
                           <div className="w-full">
                             <div className="subtitle">DESCRIPTION</div>

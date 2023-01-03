@@ -72,7 +72,7 @@ const CircleAvatar = ({
         } ${className}`}
       >
         <img
-          src={src ?? "/assets/picture/sample1.png"}
+          src={src ?? "/assets/picture/placeholder.png"}
           className="w-full h-full object-cover object-center rounded-full"
         />
         {isLive && (

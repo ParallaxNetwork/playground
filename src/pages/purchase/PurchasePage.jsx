@@ -44,7 +44,7 @@ const PurchasePages = () => {
     stream_url: "https://livepeercdn.com/hls/314bwkepyjqfp1ms/index.m3u8",
     description: "",
     lockAddress: "",
-    nftImageURI: "/assets/picture/placeholder.png",
+    nftImageURI: ["/assets/picture/placeholder.png"],
     stream_name: ".",
     idolAddress: "",
     stream_playbackId: "314bwkepyjqfp1ms",
@@ -155,10 +155,18 @@ const PurchasePages = () => {
 
   const getSampleImagenft = async (resp) => {
     const result = await fetch(`${resp.nftImageURI}/1`);
+    const result2 = await fetch(`${resp.nftImageURI}/2`);
+    const result3 = await fetch(`${resp.nftImageURI}/3`);
     const res = await result.json();
+    const res2 = await result2.json();
+    const res3 = await result3.json();
     setLockDetail({
       ...resp,
-      nftImageURI: res.image,
+      nftImageURI: [
+        res.image,
+        res2?.image ?? "/assets/picture/placeholder.png",
+        res3?.image ?? "/assets/picture/placeholder.png",
+      ],
       nftDescription: res.description,
     });
     //console.log(lockDetail);
@@ -187,8 +195,8 @@ const PurchasePages = () => {
           <div className="p-7">
             <div className="flex flex-col lg:flex-row">
               <CollectionImage
-                src={lockDetail.collectionImageURI}
-                className="aspect-[1/1.2] max-w-[296px] w-full"
+                src={profileData.pfp ?? "/assets/picture/placeholder.png"}
+                className="lg:max-w-[250px]"
               />
               <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
                 <div className="max-w-full lg:pr-5 break-all">
@@ -206,67 +214,76 @@ const PurchasePages = () => {
                 <div
                   className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full gap-5`}
                 >
-                  <CollectionImage
-                    src={`${lockDetail.nftImageURI}`}
-                    className="max-w-[136px] w-full max-h-[195px] aspect-[1/3] m-auto mt-5 mb-5 lg:m-0"
-                  />
+                  <div className="lg:w-[500px] flex flex-row gap-2">
+                    <CollectionImage
+                      src={`${lockDetail.nftImageURI[0]}`}
+                      className="m-auto mt-5 mb-5 lg:m-0 "
+                    />
+                    <div className="hidden lg:flex flex-col gap-2 w-[83px] shrink-0">
+                      {lockDetail.nftImageURI.map((el, index) => {
+                        return <CollectionImage key={index} src={`${el}`} />;
+                      })}
+                    </div>
+                  </div>
 
-                  <div className="mt-3 lg:mt-0 flex flex-col justify-between w-full gap-3 p-2 pt-0">
+                  <div className="flex flex-col justify-between w-full gap-3 p-2 pt-0">
                     <div className="max-w-full w-full flex flex-col justify-between ">
                       <div>
                         <div className="title-primary">
                           {lockDetail.nftDescription}
                         </div>
-                        <div className="subtitle">{`${ethers.utils.formatEther(
+                        <div className="f-12-px secondary">
+                          Automatically owned every subscription purchased, 1pcs on
+                          random
+                        </div>
+                        <div className="subtitle mt-2">{`${ethers.utils.formatEther(
                           parseInt(lockDetail.price.hex.toString()).toString()
                         )} MATIC`}</div>
                       </div>
                     </div>
-                    <div className="flex flex-col lg:flex-row w-full gap-4">
-                      <div className="space-y-3 max-w-[380px]">
-                        <div className="subtitle">DESCRIPTION</div>
-                        <div>
-                          {`${lockDetail.description.slice(0, 60)} ${
-                            lockDetail.description.length > 60 ? "..." : ""
-                          }`}
+                    <div className="space-y-3 max-w-[380px]">
+                      <div className="subtitle">DESCRIPTION</div>
+                      <div>
+                        {`${lockDetail.description.slice(0, 100)} ${
+                          lockDetail.description.length > 100 ? "..." : ""
+                        }`}
+                      </div>
+                    </div>
+                    <div className="flex flex-col lg:flex-row w-full justify-between">
+                      <div className="mt-5 lg:mt-0 justify-end flex flex-col space-y-3">
+                        <div className="flex flex-row space-x-3">
+                          <img src="/assets/icons/verified-icon.svg" alt="" />
+                          <div className="subtitle">NFT PERKS</div>
+                        </div>
+                        <div className="mt-2">
+                          {lockDetail.perks.map((el, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="block font-medium text-fill"
+                              >
+                                {el}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                      <div className="flex flex-col lg:flex-row w-full justify-between">
-                        <div className="mt-5 lg:mt-0 justify-end flex flex-col space-y-3">
-                          <div className="flex flex-row space-x-3">
-                            <img src="/assets/icons/verified-icon.svg" alt="" />
-                            <div className="subtitle">NFT PERKS</div>
-                          </div>
-                          <div className="mt-2">
-                            {lockDetail.perks.map((el, index) => {
-                              return (
-                                <div
-                                  key={index}
-                                  className="block font-medium text-fill"
-                                >
-                                  {el}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <div className="h-full flex flex-col justify-end mt-3 mb-2 lg:mt-0 lg:mb-0">
-                          <button
-                            onClick={() => {
-                              setOpenPurchaseDialog(true);
-                            }}
-                            className="btn btn-primary-large px-10"
-                          >
-                            {isLoading ? (
-                              <CircularProgress
-                                color="inherit"
-                                className="!w-3 !h-3"
-                              />
-                            ) : (
-                              "BUY ACCESS"
-                            )}
-                          </button>
-                        </div>
+                      <div className="h-full flex flex-col justify-end mt-3 mb-2 lg:mt-0 lg:mb-0">
+                        <button
+                          onClick={() => {
+                            setOpenPurchaseDialog(true);
+                          }}
+                          className="btn btn-primary-large px-10"
+                        >
+                          {isLoading ? (
+                            <CircularProgress
+                              color="inherit"
+                              className="!w-3 !h-3"
+                            />
+                          ) : (
+                            "SUBSCRIBE"
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -281,7 +298,7 @@ const PurchasePages = () => {
                     return (
                       <div
                         key={index}
-                        className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                        className="flex flex-col items-center border-2 border-black p-5 lg:p-2 justify-between"
                       >
                         <CollectionImage
                           src={el.image}
@@ -293,23 +310,23 @@ const PurchasePages = () => {
                         <div className="flex flex-wrap f-12-px text-center mt-3">
                           {el.description}
                         </div>
-                        <div className="f-12-px bg-placeholder mt-5">
+                        <div className="f-12-px bg-placeholder mt-5 inline-flex flex-col text-center">
                           {el.price}
+                          <button
+                            onClick={() => {
+                              setImgMerchandise({
+                                image: el.image,
+                                description: el.description,
+                                title: el.title,
+                                price: el.price,
+                              });
+                              setOpenMerchandiseDialog(true);
+                            }}
+                            className="btn btn-primary-large mt-2 mb-3"
+                          >
+                            BUY
+                          </button>
                         </div>
-                        <button
-                          onClick={() => {
-                            setImgMerchandise({
-                              image: el.image,
-                              description: el.description,
-                              title: el.title,
-                              price: el.price,
-                            });
-                            setOpenMerchandiseDialog(true);
-                          }}
-                          className="btn btn-primary-large mt-2 mb-3"
-                        >
-                          BUY
-                        </button>
                       </div>
                     );
                   })}
@@ -339,8 +356,8 @@ const PurchasePages = () => {
           <div className="flex flex-col lg:flex-row gap-10">
             <div className="flex flex-col justify-start items-center lg:items-start min-w-[180px]">
               <CollectionImage
-                src={lockDetail.nftImageURI}
-                className="max-w-[208px] aspect-[1.1/1.5] w-full mt-2"
+                src={lockDetail.nftImageURI[0]}
+                className="max-w-[208px] w-full mt-2"
               />
             </div>
             <div className="flex-col flex space-y-10 w-full">

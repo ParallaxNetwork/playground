@@ -173,7 +173,7 @@ const EngagePage = () => {
                 <div className="w-full max-w-[300px] rounded-md animate-pulse h-[300px] bg-gray-200"></div>
                 <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
                   <div className="max-w-full ">
-                    <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                    <div className="w-[300px] h-5 animate-pulse bg-gray-200 mt-3"></div>
                   </div>
                   <div className="max-w-full ">
                     <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
@@ -233,7 +233,7 @@ const EngagePage = () => {
                         );
                       })}
                     </div>
-                    <div className="ml-4 font-medium"> Live Streaming!</div>
+                    {/* <div className="ml-4 font-medium"> Live Streaming!</div> */}
                   </div>
                   {/* ---- */}
                   <div className="flex flex-row ">
@@ -271,7 +271,7 @@ const EngagePage = () => {
                       <div className="px-[8px] border-t-2 border-black pt-2">
                         <Link href={"/profile"}>
                           <CircleAvatar
-                            address={account[selectedAccount].idolAddress}
+                            address={address}
                           />
                         </Link>
                       </div>
