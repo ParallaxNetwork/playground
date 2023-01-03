@@ -5,7 +5,7 @@ import {
     createReactClient, LivepeerConfig, studioProvider
 } from "@livepeer/react";
 
-export function getServerSideProps({ req, params }) {
+export function getStaticProps({ req, params }) {
     return {
         props: {
             data: {

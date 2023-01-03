@@ -270,7 +270,7 @@ const ProfilePage = () => {
         perks: [
           `Group Chat ${registerData.duration / 86400} days`,
           "Private Chat",
-          "Exlusive Live Video Access",
+          "Exclusive Live Video Access",
         ],
       },
     });

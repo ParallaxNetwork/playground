@@ -3,7 +3,7 @@ import {
 } from "@livepeer/react";
 import EngagePage from "../../src/pages/engage/EngagePage";
 
-export function getServerSideProps({ req, params }) {
+export function getStaticProps({ req, params }) {
     return {
         props: {
             data: {

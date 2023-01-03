@@ -84,7 +84,7 @@ const IndexPage = () => {
         });
       }
     }
-    console.log(tempData);
+    //console.log(tempData);
     setIdolData(tempData);
     setIsLoading(false);
   };
@@ -99,8 +99,8 @@ const IndexPage = () => {
         <LayoutContainer>
           <div className="space-y-10 mb-10">
             {isLoading ? (
-              <div className="w-full h-screen text-center space-y-10">
-                {[1, 2, 3].map((el, index) => {
+              <div className="w-full text-center space-y-10">
+                {[1, 2].map((el, index) => {
                   return (
                     <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
                       <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">

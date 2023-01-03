@@ -89,7 +89,7 @@ const EngagePage = () => {
       }
     }
     setCurrentPBID(tempData[0].playbackID);
-    console.log(tempData);
+
     if (tempData.length > 0) {
       setAccount(tempData);
     }
@@ -154,7 +154,7 @@ const EngagePage = () => {
   useEffect(() => {
     // setAccount(account);
     getConversations().then((val) => {
-      console.log(conversations);
+      //console.log(conversations);
     });
     setActiveRoom(account[selectedAccount].groupRoom[0]);
     if (signer && !isLoading && account[0].address != "") {
@@ -167,7 +167,25 @@ const EngagePage = () => {
       <div>
         <LayoutContainer>
           {isLoading ? (
-            <div className="h-[660px] w-full bg-gray-200 animate-pulse shadowBox"></div>
+            <div className="h-[760px] w-full secondary shadowBox flex flex-row flex-wrap">
+              <div className="flex m-5 flex-col lg:flex-row p-2 w-full">
+                <div className="w-full max-w-[300px] rounded-md animate-pulse h-[300px] bg-gray-200"></div>
+                <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
+                  <div className="max-w-full ">
+                    <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                  </div>
+                  <div className="max-w-full ">
+                    <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                  </div>
+                  <div className="max-w-full ">
+                    <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                  </div>
+                  <div className="max-w-full ">
+                    <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : account[0].address == "" ? (
             <NoItems description="No idol registered yet at this time, please come back later" />
           ) : (

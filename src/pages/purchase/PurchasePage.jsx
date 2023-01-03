@@ -62,34 +62,42 @@ const PurchasePages = () => {
 
   useEffect(() => {
     if (lockAddress) {
-      getUserProfile();
       lockMeta(chain, lockAddress).then((resp) => {
+        getUserProfile(resp);
         getSampleImagenft(resp);
       });
     }
   }, [lockAddress]);
 
-  const getUserProfile = async () => {
+  const getUserProfile = async (resp) => {
     const { data: userDids, error: errorDids } = await orbis.getDids(
-      lockDetail.idolAddress
+      resp.idolAddress
     );
     if (!errorDids && userDids.length) {
       const { data: profileData, error: profileError } = await orbis.getProfile(
         userDids[0].did
       );
-      console.log(profileData);
+      //console.log(profileData);
       if (!profileError) setProfileData(profileData.details.profile);
     }
   };
 
   const handlePurchase = async () => {
+    if (!signer) {
+      handleCloseDialog();
+      return ShowToast({
+        message: "Please connect your wallet beforehand",
+        state: "erro",
+      });
+    }
     const contracts = new Contract(nftAddress, PGSUBS_ABI.abi, signer);
     let transactionResponse;
     try {
+      setIsLoading(true);
       transactionResponse = await contracts.purchaseSub({
         value: parseInt(lockDetail.price.hex.toString()).toString(),
       });
-      setIsLoading(true);
+
       ShowToast({
         message: "Working on it~",
       });
@@ -153,18 +161,18 @@ const PurchasePages = () => {
       nftImageURI: res.image,
       nftDescription: res.description,
     });
-    console.log(lockDetail);
+    //console.log(lockDetail);
   };
 
   return (
     <>
       <LayoutContainer>
-        <Link href="/">
-          <button className="shadowBoxBtnSmall py-2 max-w-[115px] rounded-[10px] text-center flex flex-row mb-5 bg-white">
-            <div className="text-center m-auto font-medium flex flex-row">
+        <Link href="/" className="inline-flex">
+          <button className="shadowBoxBtnSmall py-2 px-4 rounded-[10px] text-center flex flex-row mb-5 bg-white">
+            <div className="text-center m-auto font-medium flex flex-row gap-2">
               <SvgIconStyle
                 src={"/assets/icons/arrowprev-icon.svg"}
-                className="bg-red w-[25px] h-[15px] mt-[1px] md:mt-1"
+                className="bg-red w-[15px] h-[15px] mt-[1px] md:mt-1"
               />
               Explore
             </div>
@@ -180,16 +188,16 @@ const PurchasePages = () => {
             <div className="flex flex-col lg:flex-row">
               <CollectionImage
                 src={lockDetail.collectionImageURI}
-                className="aspect-[1/1] max-w-[296px] w-full"
+                className="aspect-[1/1.2] max-w-[296px] w-full"
               />
               <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                <div className="max-w-full lg:pr-5">
+                <div className="max-w-full lg:pr-5 break-all">
                   <div className="subtitle">Profile</div>
                   <div>{`${profileData.name}`}</div>
-                  <div className="subtitle mt-4">Interest</div>
-                  <div>{`${lockDetail.interest ?? "-"}`}</div>
                   <div className="subtitle mt-4">Bio</div>
                   <div>{`${profileData.bio}`}</div>
+                  {/* <div className="subtitle mt-4">Interest</div>
+                  <div>{`${lockDetail.interest ?? "-"}`}</div> */}
                 </div>
               </div>
             </div>
@@ -203,7 +211,7 @@ const PurchasePages = () => {
                     className="max-w-[136px] w-full max-h-[195px] aspect-[1/3] m-auto mt-5 mb-5 lg:m-0"
                   />
 
-                  <div className="mt-3 lg:mt-0 flex flex-col justify-between w-full gap-3 p-2">
+                  <div className="mt-3 lg:mt-0 flex flex-col justify-between w-full gap-3 p-2 pt-0">
                     <div className="max-w-full w-full flex flex-col justify-between ">
                       <div>
                         <div className="title-primary">

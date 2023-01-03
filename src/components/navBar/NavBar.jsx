@@ -9,12 +9,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { generateNonce, SiweMessage } from "siwe";
+import SvgIconStyle from "../elements/SvgIconStyle";
 import {
   useAccount,
   useConnect,
   useNetwork,
   useSignMessage,
   useSigner,
+  useSwitchNetwork,
 } from "wagmi";
 import { shortAddress, didToAddress } from "../../../utilities/addressUtils";
 import { useOrbis } from "../../context/OrbisContext";
@@ -38,6 +40,8 @@ const NavBar = () => {
   const [showButton, setShowButton] = useState();
   const { data: signer } = useSigner();
   const [resprovider, setresprovider] = useState();
+  const [openMenuPopup, setOpenMenuPopup] = useState(false);
+  const { switchNetwork } = useSwitchNetwork();
   const { connectOrbis, profile, checkOrbisConnection, disconnectOrbis } =
     useOrbis();
   useEffect(() => {
@@ -131,11 +135,81 @@ const NavBar = () => {
       });
   };
 
+  const ConnectWalletButton = () => {
+    return (
+      <button
+        onClick={async () => {
+          if (isConnected) {
+            return await disconnect();
+          }
+          setOpenMiniDialog(true);
+        }}
+        className="btn btn-primary-large"
+      >
+        {showButton ? (
+          address ? (
+            shortAddress(address)
+          ) : (
+            "CONNECT WALLET"
+          )
+        ) : (
+          <CircularProgress color="inherit" className="!w-5 !h-5 mt-1" />
+        )}
+      </button>
+    );
+  };
+
+  const WalletSelectionPopup = () => {
+    return (
+      <Zoom in={openMiniDialog}>
+        <div className="shadowBox absolute border-2 border-black bg-white rounded-md top-[100px] lg:top-[55px] z-10 left-0">
+          {connectors.map((connector) => (
+            <button
+              // disabled={!connector.ready}
+              key={connector.id}
+              onClick={async () => {
+                try {
+                  let defChain = process.env.NEXT_PUBLIC_CHAIN_ID;
+                  setOpenMiniDialog(false);
+                  setOpenMenuPopup(false);
+
+                  const res = await connectAsync({
+                    connector,
+                    chainId: parseInt(defChain),
+                  });
+                  if (chain?.id != defChain) {
+                    switchNetwork?.(defChain);
+                  }
+                  setresprovider(res.provider);
+                } catch (e) {
+                  console.log(e);
+                  console.log("rejected");
+                }
+
+                //connect({ connector });
+              }}
+              className="flex flex-row p-2 items-center gap-2"
+            >
+              <img
+                src={walletIcons[connector.id]}
+                className="w-7 h-7 rounded-md"
+              />
+              {connector.name}
+              {isLoading &&
+                pendingConnector?.id === connector.id &&
+                " (connecting)"}
+            </button>
+          ))}
+        </div>
+      </Zoom>
+    );
+  };
+
   return (
     <>
       <SEO />
       <LayoutTop>
-        <div className="flex flex-row justify-between items-center w-full">
+        <div className="flex flex-row justify-between items-center w-full relative">
           <Link href={"/"}>
             <Image
               src={"/assets/picture/MainLogo.png"}
@@ -145,6 +219,50 @@ const NavBar = () => {
               priority
             />
           </Link>
+          {/* MOBILE MENU */}
+          <ClickAwayListener onClickAway={() => setOpenMenuPopup(false)}>
+            <div>
+              <div
+                onClick={() => setOpenMenuPopup(!openMenuPopup)}
+                className="lg:hidden"
+              >
+                <SvgIconStyle
+                  src={"/assets/icons/menu-icon.svg"}
+                  className="bg-highlight w-10 h-10"
+                />
+              </div>
+              <Zoom in={openMenuPopup}>
+                <div className="lg:hidden w-full bg-white shadowBox absolute top-[140%] z-[10] left-0">
+                  <div className="flex flex-col p-3 gap-3">
+                    {route.map((el, index) => {
+                      return (
+                        <Link
+                          href={el.loc}
+                          onClick={() => {
+                            setOpenMenuPopup(false);
+                          }}
+                          key={index}
+                          className={`font-medium ${
+                            path == el.loc
+                              ? "highlight !border-0"
+                              : path.includes(el.loc) && el.loc != "/"
+                              ? "highlight"
+                              : "bg-placeholder"
+                          }`}
+                        >
+                          <div>{el.label}</div>
+                        </Link>
+                      );
+                    })}
+                    <hr className="border-black" />
+                    <ConnectWalletButton />
+                    <WalletSelectionPopup />
+                  </div>
+                </div>
+              </Zoom>
+            </div>
+          </ClickAwayListener>
+          {/* DESKTOP MENU */}
           <div className="hidden lg:flex flex-row justify-between w-full items-center ">
             <div className="flex flex-row space-x-10 ml-[8%] pt-0 h-[90px]">
               {route.map((el, index) => {
@@ -166,61 +284,16 @@ const NavBar = () => {
               })}
             </div>
 
-            <ClickAwayListener onClickAway={() => setOpenMiniDialog(false)}>
+            <ClickAwayListener
+              onClickAway={() => {
+                if (!openMenuPopup) {
+                  setOpenMiniDialog(false);
+                }
+              }}
+            >
               <div className="relative">
-                <button
-                  onClick={async () => {
-                    if (isConnected) {
-                      return await disconnect();
-                    }
-                    setOpenMiniDialog(true);
-                  }}
-                  className="btn btn-primary-large"
-                >
-                  {showButton ? (
-                    address ? (
-                      shortAddress(address)
-                    ) : (
-                      "CONNECT WALLET"
-                    )
-                  ) : (
-                    <CircularProgress
-                      color="inherit"
-                      className="!w-5 !h-5 mt-1"
-                    />
-                  )}
-                </button>
-
-                <Zoom in={openMiniDialog}>
-                  <div className="shadowBox absolute border-2 border-black bg-white rounded-md top-[55px] z-10">
-                    {connectors.map((connector) => (
-                      <button
-                        // disabled={!connector.ready}
-                        key={connector.id}
-                        onClick={async () => {
-                          setOpenMiniDialog(false);
-                          const res = await connectAsync({
-                            connector,
-                            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-                          });
-                          setresprovider(res.provider);
-
-                          //connect({ connector });
-                        }}
-                        className="flex flex-row p-2 items-center gap-2"
-                      >
-                        <img
-                          src={walletIcons[connector.id]}
-                          className="w-7 h-7 rounded-md"
-                        />
-                        {connector.name}
-                        {isLoading &&
-                          pendingConnector?.id === connector.id &&
-                          " (connecting)"}
-                      </button>
-                    ))}
-                  </div>
-                </Zoom>
+                <ConnectWalletButton />
+                <WalletSelectionPopup />
               </div>
             </ClickAwayListener>
           </div>
