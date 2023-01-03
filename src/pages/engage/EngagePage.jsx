@@ -153,14 +153,15 @@ const EngagePage = () => {
 
   useEffect(() => {
     // setAccount(account);
-    getConversations().then((val) => {
-      //console.log(conversations);
-    });
+    if (!signer) {
+      return setBlocked(true);
+    }
+    getConversations();
     setActiveRoom(account[selectedAccount].groupRoom[0]);
     if (signer && !isLoading && account[0].address != "") {
       checkTokenGate(account[selectedAccount].idolAddress);
     }
-  }, [selectedAccount, account]);
+  }, [selectedAccount, account, signer]);
 
   return (
     <Zoom in={true}>
