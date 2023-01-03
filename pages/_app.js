@@ -33,6 +33,7 @@ const wagmiClient = createClient({
       chains,
       options: {
         qrcode: true,
+        version: '2',
       }
     })
   ],
