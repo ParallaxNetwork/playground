@@ -163,6 +163,8 @@ const EngagePage = () => {
     }
   }, [selectedAccount, account, signer]);
 
+  console.log("SELECTED ACCOUNT", account[selectedAccount]);
+
   return (
     <Zoom in={true}>
       <div>
@@ -197,6 +199,15 @@ const EngagePage = () => {
                   <div className="flex flex-row justify-start items-center bg-secondary text-white border-b-2 border-black">
                     <div className="flex flex-row w-full max-w-[300px]">
                       {tabs.map((el, index) => {
+                        let liveActiveClass = "";
+                        if(el.title === "LIVE"){
+                          if(account[selectedAccount]?.isLive){
+                            liveActiveClass = "bg-active"
+                          }else{
+                            liveActiveClass = "bg-gray-500"
+                          }
+                        }
+
                         return (
                           <div
                             onClick={() => {
@@ -223,9 +234,9 @@ const EngagePage = () => {
                               setTabs(temp);
                             }}
                             key={index}
-                            className={`flex flex-row border-r-2 border-black p-4 w-full font-medium max-w-[157px] justify-center ${
-                              el.isActive ? "bg-active" : ""
-                            }`}
+                            className={`flex flex-row border-r-2 border-r-black p-4 w-full 
+                              font-medium max-w-[157px] justify-center ${liveActiveClass}
+                              ${el.isActive ? "border-b-4 border-b-white" : "border-b-4 border-b-transparent"}`}
                           >
                             <img className="icons mr-2" src={el.icon} alt="" />
                             <div className="title-secondary">{el.title}</div>
@@ -370,6 +381,9 @@ const EngagePage = () => {
                         idolAddress={account[selectedAccount].idolAddress}
                         isBlocked={blocked}
                       />
+                      // <div>
+                      //   hehe
+                      // </div>
                     )}
                   </div>
                 </div>

@@ -670,14 +670,15 @@ const ProfilePage = () => {
                         <div className="flex gap-2 mt-5 subtitle items-center truncate items-start justify-start">
                           <SvgIconStyle
                             src={"/assets/icons/verified-icon.svg"}
-                            className="w-[18px] h-[18px] bg-red shrink mr-1"
+                            className="w-[18px] h-[30px] aspect-square bg-red mr-1"
                           />
                           {el.lock.name}
                         </div>
+
                         <div className="flex flex-wrap f-12-px text-center mt-3">
                           Playground Subscription
                         </div>
-                        <div className="f-12-px bg-description mt-5">
+                        <div className="f-12-px bg-description mt-5 text-center">
                           {`Expired at ${new Date(
                             el.expiration * 1000
                           ).getDate()} ${new Date(

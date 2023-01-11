@@ -67,6 +67,10 @@ const NavBar = () => {
   const route = [
     {
       loc: "/",
+      label: "HOME",
+    },
+    {
+      loc: "/explore",
       label: "EXPLORE",
     },
     {

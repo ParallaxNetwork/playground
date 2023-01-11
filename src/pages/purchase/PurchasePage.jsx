@@ -194,16 +194,43 @@ const PurchasePages = () => {
           </div>
           <div className="p-7">
             <div className="flex flex-col lg:flex-row">
-              <CollectionImage
-                src={profileData.pfp ?? "/assets/picture/placeholder.png"}
-                className="lg:max-w-[250px]"
-              />
+              {profileData.pfp ?
+                <CollectionImage
+                  src={profileData.pfp ?? "/assets/picture/placeholder.png"}
+                  className="lg:max-w-[250px]"
+                />
+                :
+                <div
+                  className="lg:max-w-[250px] aspect-square w-full bg-gray-200 animate-pulse"
+                />
+              }
+
               <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                <div className="max-w-full lg:pr-5 break-all">
-                  <div className="subtitle">Profile</div>
-                  <div>{`${profileData.name}`}</div>
-                  <div className="subtitle mt-4">Bio</div>
-                  <div>{`${profileData.bio}`}</div>
+                <div className="lg:pr-5 break-all w-full flex flex-col">
+                  <div className="subtitle">
+                    Profile
+                  </div>
+
+                  {profileData.name ?
+                    <div>
+                      {`${profileData.name}`}
+                    </div>
+                    :
+                    <div className="h-8 w-full max-w-[16rem] animate-pulse bg-gray-200 rounded-md" />
+                  }
+
+                  <div className="subtitle mt-4">
+                    Bio
+                  </div>
+
+                  {profileData.bio ?
+                    <div>
+                      {`${profileData.bio}`}
+                    </div>
+                    :
+                    <div className="h-16 w-full max-w-[32rem] animate-pulse bg-gray-200 rounded-md" />
+                  }
+
                   {/* <div className="subtitle mt-4">Interest</div>
                   <div>{`${lockDetail.interest ?? "-"}`}</div> */}
                 </div>
@@ -244,9 +271,8 @@ const PurchasePages = () => {
                     <div className="space-y-3 max-w-[380px]">
                       <div className="subtitle">DESCRIPTION</div>
                       <div>
-                        {`${lockDetail.description.slice(0, 100)} ${
-                          lockDetail.description.length > 100 ? "..." : ""
-                        }`}
+                        {`${lockDetail.description.slice(0, 100)} ${lockDetail.description.length > 100 ? "..." : ""
+                          }`}
                       </div>
                     </div>
                     <div className="flex flex-col lg:flex-row w-full justify-between">
@@ -292,8 +318,16 @@ const PurchasePages = () => {
             </div>
 
             <div className="mt-10">
-              <div className="border-2 border-black">
-                <div className="grid grid-rows-1 lg:grid-cols-5 p-2 gap-3 m-4">
+              <div className="border-2 border-black p-4">
+                <div className="title-primary">
+                  Merchandise
+                </div>
+
+                <div className="opacity-60">
+                  Coming soon
+                </div>
+
+                {/* <div className="grid grid-rows-1 lg:grid-cols-5 gap-3 mt-2">
                   {sellItem.map((el, index) => {
                     return (
                       <div
@@ -330,7 +364,7 @@ const PurchasePages = () => {
                       </div>
                     );
                   })}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

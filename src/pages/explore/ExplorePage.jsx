@@ -106,20 +106,28 @@ const IndexPage = () => {
                       <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
                         <img src="/assets/icons/hearts-icon.svg" alt="" />
                       </div>
-                      <div className="flex m-5 flex-col lg:flex-row p-2">
-                        <div className="w-full max-w-[300px] rounded-md animate-pulse h-[300px] bg-gray-200"></div>
-                        <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
-                          <div className="max-w-full ">
-                            <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+
+                      <div className="m-5 p-2 grid grid-cols-12">
+                        <div className="col-span-12 md:col-span-5 lg:col-span-3 p-4">
+                          <div className="w-full">
+                            <div className="w-full max-w-[32rem] m-auto aspect-square rounded-md animate-pulse bg-gray-200" />
                           </div>
-                          <div className="max-w-full ">
-                            <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
-                          </div>
-                          <div className="max-w-full ">
-                            <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
-                          </div>
-                          <div className="max-w-full ">
-                            <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                        </div>
+
+                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4">
+                          <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
+                            <div className="max-w-full ">
+                              <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                            </div>
+                            <div className="max-w-full ">
+                              <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                            </div>
+                            <div className="max-w-full ">
+                              <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
+                            </div>
+                            <div className="max-w-full ">
+                              <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -146,51 +154,61 @@ const IndexPage = () => {
                         {el.lockName}
                         <img src="/assets/icons/hearts-icon.svg" alt="" />
                       </div>
-                      <div className="flex m-5 flex-col lg:flex-row p-2">
-                        <div className="w-full lg:w-[30%] lg:max-w-[300px]">
-                          <CollectionImage
-                            src={el.lockImage}
-                            className=""
-                          />
-                        </div>
-                        <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-0 xl:gap-8 ">
+
+                      <div className="m-5 p-2 grid grid-cols-12">
+                        <div className="col-span-12 md:col-span-5 lg:col-span-3 p-4">
                           <div className="w-full">
-                            <div className="subtitle">DESCRIPTION</div>
-                            <div>{el.description}</div>
-                            <div className="subtitle mt-4">Interest</div>
-                            <div>{el.interest?.join() ?? "-"}</div>
+                            <CollectionImage
+                              src={el.lockImage}
+                              className="m-auto max-w-[32rem]"
+                            />
                           </div>
-                          <div className="max-w-full mt-5">
-                            <div className="flex flex-row space-x-3">
-                              <img
-                                src="/assets/icons/verified-icon.svg"
-                                alt=""
-                              />
-                              <div className="subtitle">NFT PERKS</div>
+                        </div>
+
+                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4">
+                          <div className="ml-0 mt-5 flex flex-col justify-start w-full gap-0 xl:gap-8">
+                            {/* Description */}
+                            <div className="w-full">
+                              <div className="subtitle">DESCRIPTION</div>
+                              <div>{el.description}</div>
+                              <div className="subtitle mt-4">Interest</div>
+                              <div>{el.interest?.join() ?? "-"}</div>
                             </div>
-                            <div className="mt-3 space-y-2">
-                              {isEmpty(el.perks) ? (
-                                <></>
-                              ) : (
-                                el.perks.map((child, i) => {
-                                  return (
-                                    <div
-                                      key={i}
-                                      className="flex flex-row border-2 border-black"
-                                    >
-                                      <div className="border-r-2 border-black p-3">
-                                        <SvgIconStyle
-                                          src={"/assets/icons/star-icon.svg"}
-                                          className="w-6 h-6 bg-highlight"
-                                        />
+
+                            {/* Perks */}
+                            <div className="max-w-full mt-5">
+                              <div className="flex flex-row space-x-3">
+                                <img
+                                  src="/assets/icons/verified-icon.svg"
+                                  alt=""
+                                />
+                                <div className="subtitle">NFT PERKS</div>
+                              </div>
+
+                              <div className="mt-3 space-y-2">
+                                {isEmpty(el.perks) ? (
+                                  <></>
+                                ) : (
+                                  el.perks.map((child, i) => {
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex flex-row items-center border-2 border-black"
+                                      >
+                                        <div className="border-r-2 border-black h-full p-3">
+                                          <SvgIconStyle
+                                            src={"/assets/icons/star-icon.svg"}
+                                            className="w-6 h-6 bg-highlight"
+                                          />
+                                        </div>
+                                        <div className="block font-medium text-fill p-3">
+                                          {child}
+                                        </div> 
                                       </div>
-                                      <div className="block font-medium text-fill p-3">
-                                        {child}
-                                      </div>
-                                    </div>
-                                  );
-                                })
-                              )}
+                                    );
+                                  })
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -206,4 +224,5 @@ const IndexPage = () => {
     </Zoom>
   );
 };
+
 export default IndexPage;

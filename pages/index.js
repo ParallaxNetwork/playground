@@ -1,8 +1,8 @@
 
 import dynamic from 'next/dynamic'
-const IndexPage = dynamic(() => import('../src/pages/explore/ExplorePage'), {
+const HomePage = dynamic(() => import('../src/pages/home/HomePage'), {
   ssr: true,
 })
 export default function Home() {
-  return <IndexPage />
+  return <HomePage />
 }
