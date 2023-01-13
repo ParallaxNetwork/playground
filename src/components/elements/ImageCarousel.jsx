@@ -80,16 +80,16 @@ const ImageCarousel = ({
   if (simple) {
     return (
       <Carousel
-        interval={3000}
-        infiniteLoop={true}
-        showThumbs={false}
-        showStatus={false}
-        showIndicators={false}
-        showArrows={false}
-        autoPlay={true}
-        centerMode={true}
-        centerSlidePercentage={100}
-        transitionTime={1000}
+          interval={3000}
+          infiniteLoop={true}
+          showThumbs={false}
+          showStatus={false}
+          showIndicators={false}
+          showArrows={false}
+          autoPlay={true}
+          centerMode={true}
+          centerSlidePercentage={100}
+          transitionTime={1000}
       >
         {images.map((item, index) => {
           return (

@@ -12,6 +12,7 @@ import {
   useProvider,
   useSigner,
 } from "wagmi";
+
 import { contractConfig } from "../../../utilities/contractConfig";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import CollectionImage from "../../components/elements/CollectionImage";
@@ -20,7 +21,12 @@ import NoItems from "../../components/elements/NoItems";
 import ShadowBox from "../../components/elements/ShadowBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { lockMeta } from "./lockMeta";
+
+import { useUser } from "../../context/UserContext"
+
 const IndexPage = () => {
+  const user = useUser();
+
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
@@ -70,6 +76,7 @@ const IndexPage = () => {
         result[i].idolAddress != "0x0000000000000000000000000000000000000000"
       ) {
         var tempMeta = await lockMeta(chain, result[i].lockAddress);
+        
         tempData.push({
           lockName: result[i].lockName,
           lockAddress: result[i].lockAddress,
@@ -84,13 +91,22 @@ const IndexPage = () => {
         });
       }
     }
-    //console.log(tempData);
+    console.log("explore data", tempData);
+
     setIdolData(tempData);
     setIsLoading(false);
   };
 
   useEffect(() => {
     fetchIdols();
+  }, []);
+
+  // run fetchIdols every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchIdols();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -139,6 +155,7 @@ const IndexPage = () => {
               <NoItems description="no idol registered at this time, come back later" />
             ) : (
               idolData.map((el, index) => {
+                const isSubscribed = user.isSubscribed(el.lockAddress)
                 return (
                   <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
                     <Link
@@ -152,7 +169,16 @@ const IndexPage = () => {
                     >
                       <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
                         {el.lockName}
-                        <img src="/assets/icons/hearts-icon.svg" alt="" />
+
+                        <div className="flex flex-row items-center">
+                          {isSubscribed &&
+                            <div className="bg-white text-black text-sm mr-2 border border-black p-2 font-semibold">
+                              Subscribed
+                            </div>
+                          }
+
+                          <img src="/assets/icons/hearts-icon.svg" alt="" />
+                        </div>
                       </div>
 
                       <div className="m-5 p-2 grid grid-cols-12">

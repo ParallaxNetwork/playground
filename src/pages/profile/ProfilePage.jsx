@@ -1,26 +1,35 @@
+
+import { ethers } from "ethers";
+import { isEmpty } from "lodash";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Player, useCreateStream } from "@livepeer/react";
+import { Zoom, CircularProgress } from "@mui/material";
+import { Web3Provider } from "@ethersproject/providers";
+import { Contract } from "@ethersproject/contracts";
+import { useAccount, useSigner, useNetwork } from "wagmi";
+
+
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CollectionImage from "../../components/elements/CollectionImage";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { useEffect, useState } from "react";
-import { isEmpty } from "lodash";
 import NoItems from "../../components/elements/NoItems";
-import { useAccount, useSigner, useNetwork } from "wagmi";
 import { ShowToast } from "../../components/elements/Toaster";
-import { Web3Provider } from "@ethersproject/providers";
-import { Contract } from "@ethersproject/contracts";
-import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
+
 import EditProfileDialog from "./EditProfileDialog";
 import RegisterDialog from "./RegisterDIalog";
-import { contractConfig } from "../../../utilities/contractConfig";
-import { ethers } from "ethers";
-import { CircularProgress } from "@mui/material";
-import { Player, useCreateStream } from "@livepeer/react";
-import axios from "axios";
+
 import { useOrbis } from "../../context/OrbisContext";
-import { Zoom } from "@mui/material";
+import { useUser } from "../../context/UserContext";
+
+import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
+import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
+
 const ProfilePage = () => {
+  const user = useUser();
+
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
@@ -29,7 +38,6 @@ const ProfilePage = () => {
   const { chain, chains } = useNetwork();
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   const [idolData, setIdolData] = useState();
-  const [keyList, setKeyList] = useState();
   const [streamID, setStreamID] = useState();
   const [playbackID, setPlaybackID] = useState();
   const [streamKey, setStreamKey] = useState();
@@ -313,7 +321,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      getAllKey();
+      user.getSubscription();
       setInitEverything(true);
       getUserProfile();
     }, 1);
@@ -415,45 +423,6 @@ const ProfilePage = () => {
       });
       console.log("failed to withdraw");
     }
-  };
-
-  const getAllKey = () => {
-    if (!address) {
-      return;
-    }
-    let data = JSON.stringify({
-      query:
-        "query AllKeys($first: Int = 1, $skip: Int, $where: Key_filter, $orderBy: Key_orderBy, $orderDirection: OrderDirection) {\n  keys(\n    first: $first\n    skip: $skip\n    where: $where\n    orderBy: $orderBy\n    orderDirection: $orderDirection\n  ) {\n    id\n    lock {\n      id\n      address\n      name\n      expirationDuration\n      tokenAddress\n      price\n      lockManagers\n      version\n      createdAtBlock\n      totalKeys\n    }\n    tokenId\n    owner\n    manager\n    expiration\n    tokenURI\n    createdAtBlock\n    cancelled\n  }\n}",
-      variables: {
-        first: 1000,
-        where: {
-          owner: address,
-        },
-        orderBy: "expiration",
-        orderDirection: "desc",
-      },
-      operationName: "AllKeys",
-    });
-    let config = {
-      method: "post",
-      url:
-        process.env.NODE_ENV == "production"
-          ? process.env.NEXT_PUBLIC_SUBGRAPH_MAINNET
-          : process.env.NEXT_PUBLIC_SUBGRAPH_TESTNET,
-
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: data,
-    };
-
-    axios(config)
-      .then(async (response) => {
-        console.log(response.data.data.keys);
-        setKeyList(response.data.data.keys);
-      })
-      .catch((e) => {});
   };
 
   const handleRenewKey = (keyID) => {
@@ -639,7 +608,7 @@ const ProfilePage = () => {
                 </ShadowBox>
               </>
             )}
-            {isEmpty(keyList) || isEmpty(address) ? (
+            {isEmpty(user.subscription) || isEmpty(address) ? (
               <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
                 <NoItems
                   isFullPage={isEmpty(address) ? true : false}
@@ -657,7 +626,7 @@ const ProfilePage = () => {
                   MY SUBSCRIPTION
                 </div>
                 <div className="grid grid-rows-1 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
-                  {keyList.map((el, index) => {
+                  {user.subscription.map((el, index) => {
                     return (
                       <div
                         key={index}
@@ -667,7 +636,7 @@ const ProfilePage = () => {
                           src={el.tokenURI.slice(0, el.tokenURI.length - 1)}
                           className="max-w-[222px] md:max-w-[413px] h-full "
                         />
-                        <div className="flex gap-2 mt-5 subtitle items-center truncate items-start justify-start">
+                        <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
                           <SvgIconStyle
                             src={"/assets/icons/verified-icon.svg"}
                             className="w-[18px] h-[30px] aspect-square bg-red mr-1"

@@ -1,23 +1,31 @@
+import { CircularProgress, Zoom } from "@mui/material";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/dist/client/router";
+import { useAccount, useNetwork, useSigner } from "wagmi";
+import { Contract, ethers } from "ethers";
+
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CollectionImage from "../../components/elements/CollectionImage";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { CircularProgress, Zoom } from "@mui/material";
-import { useEffect, useState } from "react";
 import AlertDialog from "../../components/elements/AlertDialog";
-import Link from "next/link";
-import { useRouter } from "next/dist/client/router";
+
 import { lockMeta } from "../explore/lockMeta";
-import { useAccount, useNetwork, useSigner } from "wagmi";
 import { useOrbis } from "../../context/OrbisContext";
 import { contractConfig } from "../../../utilities/contractConfig";
-import { Contract } from "ethers";
+
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { PGSUBS_ABI } from "../../../utilities/PGSubsABI";
-import { ethers } from "ethers";
+
 import { ShowToast } from "../../components/elements/Toaster";
 import MerchandiseDialog from "./MerchandiseDialog";
+
+import { useUser } from "../../context/UserContext";
+
 const PurchasePages = () => {
+  const user = useUser();
+  
   const [openPurchaseDialog, setOpenPurchaseDialog] = useState(false);
   const router = useRouter();
   const { lockAddress, nftAddress } = router.query;
@@ -160,7 +168,10 @@ const PurchasePages = () => {
     const res = await result.json();
     const res2 = await result2.json();
     const res3 = await result3.json();
-    setLockDetail({
+
+    console.log("RESP", resp);
+
+    const lockDetail = {
       ...resp,
       nftImageURI: [
         res.image,
@@ -168,14 +179,18 @@ const PurchasePages = () => {
         res3?.image ?? "/assets/picture/placeholder.png",
       ],
       nftDescription: res.description,
-    });
+    }
+
+    console.log("LOCK DETAIL", lockDetail);
+
+    setLockDetail(lockDetail);
     //console.log(lockDetail);
   };
 
   return (
     <>
       <LayoutContainer>
-        <Link href="/" className="inline-flex">
+        <Link href="/explore" className="inline-flex">
           <button className="shadowBoxBtnSmall py-2 px-4 rounded-[10px] text-center flex flex-row mb-5 bg-white">
             <div className="text-center m-auto font-medium flex flex-row gap-2">
               <SvgIconStyle
@@ -190,7 +205,16 @@ const PurchasePages = () => {
         <ShadowBox className={"shadowBox mb-10"}>
           <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
             {`${lockDetail.stream_name}`}
-            <img src="/assets/icons/hearts-icon.svg" alt="" />
+
+            <div className="flex flex-row items-center">
+              {user.isSubscribed(lockDetail.lockAddress) &&
+                <div className="bg-white text-black text-sm mr-2 border border-black p-2 font-semibold">
+                  Subscribed
+                </div>
+              }
+
+              <img src="/assets/icons/hearts-icon.svg" alt="" />
+            </div>
           </div>
           <div className="p-7">
             <div className="flex flex-col lg:flex-row">
@@ -307,7 +331,10 @@ const PurchasePages = () => {
                               className="!w-3 !h-3"
                             />
                           ) : (
-                            "SUBSCRIBE"
+                            user.isSubscribed(lockDetail.lockAddress) ?
+                              "RENEW"
+                              :
+                              "SUBSCRIBE"
                           )}
                         </button>
                       </div>

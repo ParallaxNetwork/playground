@@ -130,6 +130,10 @@ input {
   color: #c3c3c3;
 }
 
+.bg-cream {
+  background-color: #FFF9F9
+}
+
 .secondary {
   background-color: #fff9f9;
 }

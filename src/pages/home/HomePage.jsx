@@ -125,7 +125,7 @@ const HomePage = () => {
             </Marquee>
           </div>
 
-          <div className="bg-[#FFF9F9] border-b-2 border-b-black">
+          <div className="bg-cream border-b-2 border-b-black">
             <div className="container max-w-6xl mx-auto">
               <div className="grid grid-cols-12">
                 <div className="col-span-12 sm:col-span-9 lg:col-span-10 border-b-2 sm:border-b-0 sm:border-r-2 border-black">
@@ -156,7 +156,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="bg-[#FFF9F9] border-b-2 border-b-black">
+          <div className="bg-cream border-b-2 border-b-black">
             <div className="container max-w-6xl mx-auto border-x-2 border-black">
               <ImageCarousel images={BANNERS} />
             </div>
@@ -167,7 +167,7 @@ const HomePage = () => {
             <div className="bg-white border-2 border-b-black p-2 text-center font-semibold text-2xl">
               MAIN FEATURES
             </div>
-            <div className="bg-[#FFF9F9] border-b-2 border-b-black diagonal-stripe-box">
+            <div className="bg-cream border-b-2 border-b-black diagonal-stripe-box">
               <div className="container max-w-6xl mx-auto">
                 <div className="grid gap-4 grid-cols-12">
                   {MAIN_FEATURES.map((item, index) => {
@@ -187,15 +187,15 @@ const HomePage = () => {
           {/* Powered by */}
           <div className="mt-6">
             <div className="container max-w-6xl mx-auto p-2">
-              <div className="border-2 border-black">
-                <div className="bg-white border-b-2 border-black p-2 text-center font-semibold text-2xl">
+              <div className="border border-black">
+                <div className="bg-white border border-black p-2 text-center font-semibold text-2xl">
                   Powered by
                 </div>
 
-                <div className="grid grid-cols-12 divide-black divide-y-2 sm:divide-y-0 sm:divide-x-2">
+                <div className="grid grid-cols-12">
                   {POWERED_BY.map((item, index) => {
                     return (
-                      <div className="col-span-12 sm:col-span-3" key={index}>
+                      <div className="col-span-6 border border-black sm:col-span-3" key={index}>
                         <div className="bg-white flex flex-col h-full">
                           <img
                             src={item.thumbnail}
@@ -203,7 +203,7 @@ const HomePage = () => {
                             className={"w-full"}
                           />
 
-                          <div className="bg-[#FFF9F9] p-2 text-center flex-1 flex flex-col justify-end">
+                          <div className="bg-cream p-2 text-center flex-1 flex flex-col justify-end">
                             <div>{item.description}</div>
 
                             <a href={item.link} target="_blank" className="text-lg font-semibold">
@@ -230,7 +230,7 @@ const HomePage = () => {
                 <div className="divide-black divide-y-2">
                   {BENEFITS.map((item, index) => {
                     return (
-                      <div key={index} className="bg-[#FFF9F9] p-2">
+                      <div key={index} className="bg-cream p-2">
                         {item}
                       </div>
                     );
