@@ -1,6 +1,6 @@
 import { Fade, Zoom } from "@mui/material";
 import Marquee from "react-fast-marquee";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { isEmpty } from "lodash";
 import Link from "next/link";
 import CollectionImage from "../../components/elements/CollectionImage";
@@ -8,48 +8,76 @@ import LayoutContainer from "../../components/elements/Container";
 import NoItems from "../../components/elements/NoItems";
 import ShadowBox from "../../components/elements/ShadowBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
+import ImageCarousel from '../../components/elements/ImageCarousel';
 
-const MARQUEE_KEYWORDS = ["Playground", "Fan experience", "NFTs", "Direct engagement", "Favorite artist", "Exclusive experiences", "Decentralized technology", "Personalized features", "Direct communication", "Personalized experience"];
+const MARQUEE_KEYWORDS = [
+  "Playground",
+  "Fan experience",
+  "NFTs",
+  "Direct engagement",
+  "Favorite artist",
+  "Exclusive experiences",
+  "Decentralized technology",
+  "Personalized features",
+  "Direct communication",
+  "Personalized experience",
+];
 const renderedKeywords = MARQUEE_KEYWORDS.map((item, index) => {
   return (
     <span key={index} className="mx-4 text-white">
       {item}
     </span>
-  )
+  );
 });
+
+// SAMPLE
+const SAMPLES = [
+  "/assets/picture/sample/sample1.png",
+  "/assets/picture/sample/sample2.png",
+  "/assets/picture/sample/sample3.png",
+]
+
+// BANNER
+const BANNERS = [
+  "/assets/picture/banner/banner-1.jpg",
+  "/assets/picture/banner/banner-2.jpg",
+  "/assets/picture/banner/banner-3.jpg",
+  "/assets/picture/banner/banner-4.jpg"
+]
 
 // MAIN FEATURES
 const MAIN_FEATURES = [
   "Direct engagement opportunities with your favorite artists",
   "Purchase NFTs of your favorite artists to unlock exclusive experiences",
-  "Special live stream sessions and direct communication"
-]
+  "Special live stream sessions and direct communication",
+];
 
 // POWERED BY
 const POWERED_BY = [
   {
     description: "Secure and private chatting with",
     thumbnail: "/assets/picture/logo/thumbnail_orbis.png",
-    title: "Orbis Protocol"
+    title: "Orbis Protocol",
   },
   {
     description: "Secure and private chatting with",
     thumbnail: "/assets/picture/logo/thumbnail_livepeer.png",
-    title: "Livepeer"
+    title: "Livepeer",
   },
   {
     description: "Secure and private chatting with",
     thumbnail: "/assets/picture/logo/thumbnail_unlock.png",
-    title: "Unlock Protocol"
+    title: "Unlock Protocol",
   },
-]
+];
 
+// BENEFITS
 const BENEFITS = [
-  "Join a community of die-hard fans just like you",
-  "Own a piece of digital memorabilia",
-  "Get closer to the artists you love",
-  "Enjoy a personalized and unique fan experience"
-]
+  "🤩 Join a community of die-hard fans just like you",
+  "🎉 Own a piece of digital memorabilia",
+  "💖 Get closer to the artists you love",
+  "💫 Enjoy a personalized and unique fan experience"
+];
 
 const HomePage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -57,7 +85,7 @@ const HomePage = () => {
     if (!isPlaying) {
       setIsPlaying(true);
     }
-  }, [])
+  }, []);
 
   return (
     <Fade in>
@@ -79,9 +107,7 @@ const HomePage = () => {
               fan experience?
             </div>
 
-            <div className="text-lg mt-5">
-              Welcome to Playground!
-            </div>
+            <div className="text-lg mt-5">Welcome to Playground!</div>
           </div>
 
           <div className="bg-secondary h-8 w-full border-b-2 border-t-2 border-b-black border-t-black">
@@ -96,34 +122,34 @@ const HomePage = () => {
                 <div className="col-span-12 sm:col-span-9 lg:col-span-10 border-b-2 sm:border-b-0 sm:border-r-2 border-black">
                   <div className="flex flex-col h-full px-6 py-10 justify-center items-center">
                     <div className="text-base max-w-[54rem]">
-                      Imagine getting up-close and personal with your favorite artist. Not just a "like" or "comment", but
+                      Imagine getting up-close and personal with your favorite
+                      artist. Not just a "like" or "comment", but
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;real, direct engagement.&nbsp;
                       </span>
-
-                      <br /><br />
-
-                      That's what Playground offers - the chance to own a piece of your favorite artist and unlock
+                      <br />
+                      <br />
+                      That's what Playground offers - the chance to own a piece
+                      of your favorite artist and unlock
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;exclusive experiences&nbsp;
                       </span>
-                      you can't get anywhere else. Buy an NFT, get VIP access. It's that simple.
+                      you can't get anywhere else. Buy an NFT, get VIP access.
+                      It's that simple.
                     </div>
                   </div>
                 </div>
 
-                <div className="col-span-12 sm:col-span-3 lg:col-span-2 sm:border-r-2 sm:border-r-black">
-                  <img src={"/assets/picture/sample1.png"} alt={""} className="w-full h-full object-cover" />
+                <div className="col-span-12 sm:col-span-3 lg:col-span-2 sm:border-r-2 sm:border-r-black h-full">
+                  <ImageCarousel images={SAMPLES} simple />
                 </div>
               </div>
             </div>
           </div>
 
           <div className="bg-[#FFF9F9] border-b-2 border-b-black">
-            <div className="container max-w-6xl mx-auto">
-              <div className="text-center h-64 bg-slate-200">
-                BANNER PLACEHOLDER
-              </div>
+            <div className="container max-w-6xl mx-auto border-x-2 border-black">
+              <ImageCarousel images={BANNERS} />
             </div>
           </div>
 
@@ -139,12 +165,10 @@ const HomePage = () => {
                     return (
                       <div className="col-span-12 md:col-span-4" key={index}>
                         <div className="p-4 border-2 border-black flex flex-col justify-center bg-white text-black h-full">
-                          <div>
-                            {item}
-                          </div>
+                          <div>{item}</div>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -164,19 +188,21 @@ const HomePage = () => {
                     return (
                       <div className="col-span-12 sm:col-span-4" key={index}>
                         <div className="bg-white">
-                          <img src={item.thumbnail} alt={""} className={"w-full"} />
+                          <img
+                            src={item.thumbnail}
+                            alt={""}
+                            className={"w-full"}
+                          />
 
                           <div className="bg-[#FFF9F9] p-2 text-center">
-                            <div>
-                              {item.description}
-                            </div>
+                            <div>{item.description}</div>
                             <div className="text-lg font-semibold">
                               {item.title}
                             </div>
                           </div>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -197,7 +223,7 @@ const HomePage = () => {
                       <div key={index} className="bg-[#FFF9F9] p-2">
                         {item}
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -209,7 +235,8 @@ const HomePage = () => {
             <div className="flex items-center justify-center h-[16rem] p-2">
               <div className="flex flex-col items-center text-center">
                 <div className="text-lg font-semibold max-w-[32rem]">
-                  Join the Playground community and elevate your fan experience to the next level!
+                  Join the Playground community and elevate your fan experience
+                  to the next level!
                 </div>
 
                 <Link href={"/explore"}>
