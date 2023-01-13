@@ -58,16 +58,25 @@ const POWERED_BY = [
     description: "Secure and private chatting with",
     thumbnail: "/assets/picture/logo/thumbnail_orbis.png",
     title: "Orbis Protocol",
+    link: "https://orbis.club"
   },
   {
-    description: "Secure and private chatting with",
+    description: "High-quality video streaming with",
     thumbnail: "/assets/picture/logo/thumbnail_livepeer.png",
     title: "Livepeer",
+    link: "https://livepeer.org"
   },
   {
-    description: "Secure and private chatting with",
+    description: "Controlled access and benefit with",
     thumbnail: "/assets/picture/logo/thumbnail_unlock.png",
     title: "Unlock Protocol",
+    link: "https://unlock-protocol.com"
+  },
+  {
+    description: "Buy NFTs and enjoy low transaction fees with",
+    thumbnail: "/assets/picture/logo/thumbnail_polygon.png",
+    title: "Polygon Network",
+    link: "https://polygon.network"
   },
 ];
 
@@ -186,19 +195,20 @@ const HomePage = () => {
                 <div className="grid grid-cols-12 divide-black divide-y-2 sm:divide-y-0 sm:divide-x-2">
                   {POWERED_BY.map((item, index) => {
                     return (
-                      <div className="col-span-12 sm:col-span-4" key={index}>
-                        <div className="bg-white">
+                      <div className="col-span-12 sm:col-span-3" key={index}>
+                        <div className="bg-white flex flex-col h-full">
                           <img
                             src={item.thumbnail}
                             alt={""}
                             className={"w-full"}
                           />
 
-                          <div className="bg-[#FFF9F9] p-2 text-center">
+                          <div className="bg-[#FFF9F9] p-2 text-center flex-1 flex flex-col justify-end">
                             <div>{item.description}</div>
-                            <div className="text-lg font-semibold">
-                              {item.title}
-                            </div>
+
+                            <a href={item.link} target="_blank" className="text-lg font-semibold">
+                                {item.title}
+                              </a> 
                           </div>
                         </div>
                       </div>

@@ -12,7 +12,7 @@ const VideoStream = ({
   title,
   idolAddress,
   isBlocked,
-  account
+  account,
 }) => {
   const isLoading = useMemo(() => status === "loading", [status]);
   const [vidRef, setVidRef] = useState();
@@ -31,27 +31,24 @@ const VideoStream = ({
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    if(playbackID){
-      handleCheckStreamStatus()
+    if (playbackID) {
+      handleCheckStreamStatus();
     }
-  }, [playbackID])
+  }, [playbackID]);
 
   const handleCheckStreamStatus = async () => {
-    console.log("Check streams status");
-    console.log("SELECTED ACCOUNT", account);
-    const stream = await getLivePeerStream(playbackID)
-    console.log("STREAM", stream);
+    // console.log("SELECTED ACCOUNT", account);
+    const stream = await getLivePeerStream(playbackID);
+    // console.log("STREAM", stream);
 
     setisChecked(true);
 
-    if(stream?.isActive){
-      setIsActive(true)
-    }else{
-      setIsActive(false)
+    if (stream?.isActive) {
+      setIsActive(true);
+    } else {
+      setIsActive(false);
     }
-  }
-
-  console.log("PLAYBACK ID", playbackID);
+  };
 
   return (
     <div className="bg-[url('/assets/misc/pattern.svg')] w-full">
@@ -71,34 +68,32 @@ const VideoStream = ({
           />
         )} */}
 
-
-        {isChecked ?
+        {isChecked ? (
           <>
-            {(isBlocked || !isActive) ? (
-                <img
-                    src="/assets/picture/blockbanner.png"
-                    className="rounded-lg m-auto w-full"
-                    alt="blocked"
-                />
-
+            {isBlocked || !account?.isLive ? (
+              <img
+                src="/assets/picture/blockbanner.png"
+                className="rounded-lg m-auto w-full"
+                alt="blocked"
+              />
             ) : (
-                <Player
-                    showTitle={false}
-                    playbackId={playbackID}
-                    autoPlay
-                    showPipButton
-                    id="vidPlayer"
-                    mediaElementRef={mediaElementRef}
-                    priority
-                    controls={{ autohide: 1500, hotkeys: true }}
-                />
+              <Player
+                showTitle={false}
+                playbackId={playbackID}
+                autoPlay
+                showPipButton
+                id="vidPlayer"
+                mediaElementRef={mediaElementRef}
+                priority
+                controls={{ autohide: 1500, hotkeys: true }}
+              />
             )}
           </>
-            :
+        ) : (
           <div className="rounded-lg m-auto h-[32rem] w-full bg-gray-200 animate-pulse" />
-        }
+        )}
 
-        <div className="flex flex-row pt-4 items-center flex-wrap pt-3">
+        <div className="flex flex-row pt-4 items-center flex-wrap">
           <CircleAvatar address={idolAddress} isActive={true} />
           <div className="pl-3">
             <div className="subtitle-secondary">{title}</div>

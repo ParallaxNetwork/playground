@@ -80,7 +80,7 @@ const ImageCarousel = ({
   if (simple) {
     return (
       <Carousel
-        interval={5000}
+        interval={3000}
         infiniteLoop={true}
         showThumbs={false}
         showStatus={false}

@@ -13,10 +13,7 @@ export default async function getLivePeerStream(playbackId) {
             }
         });
         const result = response.data;
-        console.log(result);
-
         const filteredData = result.filter(item => item.playbackId === playbackId);
-        console.log("FILTERED", filteredData);
 
         return filteredData[0];
         // use the result here
