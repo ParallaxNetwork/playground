@@ -27,6 +27,7 @@ const VideoStream = ({
     // }, 3500);
   }, []);
 
+  const [isChecked, setisChecked] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -38,8 +39,16 @@ const VideoStream = ({
   const handleCheckStreamStatus = async () => {
     console.log("Check streams status");
     console.log("SELECTED ACCOUNT", account);
-    // const stream = await getLivePeerStream(playbackID)
-    // console.log("STREAM", stream);
+    const stream = await getLivePeerStream(playbackID)
+    console.log("STREAM", stream);
+
+    setisChecked(true);
+
+    if(stream?.isActive){
+      setIsActive(true)
+    }else{
+      setIsActive(false)
+    }
   }
 
   console.log("PLAYBACK ID", playbackID);
@@ -63,9 +72,9 @@ const VideoStream = ({
         )} */}
 
 
-        {isActive ?
+        {isChecked ?
           <>
-            {(isBlocked) ? (
+            {(isBlocked || !isActive) ? (
                 <img
                     src="/assets/picture/blockbanner.png"
                     className="rounded-lg m-auto w-full"
