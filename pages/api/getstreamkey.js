@@ -1,4 +1,5 @@
 import axios from "axios"
+
 export default async function getstreamkey(req, res) {
     const { streamId } = req.body
     if (req.method !== 'POST') {
@@ -20,5 +21,4 @@ export default async function getstreamkey(req, res) {
     const result = await ko.json()
 
     return res.json(result)
-
 }

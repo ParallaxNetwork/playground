@@ -194,7 +194,7 @@ const HomePage = () => {
                 <div className="divide-black divide-y-2">
                   {BENEFITS.map((item, index) => {
                     return (
-                      <div className="bg-[#FFF9F9] p-2">
+                      <div key={index} className="bg-[#FFF9F9] p-2">
                         {item}
                       </div>
                     )

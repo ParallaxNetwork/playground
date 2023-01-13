@@ -163,8 +163,6 @@ const EngagePage = () => {
     }
   }, [selectedAccount, account, signer]);
 
-  console.log("SELECTED ACCOUNT", account[selectedAccount]);
-
   return (
     <Zoom in={true}>
       <div>
@@ -380,10 +378,8 @@ const EngagePage = () => {
                         }
                         idolAddress={account[selectedAccount].idolAddress}
                         isBlocked={blocked}
+                        account={account[selectedAccount]}
                       />
-                      // <div>
-                      //   hehe
-                      // </div>
                     )}
                   </div>
                 </div>
