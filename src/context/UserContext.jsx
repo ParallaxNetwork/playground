@@ -1,15 +1,28 @@
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import axios from "axios";
 import { useContext, createContext, useState, useEffect } from 'react';
+import { contractConfig } from '../../utilities/contractConfig';
+import { PGSUBS_ABI } from '../../utilities/PGSubsABI';
+import { Contract } from '@ethersproject/contracts';
 
 const UserContext = createContext({
   subscription: null,
   getSubscription: () => {},
   isSubscribed: () => {},
+
+  userCollection: null,
+  getUserCollection: () => {}
 });
 
 const UserProvider = ({ children }) => {
   const { address } = useAccount();
+  const { data: signer, isError } = useSigner();
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, [])
+
   // SUBSCRIPTION
   const [subscription, setSubscription] = useState(null);
   const getSubscription = () => {
@@ -52,8 +65,6 @@ const UserProvider = ({ children }) => {
   };
 
   const isSubscribed = (lockAddress) => {
-    console.log("CHECKING", lockAddress);
-    
     if (!subscription) {
       return false;
     }
@@ -63,8 +74,16 @@ const UserProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    getSubscription();
-  }, [])
+    if(address){
+      if(!subscription){
+        getSubscription();
+      }
+
+      if(!userCollection){
+        getUserCollection();
+      }
+    }
+  }, [address, signer])
 
   // run getSubscription every 30 seconds
   useEffect(() => {
@@ -81,12 +100,64 @@ const UserProvider = ({ children }) => {
     console.log("Subscription", subscription);
   }, [subscription])
 
+
+  // GET USER NFTs
+  const [userCollection, setUserCollection] = useState(null);
+  const getUserCollection = async () => {
+    if (!address || !signer) {
+      return;
+    }
+
+    const contracts = new Contract(
+      contractConfig.PGSUB_ADDRESS,
+      PGSUBS_ABI.abi,
+      signer
+    );
+
+    const totalSupply = await contracts.totalSupply();
+
+    const maxId = totalSupply.toNumber();
+
+    let collection = [];
+    let collectionIds = [];
+    for (let i = 1; i <= maxId; i++) {
+      // check with ownerOf
+      const checkOwnership = await contracts.ownerOf(i);
+
+      if(checkOwnership === address){
+        collectionIds.push(i);
+      }
+    };
+
+    console.log("Owned NFT ID", collectionIds)
+
+    for(let i=0; i<collectionIds.length; i+=1){
+      const tokenURI = await contracts.tokenURI(collectionIds[i]);
+      const tokenData = await axios.get(tokenURI);
+      collection.push({
+        ...tokenData.data,
+        tokenId: collectionIds[i],
+        contractAddress: contractConfig.PGSUB_ADDRESS
+      });
+    }
+
+    console.log("COLLECTION", collection);
+    setUserCollection(collection);
+  }
+
+  if(!isMounted){
+    return "";
+  }
+
   return (
     <UserContext.Provider
       value={{
         subscription,
         getSubscription,
         isSubscribed,
+
+        userCollection,
+        getUserCollection
       }}
     >
       {children}

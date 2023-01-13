@@ -26,6 +26,7 @@ import { useUser } from "../../context/UserContext";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
+import { PGSUBS_ABI } from '../../../utilities/PGSubsABI';
 
 const ProfilePage = () => {
   const user = useUser();
@@ -426,6 +427,8 @@ const ProfilePage = () => {
   };
 
   const handleRenewKey = (keyID) => {
+    console.log("RENEW", keyID);
+    
     const contracts = new Contract(
       contractConfig.PGCORE_ADDRESS,
       PGCORE_ABI.abi,
@@ -656,7 +659,7 @@ const ProfilePage = () => {
                             month: "short",
                           })} ${new Date(el.expiration * 1000).getFullYear()}`}
                         </div>
-                        <button className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                        <button onClick={() => handleRenewKey(el.id)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
                           RENEW
                         </button>
                       </div>
@@ -665,6 +668,40 @@ const ProfilePage = () => {
                 </div>
               </ShadowBox>
             )}
+
+            <ShadowBox className={"shadowBox mt-5"}>
+              <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                MY COLLECTION
+              </div>
+              <div className="grid grid-rows-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
+                {user.userCollection ?
+                  <>
+                    {user.userCollection.map((item, index) => {
+                      return(
+                        <div key={index} className="border border-black p-2">
+                          <img src={item.image} alt="" className="w-full border border-black" />
+
+                          <div className="subtitle mt-2">
+                            {item.name}
+                          </div>
+                          <div className="text-sm">
+                            {item.description}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </>
+                  :
+                  <>
+                    {[1, 2, 3, 4].map((item, index) => {
+                      return(
+                        <div key={index} className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md" />
+                      )
+                    })}
+                  </>
+                }
+              </div>
+            </ShadowBox>
           </LayoutContainer>
         ) : (
           <div></div>
