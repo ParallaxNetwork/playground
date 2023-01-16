@@ -13,6 +13,7 @@ import { Toaster } from "react-hot-toast";
 import { Orbis } from '@orbisclub/orbis-sdk'
 import { OrbisProvider } from '../src/context/OrbisContext'
 import { UserProvider } from '../src/context/UserContext'
+import { UnlockProvider } from '../src/context/UnlockContext'
 
 const orbisOptions = {
   PINATA_API_KEY: process.env.PINATA_API_KEY,
@@ -47,17 +48,19 @@ function MyApp({ Component, pageProps }) {
   return (
     <WagmiConfig client={wagmiClient}>
       <OrbisProvider orbis={orbis}>
-        <UserProvider>
-          <Toaster
-            gutter={15}
-            toastOptions={{
-              duration: 3000,
-            }} />
-          <NavBar />
+        <UnlockProvider>
+          <UserProvider>
+            <Toaster
+              gutter={15}
+              toastOptions={{
+                duration: 3000,
+              }} />
+            <NavBar />
 
-          <Component
-            {...pageProps} />
-        </UserProvider>
+            <Component
+              {...pageProps} />
+          </UserProvider>
+        </UnlockProvider>
       </OrbisProvider>
     </WagmiConfig>
   )

@@ -28,9 +28,11 @@ const renderedKeywords = MARQUEE_KEYWORDS.map((item, index) => {
 
 // SAMPLE
 const SAMPLES = [
-  "/assets/picture/sample/sample1.png",
-  "/assets/picture/sample/sample2.png",
-  "/assets/picture/sample/sample3.png",
+  "/assets/picture/sample/sample1.jpg",
+  "/assets/picture/sample/sample2.jpg",
+  "/assets/picture/sample/sample3.jpg",
+  "/assets/picture/sample/sample4.jpg",
+  "/assets/picture/sample/sample5.jpg",
 ]
 
 // BANNER

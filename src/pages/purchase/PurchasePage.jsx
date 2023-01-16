@@ -13,19 +13,17 @@ import AlertDialog from "../../components/elements/AlertDialog";
 
 import { lockMeta } from "../explore/lockMeta";
 import { useOrbis } from "../../context/OrbisContext";
-import { contractConfig } from "../../../utilities/contractConfig";
-
-import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
-import { PGSUBS_ABI } from "../../../utilities/PGSubsABI";
 
 import { ShowToast } from "../../components/elements/Toaster";
 import MerchandiseDialog from "./MerchandiseDialog";
 
 import { useUser } from "../../context/UserContext";
+import { useUnlock } from "../../context/UnlockContext";
 
 const PurchasePages = () => {
   const user = useUser();
-  
+  const unlock = useUnlock();
+
   const [openPurchaseDialog, setOpenPurchaseDialog] = useState(false);
   const router = useRouter();
   const { lockAddress, nftAddress } = router.query;
@@ -78,55 +76,51 @@ const PurchasePages = () => {
   }, [lockAddress]);
 
   const getUserProfile = async (resp) => {
-    const { data: userDids, error: errorDids } = await orbis.getDids(
-      resp.idolAddress
-    );
-    if (!errorDids && userDids.length) {
-      const { data: profileData, error: profileError } = await orbis.getProfile(
-        userDids[0].did
+    try {
+      const { data: userDids, error: errorDids } = await orbis.getDids(
+        resp.idolAddress
       );
-      //console.log(profileData);
-      if (!profileError) setProfileData(profileData.details.profile);
+      if (!errorDids && userDids.length) {
+        const { data: profileData, error: profileError } = await orbis.getProfile(
+          userDids[0].did
+        );
+        console.log(profileData);
+        if (!profileError) setProfileData(profileData.details.profile);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
+
+  useEffect(() => {
+    console.log("PROFILE DATA", profileData)
+  }, [profileData])
 
   const handlePurchase = async () => {
     if (!signer) {
       handleCloseDialog();
       return ShowToast({
         message: "Please connect your wallet beforehand",
-        state: "erro",
+        state: "error",
       });
     }
-    const contracts = new Contract(nftAddress, PGSUBS_ABI.abi, signer);
-    let transactionResponse;
-    try {
-      setIsLoading(true);
-      transactionResponse = await contracts.purchaseSub({
-        value: parseInt(lockDetail.price.hex.toString()).toString(),
-      });
 
-      ShowToast({
-        message: "Working on it~",
-      });
-      setTimeout(() => {
-        ShowToast({
-          message: "Waiting for confirmation..",
-        });
-      }, 2000);
-      const receipt = await transactionResponse.wait();
-      if (receipt.status == 1) {
-        ShowToast({
-          message: "Subscription Purchased!",
-        });
-        handleCloseDialog();
-        setIsLoading(false);
-      }
-    } catch (e) {
+    setIsLoading(true);
+    const purchase = await unlock.handlePurchaseSubscription(nftAddress, lockDetail);
+
+    if (purchase.status === "success") {
+      handleCloseDialog();
       setIsLoading(false);
-      console.log(e);
+    } else {
+      setIsLoading(false);
     }
   };
+
+  const handleRenew = async () => {
+    setIsLoading(true);
+    await unlock.handleExtendKey(lockAddress, "1");
+    setIsLoading(false);
+  }
 
   const perks = [
     {
@@ -216,12 +210,13 @@ const PurchasePages = () => {
               <img src="/assets/icons/hearts-icon.svg" alt="" />
             </div>
           </div>
+
           <div className="p-7">
-            <div className="flex flex-col lg:flex-row">
+            <div className="flex flex-col sm:flex-row items-start">
               {profileData.pfp ?
                 <CollectionImage
                   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
-                  className="lg:max-w-[250px]"
+                  className="w-full max-w-[12rem] mx-auto"
                 />
                 :
                 <div
@@ -229,8 +224,8 @@ const PurchasePages = () => {
                 />
               }
 
-              <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col lg:flex-row justify-start w-full">
-                <div className="lg:pr-5 break-all w-full flex flex-col">
+              <div className="mt-5 text-center items-center sm:items-start sm:text-start w-full sm:ml-4 sm:mt-0 flex-1 flex flex-col lg:flex-row">
+                <div className="break-all w-full flex flex-col">
                   <div className="subtitle">
                     Profile
                   </div>
@@ -260,10 +255,11 @@ const PurchasePages = () => {
                 </div>
               </div>
             </div>
+
             <div className="mt-10">
               <Zoom in={true}>
                 <div
-                  className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full gap-5`}
+                  className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full gap-4`}
                 >
                   <div className="lg:w-[500px] flex flex-row gap-2">
                     <CollectionImage
@@ -292,19 +288,21 @@ const PurchasePages = () => {
                         )} MATIC`}</div>
                       </div>
                     </div>
-                    <div className="space-y-3 max-w-[380px]">
+
+                    <div className="max-w-[380px]">
                       <div className="subtitle">DESCRIPTION</div>
                       <div>
-                        {`${lockDetail.description.slice(0, 100)} ${lockDetail.description.length > 100 ? "..." : ""
-                          }`}
+                        {lockDetail.description}
                       </div>
                     </div>
+
                     <div className="flex flex-col lg:flex-row w-full justify-between">
-                      <div className="mt-5 lg:mt-0 justify-end flex flex-col space-y-3">
+                      <div className="mt-5 lg:mt-0 justify-end flex flex-col">
                         <div className="flex flex-row space-x-3">
                           <img src="/assets/icons/verified-icon.svg" alt="" />
                           <div className="subtitle">NFT PERKS</div>
                         </div>
+
                         <div className="mt-2">
                           {lockDetail.perks.map((el, index) => {
                             return (
@@ -318,6 +316,7 @@ const PurchasePages = () => {
                           })}
                         </div>
                       </div>
+
                       <div className="h-full flex flex-col justify-end mt-3 mb-2 lg:mt-0 lg:mb-0">
                         <button
                           onClick={() => {
@@ -331,10 +330,7 @@ const PurchasePages = () => {
                               className="!w-3 !h-3"
                             />
                           ) : (
-                            user.isSubscribed(lockDetail.lockAddress) ?
-                              "RENEW"
-                              :
-                              "SUBSCRIBE"
+                            "SUBSCRIBE"
                           )}
                         </button>
                       </div>

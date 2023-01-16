@@ -8,7 +8,7 @@ import { Zoom, CircularProgress } from "@mui/material";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { useAccount, useSigner, useNetwork } from "wagmi";
-
+import { WalletService } from "@unlock-protocol/unlock-js";
 
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
@@ -22,15 +22,16 @@ import RegisterDialog from "./RegisterDIalog";
 
 import { useOrbis } from "../../context/OrbisContext";
 import { useUser } from "../../context/UserContext";
+import { useUnlock } from "../../context/UnlockContext";
 
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
-import { PGSUBS_ABI } from '../../../utilities/PGSubsABI';
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 import { removeNumberPostfix } from "../../../utilities/misc";
 
 const ProfilePage = () => {
   const user = useUser();
+  const unlock = useUnlock();
 
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
@@ -427,14 +428,18 @@ const ProfilePage = () => {
     }
   };
 
-  const handleRenewKey = (keyID) => {
-    console.log("RENEW", keyID);
+  const [isLoadingRenew, setIsLoadingRenew] = useState(false);
 
-    const contracts = new Contract(
-      contractConfig.PGCORE_ADDRESS,
-      PGCORE_ABI.abi,
-      signer
-    );
+  const handleRenewKey = async (keyDetail) => {
+    console.log(keyDetail);
+    const tokenId = keyDetail.tokenId;
+    const lockAddress = keyDetail.lock.address;
+
+    setIsLoadingRenew(true);
+    await unlock.handleExtendKey(lockAddress, tokenId);
+    setIsLoadingRenew(false);
+
+    await user.getSubscription();
   };
 
   return (
@@ -478,21 +483,33 @@ const ProfilePage = () => {
                           }`}
                         className="max-w-[114px] h-[114px] w-full"
                       />
-                      <div className="ml-5 lg:mt-[-9px] flex flex-row justify-start w-full  flex-wrap break-all">
-                        <div className="max-w-full lg:pr-5">
-                          <div className="subtitle">Name</div>
-                          <div>{profileData?.name ?? "NOT SET"}</div>
-                          <div className="subtitle lg:mt-5">Join Since</div>
-                          <div>{"-"}</div>
+
+                      {/* Profile data */}
+                      <div className="ml-5 lg:mt-[-9px] w-full max-w-[30rem] break-all">
+                        <div className="grid grid-cols-12 gap-4">
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Name</div>
+                            <div>{profileData?.name ?? "NOT SET"}</div>
+                          </div>
+
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Bio</div>
+                            <div>{profileData?.bio ?? "NOT SET"}</div>
+                          </div>
                         </div>
-                        <div className="max-w-full ml-0 lg:mt-0 lg:ml-5">
-                          <div className="subtitle">Bio</div>
-                          <div>{profileData?.bio ?? "NOT SET"}</div>
+
+                        <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Joined since:</div>
+                            <div>{profileData?.name ?? "NOT SET"}</div>
+                          </div>
                         </div>
                       </div>
+                      
                     </div>
                   </div>
                 </ShadowBox>
+
                 <ShadowBox className={"shadowBox mt-10"}>
                   <div className="relative">
                     <div className="flex flex-row justify-between">
@@ -636,10 +653,13 @@ const ProfilePage = () => {
                         <div
                           className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
                         >
-                          <CollectionImage
-                            src={removeNumberPostfix(el.tokenURI)}
-                            className="max-w-[222px] md:max-w-[413px] mt-4 h-full "
-                          />
+                          <div className="flex justify-center items-center w-full h-[14rem] mt-4">
+                            <CollectionImage
+                              src={removeNumberPostfix(el.tokenURI)}
+                              className="h-full"
+                            />
+                          </div>
+
                           <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
                             <SvgIconStyle
                               src={"/assets/icons/verified-icon.svg"}
@@ -660,7 +680,7 @@ const ProfilePage = () => {
                               month: "short",
                             })} ${new Date(el.expiration * 1000).getFullYear()}`}
                           </div>
-                          <button onClick={() => handleRenewKey(el.id)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                          <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
                             RENEW
                           </button>
                         </div>
@@ -684,7 +704,9 @@ const ProfilePage = () => {
                           {user.userCollection.map((item, index) => {
                             return (
                               <div key={index} className="border border-black p-2 col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
-                                <img src={item.image} alt="" className="w-full border border-black" />
+                                <div className="flex justify-center items-center w-full h-[12rem] mt-4 mb-5">
+                                  <img src={item.image} alt="" className="h-full border border-black" />
+                                </div>
 
                                 <div className="subtitle mt-2">
                                   {item.name}
