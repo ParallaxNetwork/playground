@@ -498,12 +498,12 @@ const ProfilePage = () => {
                           </div>
                         </div>
 
-                        <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
+                        {/* <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
                           <div className="col-span-12 md:col-span-6">
                             <div className="subtitle">Joined since:</div>
                             <div>{profileData?.name ?? "NOT SET"}</div>
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                       
                     </div>
