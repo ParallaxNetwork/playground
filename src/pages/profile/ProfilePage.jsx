@@ -24,10 +24,9 @@ import { useOrbis } from "../../context/OrbisContext";
 import { useUser } from "../../context/UserContext";
 
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
+import { PGSUBS_ABI } from '../../../utilities/PGSubsABI';
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
-import { PGSUBS_ABI } from '../../../utilities/PGSubsABI';
-import { Image } from 'next/image';
 
 const ProfilePage = () => {
   const user = useUser();
@@ -450,7 +449,7 @@ const ProfilePage = () => {
                   <div className="relative">
                     <div className="flex flex-row justify-between">
                       <div className="items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[230px] flex flex-row">
-                        <Image
+                        <img
                           alt=""
                           src={"/assets/icons/star-icon.svg"}
                           className="mr-2 max-h-[20px]"
@@ -680,7 +679,7 @@ const ProfilePage = () => {
                         {user.userCollection.map((item, index) => {
                           return (
                             <div key={index} className="border border-black p-2">
-                              <Image src={item.image} alt="" className="w-full border border-black" />
+                              <img src={item.image} alt="" className="w-full border border-black" />
 
                               <div className="subtitle mt-2">
                                 {item.name}
