@@ -12,11 +12,11 @@ const NoItems = ({
   if (shadowBox) {
     return (
       <div className="flex flex-col justify-center items-center">
-        {/* <ShadowBox
+        <ShadowBox
           className={`shadowBox ${isFullWidth ? "w-full" : "max-w-[953px]"} ${
             isFullPage ? "translate-y-[10vh] md:translate-y-[20vh]" : ""
           } `}
-        > */}
+        >
         <div className="flex flex-col text-center justify-center items-center p-10 gap-10 max-w-md m-auto">
           <div className="relative aspect-[1/1] max-w-[230px] w-full">
             <Image
@@ -35,7 +35,7 @@ const NoItems = ({
             </button>
           </Link>
         </div>
-        {/* </ShadowBox> */}
+        </ShadowBox>
       </div>
     );
   }
