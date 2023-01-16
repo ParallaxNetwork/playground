@@ -3,12 +3,8 @@ import Marquee from "react-fast-marquee";
 import { useEffect, useState } from "react";
 import { isEmpty } from "lodash";
 import Link from "next/link";
-import CollectionImage from "../../components/elements/CollectionImage";
-import LayoutContainer from "../../components/elements/Container";
-import NoItems from "../../components/elements/NoItems";
-import ShadowBox from "../../components/elements/ShadowBox";
-import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import ImageCarousel from '../../components/elements/ImageCarousel';
+// import { Image } from 'next/image';
 
 const MARQUEE_KEYWORDS = [
   "Playground",
@@ -89,13 +85,6 @@ const BENEFITS = [
 ];
 
 const HomePage = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  useEffect(() => {
-    if (!isPlaying) {
-      setIsPlaying(true);
-    }
-  }, []);
-
   return (
     <Fade in>
       <div>
@@ -132,19 +121,19 @@ const HomePage = () => {
                   <div className="flex flex-col h-full px-6 py-10 justify-center items-center">
                     <div className="text-base max-w-[54rem]">
                       Imagine getting up-close and personal with your favorite
-                      artist. Not just a "like" or "comment", but
+                      artist. Not just a {'"'}like{'"'} or {'"'}comment{'"'}, but
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;real, direct engagement.&nbsp;
                       </span>
                       <br />
                       <br />
-                      That's what Playground offers - the chance to own a piece
+                      That{"'"}s what Playground offers - the chance to own a piece
                       of your favorite artist and unlock
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;exclusive experiences&nbsp;
                       </span>
-                      you can't get anywhere else. Buy an NFT, get VIP access.
-                      It's that simple.
+                      you can{"'"}t get anywhere else. Buy an NFT, get VIP access.
+                      It{"'"}s that simple.
                     </div>
                   </div>
                 </div>
@@ -206,9 +195,9 @@ const HomePage = () => {
                           <div className="bg-cream p-2 text-center flex-1 flex flex-col justify-end">
                             <div>{item.description}</div>
 
-                            <a href={item.link} target="_blank" className="text-lg font-semibold">
-                                {item.title}
-                              </a> 
+                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold">
+                              {item.title}
+                            </a>
                           </div>
                         </div>
                       </div>
