@@ -27,6 +27,7 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { PGSUBS_ABI } from '../../../utilities/PGSubsABI';
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
+import { removeNumberPostfix } from "../../../utilities/misc";
 
 const ProfilePage = () => {
   const user = useUser();
@@ -624,21 +625,20 @@ const ProfilePage = () => {
                 />
               </div>
             ) : (
-              <>
-                <ShadowBox className={"shadowBox mt-5"}>
-                  <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
-                    MY SUBSCRIPTION
-                  </div>
-                  <div className="grid grid-rows-1 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
-                    {user.subscription.map((el, index) => {
-                      return (
+              <ShadowBox className={"shadowBox mt-5"}>
+                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                  MY SUBSCRIPTION
+                </div>
+                <div className="grid grid-cols-12 p-2 gap-3 m-4">
+                  {user.subscription.map((el, index) => {
+                    return (
+                      <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
                         <div
-                          key={index}
                           className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
                         >
                           <CollectionImage
-                            src={el.tokenURI.slice(0, el.tokenURI.length - 1)}
-                            className="max-w-[222px] md:max-w-[413px] h-full "
+                            src={removeNumberPostfix(el.tokenURI)}
+                            className="max-w-[222px] md:max-w-[413px] mt-4 h-full "
                           />
                           <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
                             <SvgIconStyle
@@ -664,46 +664,65 @@ const ProfilePage = () => {
                             RENEW
                           </button>
                         </div>
-                      );
-                    })}
-                  </div>
-                </ShadowBox>
-
-                <ShadowBox className={"shadowBox mt-5"}>
-                  <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
-                    MY COLLECTION
-                  </div>
-                  <div className="grid grid-rows-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
-                    {user.userCollection ?
-                      <>
-                        {user.userCollection.map((item, index) => {
-                          return (
-                            <div key={index} className="border border-black p-2">
-                              <img src={item.image} alt="" className="w-full border border-black" />
-
-                              <div className="subtitle mt-2">
-                                {item.name}
-                              </div>
-                              <div className="text-sm">
-                                {item.description}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </>
-                      :
-                      <>
-                        {[1, 2, 3, 4].map((item, index) => {
-                          return (
-                            <div key={index} className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md" />
-                          )
-                        })}
-                      </>
-                    }
-                  </div>
-                </ShadowBox>
-              </>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ShadowBox>
             )}
+
+            {isConnected &&
+              <ShadowBox className={"shadowBox mt-5"}>
+                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                  MY COLLECTION
+                </div>
+                <div className="grid grid-cols-12 p-2 gap-3 m-4">
+                  {user.userCollection ?
+                    <>
+                      {user.userCollection.length > 0 ?
+                        <>
+                          {user.userCollection.map((item, index) => {
+                            return (
+                              <div key={index} className="border border-black p-2 col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                                <img src={item.image} alt="" className="w-full border border-black" />
+
+                                <div className="subtitle mt-2">
+                                  {item.name}
+                                </div>
+                                <div className="text-sm">
+                                  {item.description}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </>
+                        :
+                        <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10 w-full col-span-12"}`}>
+                          <NoItems
+                            isFullPage={isEmpty(address) ? true : false}
+                            isFullWidth={isEmpty(address) ? false : true}
+                            shadowBox={false}
+                            description={
+                              address
+                                ? "You don't have any collection right now, Buy NFT to engage with your idol"
+                                : "You are not connected 💔 please login using your wallet "
+                            }
+                          />
+                        </div>
+                      }
+                    </>
+                    :
+                    <>
+                      {[1, 2, 3, 4].map((item, index) => {
+                        return (
+                          <div key={index} className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2" />
+                        )
+                      })}
+                    </>
+                  }
+                </div>
+              </ShadowBox>
+            }
           </LayoutContainer>
         ) : (
           <div></div>
