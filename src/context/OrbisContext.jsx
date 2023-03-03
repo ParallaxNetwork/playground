@@ -6,15 +6,15 @@ const initialValue = {
   profile: null,
   hasLit: false,
   conversations: [],
-  connectOrbis: () => {},
-  refetchProfile: () => {},
-  disconnectOrbis: () => {},
-  checkOrbisConnection: () => {},
-  connectLit: () => {},
-  setProfile: () => {},
-  getConversations: () => {},
-  createConversation: () => {},
-  setSigner: () => {},
+  connectOrbis: () => { },
+  refetchProfile: () => { },
+  disconnectOrbis: () => { },
+  checkOrbisConnection: () => { },
+  connectLit: () => { },
+  setProfile: () => { },
+  getConversations: () => { },
+  createConversation: () => { },
+  setSigner: () => { },
 }
 
 const OrbisContext = createContext(initialValue);
@@ -33,12 +33,13 @@ const OrbisProvider = ({ children, orbis }) => {
     setSignerwagmi(settedSigner);
   };
 
-  const connectOrbis = async (provider) => {
+  const connectOrbis = async (provider, lit=false) => {
     if (!provider) return;
 
     const res = await orbis.connect_v2({
       provider,
       chain: "ethereum",
+      lit
     });
 
     console.log("connectOrbis", res)
@@ -53,7 +54,7 @@ const OrbisProvider = ({ children, orbis }) => {
   };
 
   const refetchProfile = async () => {
-    if(!profile?.did) return;
+    if (!profile?.did) return;
 
     const { data } = await orbis.getProfile(profile.did);
     console.log("refetchProfile", data);
@@ -68,7 +69,7 @@ const OrbisProvider = ({ children, orbis }) => {
     }
   };
 
-  const checkOrbisConnection = async (provider = null, autoConnect = false) => {
+  const checkOrbisConnection = async (provider = null, autoConnect = false, lit = false) => {
     const res = await orbis.isConnected();
 
     if (res.status === 200) {
@@ -76,7 +77,7 @@ const OrbisProvider = ({ children, orbis }) => {
       const { data } = await orbis.getProfile(res.did);
       setProfile(data);
     } else if (autoConnect && provider) {
-      await connectOrbis(provider);
+      await connectOrbis(provider, lit);
     }
   };
 
