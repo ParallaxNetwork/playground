@@ -1,8 +1,23 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useInterval } from "react-use";
-import { useSigner } from "wagmi";
 import { sleep } from "../../utilities/misc";
-const OrbisContext = createContext({});
+
+const initialValue = {
+  orbis: null,
+  profile: null,
+  hasLit: false,
+  conversations: [],
+  connectOrbis: () => {},
+  refetchProfile: () => {},
+  disconnectOrbis: () => {},
+  checkOrbisConnection: () => {},
+  connectLit: () => {},
+  setProfile: () => {},
+  getConversations: () => {},
+  createConversation: () => {},
+  setSigner: () => {},
+}
+
+const OrbisContext = createContext(initialValue);
 
 const CONVERSATION_CONTEXT = "playground";
 
@@ -26,6 +41,8 @@ const OrbisProvider = ({ children, orbis }) => {
       chain: "ethereum",
     });
 
+    console.log("connectOrbis", res)
+
     if (res.status !== 200) {
       await sleep(2000);
       await connectOrbis(provider);
@@ -34,6 +51,14 @@ const OrbisProvider = ({ children, orbis }) => {
       setProfile(data);
     }
   };
+
+  const refetchProfile = async () => {
+    if(!profile?.did) return;
+
+    const { data } = await orbis.getProfile(profile.did);
+    console.log("refetchProfile", data);
+    setProfile(data);
+  }
 
   const disconnectOrbis = () => {
     const res = orbis.logout();
@@ -132,6 +157,7 @@ const OrbisProvider = ({ children, orbis }) => {
         hasLit,
         conversations,
         connectOrbis,
+        refetchProfile,
         disconnectOrbis,
         checkOrbisConnection,
         connectLit,

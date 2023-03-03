@@ -129,7 +129,7 @@ const UserProvider = ({ children }) => {
         nftKeyAddresses.push(res[i].nftKeyAddress);
       }
     }
-    console.log("NFT KEY ADDRESSES", nftKeyAddresses);
+    // console.log("NFT KEY ADDRESSES", nftKeyAddresses);
 
     let collection = [];
     let collectionIds = [];

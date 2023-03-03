@@ -8,9 +8,9 @@
 //   );
 // };
 
-const CollectionImage = ({ src, className }) => {
+const CollectionImage = ({ src, className, noBorder=false }) => {
   return (
-    <div className={`relative ring-2 ring-black ${className}`}>
+    <div className={`relative ${!noBorder && "ring-2 ring-black"} ${className}`}>
       <img
         alt="collectionimage"
         className="w-full h-full"

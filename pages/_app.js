@@ -21,7 +21,7 @@ const orbisOptions = {
 }
 const orbis = new Orbis(orbisOptions)
 const { chains, provider, webSocketProvider } = configureChains(
-  process.env.NEXT_PUBLIC_STATE == 'production' ? [polygon] : [polygonMumbai],
+  process.env.NEXT_PUBLIC_STATE === 'production' ? [polygon] : [polygonMumbai],
   [
     infuraProvider({ apiKey: process.env.INFURA_API_KEY }),
     publicProvider()
