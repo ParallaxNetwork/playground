@@ -13,19 +13,23 @@ const EditProfileDialog = ({
 }) => {
   const { profile, refetchProfile } = useOrbis()
 
-  const [pfpFile, setPfpFile] = useState();
+  const [pfpFile, setPfpFile] = useState(null);
   const [formData, setFormData] = useState({
-    pfp: profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png",
-    username: "",
-    description: "",
+    pfp: profile?.details?.profile?.pfp ?? '',
+    cover: profile?.details?.profile?.cover ?? null,
+    data: profile?.details?.profile?.data ?? null,
+    username: profile?.username ?? "",
+    description: profile?.details?.profile?.description ?? "",
   });
 
   useEffect(() => {
     if (openEditProfile) {
       setFormData({
-        pfp: profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png",
-        username: profile?.username ?? "",
-        description: profile?.details?.profile?.description ?? "",
+        pfp: profile?.details?.profile?.pfp ?? '',
+        cover: profile?.details?.profile?.cover || null,
+        data: profile?.details?.profile?.data || null,
+        username: profile?.details?.profile?.username || '',
+        description: profile?.details?.profile?.description || null
       })
     }
   }, [openEditProfile, profile])
@@ -53,8 +57,8 @@ const EditProfileDialog = ({
 
       <div className="p-5">
         <div className="flex flex-col lg:flex-row gap-5">
-          <div className="flex flex-col justify-start items-center lg:items-start gap-4 min-w-[180px]">
-            <div className="title-secondary">Profile Picture</div>
+          <div className="flex flex-col justify-start items-center lg:items-center gap-4 min-w-[180px]">
+            <div className="title-secondary font-bold mr-auto">Profile Picture</div>
             <input
               type="file"
               id="upload-pfp"
@@ -72,18 +76,19 @@ const EditProfileDialog = ({
               }}
               className="hidden"
             />
-            <div className="aspect-square w-full max-w-[10rem] ring-2 ring-black flex items-center justify-center">
-              {/* <CollectionImage
-                src={formData?.pfp}
-                className="w-full"
-                noBorder
-              /> */}
+            {/* <div className="aspect-square w-full max-w-[10rem] ring-2 ring-black flex items-center justify-center">
               <img src={formData?.pfp} alt="" />
+            </div> */}
+
+            <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
+              {formData?.pfp &&
+                <img src={formData.pfp} alt="" className="max-w-full max-h-full" />
+              }
             </div>
 
             <label
               htmlFor="upload-pfp"
-              className="shadowBoxBtnSmall py-1 max-w-[90px] rounded-md text-center flex flex-row lg:ml-5"
+              className="shadowBoxBtnSmall py-1 max-w-[90px] rounded-md text-center flex flex-row"
             >
               <div className="text-center m-auto color-pink font-medium">
                 Change

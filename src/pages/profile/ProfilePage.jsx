@@ -69,46 +69,46 @@ const ProfilePage = () => {
     setOpenRegisterDialog(false);
   };
 
-  const handleSaveProfile = async (formData) => {
+  const handleSaveProfile = async (formData, pfpFile) => {
     try {
       handleCloseDialog();
       ShowToast({
         message: "Uploading Profile",
         state: "loading",
+        duration: 8000,
+        id: "profile-update"
       });
-
 
       console.log("orbisconnection", await orbis.isConnected())
 
-      if (!formData.pfpFile) {
-        let res = await orbis.updateProfile({
-          "pfp": "https://nft-cdn.alchemy.com/eth-mainnet/5b60a7a5a6243e28a2c2b3012b271575",
-          "cover": null,
-          "data": null,
-          "username": "kuproyzzzz",
-          "description": "test"
+      if (!pfpFile) {
+        console.log("no pfp change")
+        let res = await orbis.updateProfile(formData);
+      } else {
+        ShowToast({
+          message: "Uploading Profile Picture",
+          state: "loading",
+          id: "profile-update",
+          duration: 5000
         });
 
-        console.log("res no pfp", res)
-      } else {
-        const cid = await uploadToIPFS([formData.pfpFile]);
+        const cid = await uploadToIPFS([pfpFile]);
         const fileName = formData.pfpFile.name;
         const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
 
         let res = await orbis.updateProfile({
-          username: formData.username,
-          description: formData.description,
+          ...formData,
           pfp: pfp,
         });
-
-        console.log("res", res)
       }
 
       await sleep(1500)
       await refetchProfile()
+
       ShowToast({
         message: "Profile Updated",
         state: "success",
+        id: "profile-update"
       });
     } catch (error) {
       console.log(error);
@@ -478,6 +478,7 @@ const ProfilePage = () => {
                         className="max-w-[114px] h-[114px] w-full"
                       /> */}
 
+                      {/* {JSON.stringify(profile)} */}
                       <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
                         <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
                       </div>
