@@ -70,6 +70,7 @@ const ProfilePage = () => {
   };
 
   const handleSaveProfile = async (formData, pfpFile) => {
+    console.log("PFP FILE", pfpFile)
     try {
       handleCloseDialog();
       ShowToast({
@@ -89,12 +90,13 @@ const ProfilePage = () => {
           message: "Uploading Profile Picture",
           state: "loading",
           id: "profile-update",
-          duration: 5000
+          duration: 10000
         });
 
         const cid = await uploadToIPFS([pfpFile]);
-        const fileName = formData.pfpFile.name;
+        const fileName = pfpFile.name;
         const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+        console.log("pfp", pfp)
 
         let res = await orbis.updateProfile({
           ...formData,

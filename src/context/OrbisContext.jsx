@@ -7,7 +7,7 @@ const initialValue = {
   hasLit: false,
   conversations: [],
   connectOrbis: () => { },
-  refetchProfile: () => { },
+  refetchProfile: async () => { },
   disconnectOrbis: () => { },
   checkOrbisConnection: () => { },
   connectLit: () => { },
@@ -57,7 +57,6 @@ const OrbisProvider = ({ children, orbis }) => {
     if (!profile?.did) return;
 
     const { data } = await orbis.getProfile(profile.did);
-    console.log("refetchProfile", data);
     setProfile(data);
   }
 

@@ -134,10 +134,7 @@ const EditProfileDialog = ({
         <div className="flex flex-row justify-end mt-[10vh]">
           <button
             onClick={() => {
-              handleSaveProfile({
-                ...formData,
-                pfpFile
-              });
+              handleSaveProfile(formData, pfpFile);
             }}
             className="btn btn-primary-large"
           >
