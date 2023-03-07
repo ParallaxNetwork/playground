@@ -438,6 +438,8 @@ const ProfilePage = () => {
     await user.getSubscription();
   };
 
+  const [showExpired, setShowExpired] = useState(false);
+
   return (
     <Zoom in={true}>
       <div>
@@ -644,45 +646,69 @@ const ProfilePage = () => {
                 </div>
                 <div className="grid grid-cols-12 p-2 gap-3 m-4">
                   {user.subscription.map((el, index) => {
-                    return (
-                      <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
-                        <div
-                          className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
-                        >
-                          <div className="flex justify-center items-center w-full h-[14rem] mt-4">
-                            <CollectionImage
-                              src={removeNumberPostfix(el.tokenURI)}
-                              className="h-full"
-                            />
-                          </div>
+                    const isExpired = new Date(el.expiration * 1000) < new Date();
 
-                          <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
-                            <SvgIconStyle
-                              src={"/assets/icons/verified-icon.svg"}
-                              className="w-[18px] h-[30px] aspect-square bg-red mr-1"
-                            />
-                            {el.lock.name}
-                          </div>
+                    if (!isExpired || showExpired) {
+                      return (
+                        <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                          <div
+                            className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                          >
+                            <div className="flex justify-center items-center w-full h-[14rem] mt-4">
+                              <CollectionImage
+                                src={removeNumberPostfix(el.tokenURI)}
+                                className="h-full"
+                              />
+                            </div>
 
-                          <div className="flex flex-wrap f-12-px text-center mt-3">
-                            Playground Subscription
+                            <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
+                              <SvgIconStyle
+                                src={"/assets/icons/verified-icon.svg"}
+                                className="w-[18px] h-[30px] aspect-square bg-red mr-1"
+                              />
+                              {el.lock.name}
+                            </div>
+
+                            <div className="flex flex-wrap f-12-px text-center mt-3">
+                              Playground Subscription
+                            </div>
+
+                            {isExpired ?
+                              <div className="text-xs text-red-500 mt-5 mb-2 text-center">
+                                Expired
+                              </div>
+                              :
+                              <div className="text-xs text-black/40 mt-5 mb-2 text-center">
+                                {`Expired at ${new Date(
+                                  el.expiration * 1000
+                                ).getDate()} ${new Date(
+                                  el.expiration * 1000
+                                ).toLocaleString("default", {
+                                  month: "short",
+                                })} ${new Date(el.expiration * 1000).getFullYear()}`}
+                              </div>
+                            }
+
+                            {/* <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                              RENEW
+                            </button> */}
                           </div>
-                          <div className="f-12-px bg-description mt-5 text-center">
-                            {`Expired at ${new Date(
-                              el.expiration * 1000
-                            ).getDate()} ${new Date(
-                              el.expiration * 1000
-                            ).toLocaleString("default", {
-                              month: "short",
-                            })} ${new Date(el.expiration * 1000).getFullYear()}`}
-                          </div>
-                          <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
-                            RENEW
-                          </button>
                         </div>
-                      </div>
-                    );
+                      );
+                    }
                   })}
+                </div>
+                <div>
+                  <button
+                    onClick={() => {
+                      setShowExpired(!showExpired);
+                    }}
+                    className="shadowBoxBtnSmall w-fit px-5 h-[40px] rounded-md m-3 mb-5 mx-auto"
+                  >
+                    <div className="m-auto">
+                      {showExpired ? "Hide Expired" : "Show Expired"}
+                    </div>
+                  </button>
                 </div>
               </ShadowBox>
             )
