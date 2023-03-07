@@ -303,7 +303,7 @@ const RegisterDialog = ({
                 });
               }}
               className=" border-placeholder rounded-md h-full"
-              placeholder="Max amount of subscription"
+              placeholder="Max amount of subscribers"
               type={"number"}
             />
           </div>
