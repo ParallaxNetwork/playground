@@ -5,6 +5,8 @@ import { Carousel } from "react-responsive-carousel";
 const ImageCarousel = ({
   images = [],
   simple = false,
+  transitionTime = 1000,
+  interval = 5000
 }) => {
   const renderArrowNext = (onClickHandler, hasPrev, hasNext) => {
     return (
@@ -89,7 +91,7 @@ const ImageCarousel = ({
           autoPlay={true}
           centerMode={true}
           centerSlidePercentage={100}
-          transitionTime={1000}
+          transitionTime={transitionTime}
       >
         {images.map((item, index) => {
           return (
@@ -109,7 +111,7 @@ const ImageCarousel = ({
 
   return (
     <Carousel
-      interval={5000}
+      interval={interval}
       infiniteLoop={true}
       showThumbs={false}
       showStatus={false}
