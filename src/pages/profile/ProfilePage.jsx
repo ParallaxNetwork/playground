@@ -474,12 +474,6 @@ const ProfilePage = () => {
                       </button>
                     </div>
                     <div className="flex m-5 flex-row p-2">
-                      {/* <CollectionImage
-                        src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"
-                          }`}
-                        className="max-w-[114px] h-[114px] w-full"
-                      /> */}
-
                       {/* {JSON.stringify(profile)} */}
                       <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
                         <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
@@ -498,15 +492,7 @@ const ProfilePage = () => {
                             <div>{profile?.details?.profile?.description ?? "NOT SET"}</div>
                           </div>
                         </div>
-
-                        {/* <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
-                          <div className="col-span-12 md:col-span-6">
-                            <div className="subtitle">Joined since:</div>
-                            <div>{profile?.name ?? "NOT SET"}</div>
-                          </div>
-                        </div> */}
                       </div>
-
                     </div>
                   </div>
                 </ShadowBox>
