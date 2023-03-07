@@ -5,12 +5,8 @@ import { isEmpty } from "lodash";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
-  useAccount,
   useClient,
-  useConnect,
   useNetwork,
-  useProvider,
-  useSigner,
 } from "wagmi";
 
 import { contractConfig } from "../../../utilities/contractConfig";
@@ -23,73 +19,19 @@ import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { lockMeta } from "./lockMeta";
 
 import { useUser } from "../../context/UserContext"
+import { useExplore } from "../../context/ExploreContext";
 
 const IndexPage = () => {
   const user = useUser();
 
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-  const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const { providers, provider, getProvider } = useClient();
-  const { chain, chains } = useNetwork();
-  const prov = useProvider();
-  const [isLoading, setIsLoading] = useState(false);
-  const [idolData, setIdolData] = useState(null);
-
-  const fetchIdols = async () => {
-    const contracts = new Contract(
-      contractConfig.PGCORE_ADDRESS,
-      PGCORE_ABI.abi,
-      providers.entries().next().value[1]
-    );
-    const result = await contracts.getAllIdolData(1, 10);
-
-    let tempData = [];
-    for (var i = 0; i < result.length; i++) {
-      if (
-        result[i].idolAddress != "0x0000000000000000000000000000000000000000"
-      ) {
-        var tempMeta = await lockMeta(chain, result[i].lockAddress);
-
-        tempData.push({
-          lockName: result[i].lockName,
-          lockAddress: result[i].lockAddress,
-          lockImage: result[i].lockImage,
-          nftKeyAddress: result[i].nftKeyAddress,
-          idolAddress: result[i].idolAddress,
-          playbackID: tempMeta.stream_playbackId,
-          streamID: tempMeta.stream_id,
-          description: tempMeta.description,
-          interest: tempMeta.interest,
-          perks: tempMeta.perks,
-        });
-      }
-    }
-    // console.log("explore data", tempData);
-
-    setIdolData(tempData);
-  };
-
-  useEffect(() => {
-    fetchIdols();
-  }, []);
-
-  // run fetchIdols every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchIdols();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { exploreData } = useExplore()
 
   return (
     <Zoom in={true}>
       <div>
         <LayoutContainer>
           <div className="space-y-10 mb-10">
-            {idolData === null ? (
+            {exploreData === null ? (
               <div className="w-full text-center space-y-10">
                 {[1, 2].map((el, index) => {
                   return (
@@ -126,10 +68,10 @@ const IndexPage = () => {
                   );
                 })}
               </div>
-            ) : isEmpty(idolData) ? (
+            ) : isEmpty(exploreData) ? (
               <NoItems description="no idol registered at this time, come back later" />
             ) : (
-              idolData.map((el, index) => {
+              exploreData.map((el, index) => {
                 const isSubscribed = user.isSubscribed(el.lockAddress)
                 return (
                   <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
