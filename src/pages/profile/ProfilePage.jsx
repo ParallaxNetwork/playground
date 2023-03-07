@@ -507,39 +507,31 @@ const ProfilePage = () => {
                     <div className="flex m-5 flex-row p-2">
                       {idolData ? (
                         <div className="flex flex-col items-start gap-5 w-full">
-                          <div className="flex flex-col break-all gap-5">
-                            <div>
-                              <div className="subtitle">{`Subscription & Stream Name`}</div>
-                              <div>{idolData.lockName}</div>
-                            </div>
-                            <div>
-                              <div className="subtitle">{`Public Lock Protocol Address`}</div>
-                              <div>{idolData.lockAddress}</div>
-                            </div>
-                            <div>
-                              <div className="subtitle">{`Latest Subscription & NFT Address`}</div>
-                              <div>{idolData.nftKeyAddress}</div>
-                            </div>
-                          </div>
-                          <div className="flex-col items-start justify-start space-y-0 w-full shadowBox mt-3">
+                          <div className="flex-col items-start justify-start space-y-0 w-full shadowBox">
                             <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black">
                               STREAM CONFIG
                             </div>
                             <div className="p-4 gap-3 flex flex-col pb-8">
-                              <div>
+                              {/* <div>
                                 <div className="subtitle">{`Stream ID`}</div>
                                 <div>
                                   {streamID ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
                                 </div>
-                              </div>
-                              <div>
+                              </div> */}
+                              {/* <div>
                                 <div className="subtitle">{`Playback ID`}</div>
                                 <div>
                                   {playbackID ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
+                                </div>
+                              </div> */}
+                              <div>
+                                <div className="subtitle">{`RMTP URL`}</div>
+                                <div>
+                                  rtmp://rtmp.livepeer.com/live
                                 </div>
                               </div>
                               <div>
@@ -582,6 +574,22 @@ const ProfilePage = () => {
                               </div>
                             </div>
                           </div>
+
+                          {/* Additional Lock Infor */}
+                          {/* <div className="flex flex-col break-all gap-5 mt-5">
+                            <div>
+                              <div className="subtitle">{`Subscription & Stream Name`}</div>
+                              <div>{idolData.lockName}</div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Public Lock Protocol Address`}</div>
+                              <div>{idolData.lockAddress}</div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Latest Subscription & NFT Address`}</div>
+                              <div>{idolData.nftKeyAddress}</div>
+                            </div>
+                          </div> */}
                         </div>
                       ) : (
                         <div className="lg:mt-[-9px] flex flex-col justify-center w-full text-center max-w-lg m-auto flex-wrap break-all p-4">
