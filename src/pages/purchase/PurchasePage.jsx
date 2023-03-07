@@ -58,6 +58,7 @@ const PurchasePages = () => {
   //   stream_playbackId: "314bwkepyjqfp1ms",
   //   collectionImageURI: "/assets/picture/placeholder.png",
   // });
+
   const [lockDetail, setLockDetail] = useState(null);
   const { chain } = useNetwork();
 
@@ -71,9 +72,13 @@ const PurchasePages = () => {
 
   useEffect(() => {
     if (lockAddress) {
+      console.log("LOCK ADDRESS", lockAddress)
       lockMeta(chain, lockAddress).then((resp) => {
+        console.log("GET USER PROFILE")
         getUserProfile(resp);
+        console.log("GET SAMPLE IMAGE NFT")
         getSampleImagenft(resp);
+
       });
     }
   }, [lockAddress]);
@@ -125,51 +130,26 @@ const PurchasePages = () => {
     setIsLoading(false);
   }
 
-  const perks = [
-    {
-      title: "Group Chat 1 Month",
-      description:
-        "You can join exclusive group chat with Sinka and get the latest information",
-    },
-    {
-      title: "Private Chat",
-      description:
-        "You can join exclusive group chat with Sinka and get the latest information",
-    },
-    {
-      title: "Exclusive Live Video Access",
-      description:
-        "You can join exclusive group chat with Sinka and get the latest information",
-    },
-  ];
-
-  const sellItem = [
-    {
-      title: "Bucket Hat",
-      image: "/assets/picture/bucket-hat.jpg",
-      description: "Sinka's preloved bucket hat, i bet you like it",
-      price: "0.01 MATIC",
-    },
-    {
-      title: "BY Cardigan",
-      image: "/assets/picture/cardigan.jpg",
-      description: "Rewind back a few years ago, such a memorable items",
-      price: "0.02 MATIC",
-    },
-  ];
-
   const getSampleImagenft = async (resp) => {
+    if(!resp?.nftImageURI){
+      ShowToast({
+        message: "Something went wrong, please try again later",
+        state: "error",
+        duration: 5000,
+      })
+      return
+    }
+
     const imageTotal = await getIPFSFileCount(getCIDFromNFTStorageLink(resp.nftImageURI))
-    console.log("IMAGE TOTAL", imageTotal)
 
     let images = []
     for (let i = 1; i <= imageTotal; i++) {
-      const result = await fetch(`${resp.nftImageURI}/${i}`);
+      const result = await fetch(`${resp.nftImageURI}${i}`);
       const res = await result.json();
       images.push(res.image)
     }
 
-    const result = await fetch(`${resp.nftImageURI}/1`);
+    const result = await fetch(`${resp.nftImageURI}1`);
     const res = await result.json();
 
     const lockDetail = {
@@ -182,6 +162,39 @@ const PurchasePages = () => {
 
     setLockDetail(lockDetail);
   };
+
+  // const perks = [
+  //   {
+  //     title: "Group Chat 1 Month",
+  //     description:
+  //       "You can join exclusive group chat with Sinka and get the latest information",
+  //   },
+  //   {
+  //     title: "Private Chat",
+  //     description:
+  //       "You can join exclusive group chat with Sinka and get the latest information",
+  //   },
+  //   {
+  //     title: "Exclusive Live Video Access",
+  //     description:
+  //       "You can join exclusive group chat with Sinka and get the latest information",
+  //   },
+  // ];
+
+  // const sellItem = [
+  //   {
+  //     title: "Bucket Hat",
+  //     image: "/assets/picture/bucket-hat.jpg",
+  //     description: "Sinka's preloved bucket hat, i bet you like it",
+  //     price: "0.01 MATIC",
+  //   },
+  //   {
+  //     title: "BY Cardigan",
+  //     image: "/assets/picture/cardigan.jpg",
+  //     description: "Rewind back a few years ago, such a memorable items",
+  //     price: "0.02 MATIC",
+  //   },
+  // ];
 
   return (
     <>
@@ -216,11 +229,7 @@ const PurchasePages = () => {
 
           <div className="p-7">
             <div className="flex flex-col sm:flex-row items-start">
-              {profileData.pfp ?
-                // <CollectionImage
-                //   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
-                //   className="w-full max-w-[12rem] mx-auto"
-                // />
+              {profileData?.pfp ?
                 <img
                   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
                   alt=""
@@ -228,7 +237,7 @@ const PurchasePages = () => {
                 />
                 :
                 <div
-                  className="lg:max-w-[250px] aspect-square w-full bg-gray-200 animate-pulse"
+                  className="w-full max-w-[10rem] aspect-square bg-gray-200 animate-pulse"
                 />
               }
 
@@ -265,7 +274,7 @@ const PurchasePages = () => {
             </div>
 
             <div className="mt-10">
-              {lockDetail &&
+              {lockDetail ?
                 <Zoom in>
                   <div className="p-3 border-2 border-black w-full grid grid-cols-12 gap-4">
                     <div className="col-span-12 md:col-span-4 xl:col-span-3">
@@ -353,10 +362,12 @@ const PurchasePages = () => {
                     </div>
                   </div>
                 </Zoom>
+                :
+                <div className="h-[30rem] w-full animate-pulse bg-gray-200 rounded-md" />
               }
             </div>
 
-            <div className="mt-10">
+            {/* <div className="mt-10">
               <div className="border-2 border-black p-4">
                 <div className="title-primary">
                   Merchandise
@@ -366,7 +377,7 @@ const PurchasePages = () => {
                   Coming soon
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </ShadowBox>
       </LayoutContainer>
