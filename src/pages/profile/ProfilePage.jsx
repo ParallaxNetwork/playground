@@ -629,70 +629,69 @@ const ProfilePage = () => {
                   </div>
                 </ShadowBox>
               </>
-            )
-            }
-            {
-              isEmpty(user.subscription) || isEmpty(address) ? (
-                <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
-                  <NoItems
-                    isFullPage={isEmpty(address) ? true : false}
-                    isFullWidth={isEmpty(address) ? false : true}
-                    description={
-                      address
-                        ? "You don't have any subscription right now, Buy NFT to engage with your idol"
-                        : "You are not connected 💔 please login using your wallet "
-                    }
-                  />
+            )}
+
+            {isEmpty(user.subscription) || isEmpty(address) ? (
+              <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
+                <NoItems
+                  isFullPage={isEmpty(address) ? true : false}
+                  isFullWidth={isEmpty(address) ? false : true}
+                  description={
+                    address
+                      ? "You don't have any subscription right now, Buy NFT to engage with your idol"
+                      : "You are not connected 💔 please login using your wallet "
+                  }
+                />
+              </div>
+            ) : (
+              <ShadowBox className={"shadowBox mt-5"}>
+                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                  MY SUBSCRIPTION
                 </div>
-              ) : (
-                <ShadowBox className={"shadowBox mt-5"}>
-                  <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
-                    MY SUBSCRIPTION
-                  </div>
-                  <div className="grid grid-cols-12 p-2 gap-3 m-4">
-                    {user.subscription.map((el, index) => {
-                      return (
-                        <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
-                          <div
-                            className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
-                          >
-                            <div className="flex justify-center items-center w-full h-[14rem] mt-4">
-                              <CollectionImage
-                                src={removeNumberPostfix(el.tokenURI)}
-                                className="h-full"
-                              />
-                            </div>
-
-                            <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
-                              <SvgIconStyle
-                                src={"/assets/icons/verified-icon.svg"}
-                                className="w-[18px] h-[30px] aspect-square bg-red mr-1"
-                              />
-                              {el.lock.name}
-                            </div>
-
-                            <div className="flex flex-wrap f-12-px text-center mt-3">
-                              Playground Subscription
-                            </div>
-                            <div className="f-12-px bg-description mt-5 text-center">
-                              {`Expired at ${new Date(
-                                el.expiration * 1000
-                              ).getDate()} ${new Date(
-                                el.expiration * 1000
-                              ).toLocaleString("default", {
-                                month: "short",
-                              })} ${new Date(el.expiration * 1000).getFullYear()}`}
-                            </div>
-                            <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
-                              RENEW
-                            </button>
+                <div className="grid grid-cols-12 p-2 gap-3 m-4">
+                  {user.subscription.map((el, index) => {
+                    return (
+                      <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                        <div
+                          className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                        >
+                          <div className="flex justify-center items-center w-full h-[14rem] mt-4">
+                            <CollectionImage
+                              src={removeNumberPostfix(el.tokenURI)}
+                              className="h-full"
+                            />
                           </div>
+
+                          <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
+                            <SvgIconStyle
+                              src={"/assets/icons/verified-icon.svg"}
+                              className="w-[18px] h-[30px] aspect-square bg-red mr-1"
+                            />
+                            {el.lock.name}
+                          </div>
+
+                          <div className="flex flex-wrap f-12-px text-center mt-3">
+                            Playground Subscription
+                          </div>
+                          <div className="f-12-px bg-description mt-5 text-center">
+                            {`Expired at ${new Date(
+                              el.expiration * 1000
+                            ).getDate()} ${new Date(
+                              el.expiration * 1000
+                            ).toLocaleString("default", {
+                              month: "short",
+                            })} ${new Date(el.expiration * 1000).getFullYear()}`}
+                          </div>
+                          <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                            RENEW
+                          </button>
                         </div>
-                      );
-                    })}
-                  </div>
-                </ShadowBox>
-              )
+                      </div>
+                    );
+                  })}
+                </div>
+              </ShadowBox>
+            )
             }
 
             {
