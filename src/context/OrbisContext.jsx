@@ -1,8 +1,23 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useInterval } from "react-use";
-import { useSigner } from "wagmi";
 import { sleep } from "../../utilities/misc";
-const OrbisContext = createContext({});
+
+const initialValue = {
+  orbis: null,
+  profile: null,
+  hasLit: false,
+  conversations: [],
+  connectOrbis: () => { },
+  refetchProfile: async () => { },
+  disconnectOrbis: () => { },
+  checkOrbisConnection: () => { },
+  connectLit: () => { },
+  setProfile: () => { },
+  getConversations: () => { },
+  createConversation: () => { },
+  setSigner: () => { },
+}
+
+const OrbisContext = createContext(initialValue);
 
 const CONVERSATION_CONTEXT = "playground";
 
@@ -18,13 +33,16 @@ const OrbisProvider = ({ children, orbis }) => {
     setSignerwagmi(settedSigner);
   };
 
-  const connectOrbis = async (provider) => {
+  const connectOrbis = async (provider, lit=false) => {
     if (!provider) return;
 
     const res = await orbis.connect_v2({
       provider,
       chain: "ethereum",
+      lit
     });
+
+    console.log("connectOrbis", res)
 
     if (res.status !== 200) {
       await sleep(2000);
@@ -35,6 +53,13 @@ const OrbisProvider = ({ children, orbis }) => {
     }
   };
 
+  const refetchProfile = async () => {
+    if (!profile?.did) return;
+
+    const { data } = await orbis.getProfile(profile.did);
+    setProfile(data);
+  }
+
   const disconnectOrbis = () => {
     const res = orbis.logout();
 
@@ -43,7 +68,7 @@ const OrbisProvider = ({ children, orbis }) => {
     }
   };
 
-  const checkOrbisConnection = async (provider = null, autoConnect = false) => {
+  const checkOrbisConnection = async (provider = null, autoConnect = false, lit = false) => {
     const res = await orbis.isConnected();
 
     if (res.status === 200) {
@@ -51,7 +76,7 @@ const OrbisProvider = ({ children, orbis }) => {
       const { data } = await orbis.getProfile(res.did);
       setProfile(data);
     } else if (autoConnect && provider) {
-      await connectOrbis(provider);
+      await connectOrbis(provider, lit);
     }
   };
 
@@ -132,6 +157,7 @@ const OrbisProvider = ({ children, orbis }) => {
         hasLit,
         conversations,
         connectOrbis,
+        refetchProfile,
         disconnectOrbis,
         checkOrbisConnection,
         connectLit,

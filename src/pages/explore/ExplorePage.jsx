@@ -3,7 +3,7 @@ import { Zoom } from "@mui/material";
 import { InjectedConnector } from "@wagmi/core";
 import { isEmpty } from "lodash";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useAccount,
   useClient,
@@ -36,33 +36,9 @@ const IndexPage = () => {
   const { chain, chains } = useNetwork();
   const prov = useProvider();
   const [isLoading, setIsLoading] = useState(false);
-  const [idolData, setIdolData] = useState([
-    // {
-    //   title: "SINKA - JKT48",
-    //   image: "/assets/picture/sample1.png",
-    //   description:
-    //     "Sinka Juliaah is a member of the Indonesian idol group JKT48.",
-    //   interest: "Listening Music, Singing, Swimming",
-    //   nftCollection: [],
-    //   perks: [
-    //     {
-    //       icons: "/assets/icons/chat-icon.svg",
-    //       value: "Group Chat",
-    //     },
-    //     {
-    //       icons: "/assets/icons/private-icon.svg",
-    //       value: "Private Chat",
-    //     },
-    //     {
-    //       icons: "/assets/icons/live-icon.svg",
-    //       value: "Exclusive Live Video Access",
-    //     },
-    //   ],
-    // },
-  ]);
+  const [idolData, setIdolData] = useState(null);
 
   const fetchIdols = async () => {
-    setIsLoading(true);
     const contracts = new Contract(
       contractConfig.PGCORE_ADDRESS,
       PGCORE_ABI.abi,
@@ -76,7 +52,7 @@ const IndexPage = () => {
         result[i].idolAddress != "0x0000000000000000000000000000000000000000"
       ) {
         var tempMeta = await lockMeta(chain, result[i].lockAddress);
-        
+
         tempData.push({
           lockName: result[i].lockName,
           lockAddress: result[i].lockAddress,
@@ -91,10 +67,9 @@ const IndexPage = () => {
         });
       }
     }
-    console.log("explore data", tempData);
+    // console.log("explore data", tempData);
 
     setIdolData(tempData);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -114,7 +89,7 @@ const IndexPage = () => {
       <div>
         <LayoutContainer>
           <div className="space-y-10 mb-10">
-            {isLoading ? (
+            {idolData === null ? (
               <div className="w-full text-center space-y-10">
                 {[1, 2].map((el, index) => {
                   return (
@@ -229,7 +204,7 @@ const IndexPage = () => {
                                         </div>
                                         <div className="block font-medium text-fill p-3">
                                           {child}
-                                        </div> 
+                                        </div>
                                       </div>
                                     );
                                   })

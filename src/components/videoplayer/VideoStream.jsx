@@ -94,7 +94,8 @@ const VideoStream = ({
         )}
 
         <div className="flex flex-row pt-4 items-center flex-wrap">
-          <CircleAvatar address={idolAddress} isActive={true} />
+          <CircleAvatar address={idolAddress} isActive={true} key={idolAddress} />
+          
           <div className="pl-3">
             <div className="subtitle-secondary">{title}</div>
             <p className="text-black">{userName}</p>

@@ -24,6 +24,7 @@ const CircleAvatar = ({
   };
 
   const getImage = async () => {
+    console.log("getImage", address)
     if (image) {
       // If image is provided
       setSrc(image);

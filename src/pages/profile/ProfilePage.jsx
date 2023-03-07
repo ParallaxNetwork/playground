@@ -27,11 +27,12 @@ import { useUnlock } from "../../context/UnlockContext";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
-import { removeNumberPostfix } from "../../../utilities/misc";
+import { removeNumberPostfix, sleep } from "../../../utilities/misc";
 
 const ProfilePage = () => {
   const user = useUser();
   const unlock = useUnlock();
+  const { setSigner, orbis, profile, refetchProfile, checkOrbisConnection } = useOrbis();
 
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
@@ -46,17 +47,12 @@ const ProfilePage = () => {
   const [streamKey, setStreamKey] = useState();
   const [isDoneDeploy, setIsDoneDeploy] = useState(false);
   const [registerData, setRegisterData] = useState();
-  const [profileData, setProfileData] = useState({
-    pfp: "/assets/picture/placeholder.png",
-    bio: "",
-    join_since: "",
-  });
 
   const [salesAndWithdrawAble, setSalesAndWithdrawAble] = useState({
     wdable: 0.0,
     sales: 0.0,
   });
-  const { setSigner, orbis, profile, setProfile } = useOrbis();
+
   let web3;
   const [initEverything, setInitEverything] = useState(false);
   const {
@@ -73,46 +69,51 @@ const ProfilePage = () => {
     setOpenRegisterDialog(false);
   };
 
-  const handleSaveProfile = async (formData) => {
-    handleCloseDialog();
-    ShowToast({
-      message: "Uploading Profile",
-    });
-    const cid = await uploadToIPFS([formData.pfp.target.files[0]]);
-    const fileName = formData.pfp.target.files[0].name;
-    const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+  const handleSaveProfile = async (formData, pfpFile) => {
+    console.log("PFP FILE", pfpFile)
+    try {
+      handleCloseDialog();
+      ShowToast({
+        message: "Uploading Profile",
+        state: "loading",
+        duration: 8000,
+        id: "profile-update"
+      });
 
-    setProfileData({
-      ...formData,
-      pfp: pfp,
-      data: {
-        name: formData.name,
-        bio: formData.bio,
-        join_since: "",
-      },
-    });
+      console.log("orbisconnection", await orbis.isConnected())
 
-    let res = await orbis.updateProfile({
-      ...formData,
-      pfp: pfp,
-      data: {
-        name: formData.name,
-        bio: formData.bio,
-        join_since: "",
-      },
-    });
-    getUserProfile();
-  };
+      if (!pfpFile) {
+        console.log("no pfp change")
+        let res = await orbis.updateProfile(formData);
+      } else {
+        ShowToast({
+          message: "Uploading Profile Picture",
+          state: "loading",
+          id: "profile-update",
+          duration: 10000
+        });
 
-  const getUserProfile = async () => {
-    if (address) {
-      const { data: userDids, error: errorDids } = await orbis.getDids(address);
-      if (!errorDids && userDids.length) {
-        const { data: profileData, error: profileError } =
-          await orbis.getProfile(userDids[0].did);
+        const cid = await uploadToIPFS([pfpFile]);
+        const fileName = pfpFile.name;
+        const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+        console.log("pfp", pfp)
 
-        if (!profileError) setProfileData(profileData.details.profile);
+        let res = await orbis.updateProfile({
+          ...formData,
+          pfp: pfp,
+        });
       }
+
+      await sleep(1500)
+      await refetchProfile()
+
+      ShowToast({
+        message: "Profile Updated",
+        state: "success",
+        id: "profile-update"
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -326,13 +327,8 @@ const ProfilePage = () => {
     setTimeout(() => {
       user.getSubscription();
       setInitEverything(true);
-      getUserProfile();
     }, 1);
   }, []);
-
-  useEffect(() => {
-    getUserProfile();
-  }, [address]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -478,34 +474,39 @@ const ProfilePage = () => {
                       </button>
                     </div>
                     <div className="flex m-5 flex-row p-2">
-                      <CollectionImage
-                        src={`${profileData?.pfp ?? "/assets/picture/placeholder.png"
+                      {/* <CollectionImage
+                        src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"
                           }`}
                         className="max-w-[114px] h-[114px] w-full"
-                      />
+                      /> */}
+
+                      {/* {JSON.stringify(profile)} */}
+                      <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
+                        <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
+                      </div>
 
                       {/* Profile data */}
-                      <div className="ml-5 lg:mt-[-9px] w-full max-w-[30rem] break-all">
+                      <div className="ml-5 lg:mt-[-9px] w-full max-w-[30rem]">
                         <div className="grid grid-cols-12 gap-4">
                           <div className="col-span-12 md:col-span-6">
                             <div className="subtitle">Name</div>
-                            <div>{profileData?.name ?? "NOT SET"}</div>
+                            <div>{profile?.username ?? "NOT SET"}</div>
                           </div>
 
                           <div className="col-span-12 md:col-span-6">
                             <div className="subtitle">Bio</div>
-                            <div>{profileData?.bio ?? "NOT SET"}</div>
+                            <div>{profile?.details?.profile?.description ?? "NOT SET"}</div>
                           </div>
                         </div>
 
                         {/* <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
                           <div className="col-span-12 md:col-span-6">
                             <div className="subtitle">Joined since:</div>
-                            <div>{profileData?.name ?? "NOT SET"}</div>
+                            <div>{profile?.name ?? "NOT SET"}</div>
                           </div>
                         </div> */}
                       </div>
-                      
+
                     </div>
                   </div>
                 </ShadowBox>
@@ -629,6 +630,7 @@ const ProfilePage = () => {
                 </ShadowBox>
               </>
             )}
+
             {isEmpty(user.subscription) || isEmpty(address) ? (
               <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
                 <NoItems
@@ -689,9 +691,11 @@ const ProfilePage = () => {
                   })}
                 </div>
               </ShadowBox>
-            )}
+            )
+            }
 
-            {isConnected &&
+            {
+              isConnected &&
               <ShadowBox className={"shadowBox mt-5"}>
                 <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
                   MY COLLECTION
@@ -745,12 +749,13 @@ const ProfilePage = () => {
                 </div>
               </ShadowBox>
             }
-          </LayoutContainer>
+          </LayoutContainer >
         ) : (
           <div></div>
         )}
 
         <EditProfileDialog
+          profile={profile}
           openEditProfile={openEditProfile}
           handleCloseDialog={handleCloseDialog}
           handleSaveProfile={handleSaveProfile}
@@ -763,8 +768,8 @@ const ProfilePage = () => {
             handleRegisterIdol(data);
           }}
         />
-      </div>
-    </Zoom>
+      </div >
+    </Zoom >
   );
 };
 

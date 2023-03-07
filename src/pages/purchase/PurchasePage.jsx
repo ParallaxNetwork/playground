@@ -214,9 +214,14 @@ const PurchasePages = () => {
           <div className="p-7">
             <div className="flex flex-col sm:flex-row items-start">
               {profileData.pfp ?
-                <CollectionImage
+                // <CollectionImage
+                //   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
+                //   className="w-full max-w-[12rem] mx-auto"
+                // />
+                <img
                   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
-                  className="w-full max-w-[12rem] mx-auto"
+                  alt=""
+                  className="w-full max-w-[15rem] ring-black ring-2 mx-auto"
                 />
                 :
                 <div
@@ -262,9 +267,14 @@ const PurchasePages = () => {
                   className={`flex flex-col lg:flex-row border-2 border-black p-3 w-full gap-4`}
                 >
                   <div className="lg:w-[500px] flex flex-row gap-2">
-                    <CollectionImage
+                    {/* <CollectionImage
                       src={`${lockDetail.nftImageURI[0]}`}
                       className="m-auto mt-5 mb-5 lg:m-0 "
+                    /> */}
+                    <img
+                      src={profileData.pfp ?? "/assets/picture/placeholder.png"}
+                      alt=""
+                      className="w-full ring-black ring-2 m-auto mt-5 mb-5 lg:m-0 object-cover"
                     />
                     <div className="hidden lg:flex flex-col gap-2 w-[83px] shrink-0">
                       {lockDetail.nftImageURI.map((el, index) => {

@@ -250,7 +250,7 @@ const EngagePage = () => {
                               key={index}
                             >
                               <CircleAvatar
-                                address={account[selectedAccount].idolAddress}
+                                address={el.idolAddress}
                                 isLive={el.isLive}
                               />
                               <div
