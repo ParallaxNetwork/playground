@@ -130,8 +130,16 @@ input {
   color: #c3c3c3;
 }
 
+.bg-cream {
+  background-color: #FFF9F9
+}
+
 .secondary {
   background-color: #fff9f9;
+}
+
+.text-secondary {
+  color: #fd24a0;
 }
 
 .bg-secondary {
@@ -190,4 +198,19 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+
+.diagonal-stripe-box {
+  background: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 25%,
+          #fd24a0 0,
+          #fd24a0 50%
+  ), #333;
+  background-size: 2rem 2rem;
+  color: #ddd;
+  padding: 1rem;
+  @apply bg-white;
 }

@@ -168,24 +168,8 @@ const EngagePage = () => {
       <div>
         <LayoutContainer>
           {isLoading ? (
-            <div className="h-[760px] w-full secondary shadowBox flex flex-row flex-wrap">
-              <div className="flex m-5 flex-col lg:flex-row p-2 w-full">
-                <div className="w-full max-w-[300px] rounded-md animate-pulse h-[300px] bg-gray-200"></div>
-                <div className="ml-0 mt-5 lg:ml-5 lg:mt-[-9px] flex flex-col justify-start w-full gap-3 flex-wrap">
-                  <div className="max-w-full ">
-                    <div className="w-[300px] h-5 animate-pulse bg-gray-200 mt-3"></div>
-                  </div>
-                  <div className="max-w-full ">
-                    <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
-                  </div>
-                  <div className="max-w-full ">
-                    <div className="w-[200px] h-5 animate-pulse bg-gray-200 mt-3"></div>
-                  </div>
-                  <div className="max-w-full ">
-                    <div className="w-full h-5 animate-pulse bg-gray-200 mt-3"></div>
-                  </div>
-                </div>
-              </div>
+            <div className="h-[760px] w-full secondary shadowBox flex flex-row flex-wrap p-4">
+              <div className="w-full h-full rounded-md animate-pulse bg-gray-200" />
             </div>
           ) : account[0].address == "" ? (
             <NoItems description="No idol registered yet at this time, please come back later" />
@@ -197,6 +181,16 @@ const EngagePage = () => {
                   <div className="flex flex-row justify-start items-center bg-secondary text-white border-b-2 border-black">
                     <div className="flex flex-row w-full max-w-[300px]">
                       {tabs.map((el, index) => {
+                        let liveActiveClass = "";
+
+                        if(el.title === "LIVE"){
+                          if(account[selectedAccount]?.isLive){
+                            liveActiveClass = "bg-active"
+                          }else{
+                            liveActiveClass = "bg-gray-500"
+                          }
+                        }
+
                         return (
                           <div
                             onClick={() => {
@@ -223,9 +217,9 @@ const EngagePage = () => {
                               setTabs(temp);
                             }}
                             key={index}
-                            className={`flex flex-row border-r-2 border-black p-4 w-full font-medium max-w-[157px] justify-center ${
-                              el.isActive ? "bg-active" : ""
-                            }`}
+                            className={`flex flex-row border-r-2 border-r-black p-4 w-full 
+                              font-medium max-w-[157px] justify-center ${liveActiveClass}
+                              ${el.isActive ? "border-b-4 border-b-white" : "border-b-4 border-b-transparent"}`}
                           >
                             <img className="icons mr-2" src={el.icon} alt="" />
                             <div className="title-secondary">{el.title}</div>
@@ -256,7 +250,7 @@ const EngagePage = () => {
                               key={index}
                             >
                               <CircleAvatar
-                                address={account[selectedAccount].idolAddress}
+                                address={el.idolAddress}
                                 isLive={el.isLive}
                               />
                               <div
@@ -369,6 +363,7 @@ const EngagePage = () => {
                         }
                         idolAddress={account[selectedAccount].idolAddress}
                         isBlocked={blocked}
+                        account={account[selectedAccount]}
                       />
                     )}
                   </div>

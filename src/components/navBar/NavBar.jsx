@@ -45,10 +45,10 @@ const NavBar = () => {
   const { connectOrbis, profile, checkOrbisConnection, disconnectOrbis } =
     useOrbis();
   useEffect(() => {
-    if (isSuccess && isConnected) {
+    if (isSuccess && isConnected && resprovider) {
       handleSign(resprovider);
     }
-  }, [isSuccess]);
+  }, [isSuccess, resprovider]);
 
   useEffect(() => {
     if (address && !profile) {
@@ -67,6 +67,10 @@ const NavBar = () => {
   const route = [
     {
       loc: "/",
+      label: "HOME",
+    },
+    {
+      loc: "/explore",
       label: "EXPLORE",
     },
     {
@@ -108,6 +112,7 @@ const NavBar = () => {
     });
 
     try {
+      console.log("RES PROVIDER", resprovider)
       await connectOrbis(resprovider);
     } catch (e) {
       console.log(e);
@@ -180,6 +185,7 @@ const NavBar = () => {
                   if (chain?.id != defChain) {
                     switchNetwork?.(defChain);
                   }
+
                   setresprovider(res.provider);
                 } catch (e) {
                   console.log(e);

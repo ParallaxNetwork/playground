@@ -1,26 +1,39 @@
+
+import { ethers } from "ethers";
+import { isEmpty } from "lodash";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Player, useCreateStream } from "@livepeer/react";
+import { Zoom, CircularProgress } from "@mui/material";
+import { Web3Provider } from "@ethersproject/providers";
+import { Contract } from "@ethersproject/contracts";
+import { useAccount, useSigner, useNetwork } from "wagmi";
+import { WalletService } from "@unlock-protocol/unlock-js";
+
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
 import CollectionImage from "../../components/elements/CollectionImage";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { useEffect, useState } from "react";
-import { isEmpty } from "lodash";
 import NoItems from "../../components/elements/NoItems";
-import { useAccount, useSigner, useNetwork } from "wagmi";
 import { ShowToast } from "../../components/elements/Toaster";
-import { Web3Provider } from "@ethersproject/providers";
-import { Contract } from "@ethersproject/contracts";
-import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
+
 import EditProfileDialog from "./EditProfileDialog";
 import RegisterDialog from "./RegisterDIalog";
-import { contractConfig } from "../../../utilities/contractConfig";
-import { ethers } from "ethers";
-import { CircularProgress } from "@mui/material";
-import { Player, useCreateStream } from "@livepeer/react";
-import axios from "axios";
+
 import { useOrbis } from "../../context/OrbisContext";
-import { Zoom } from "@mui/material";
+import { useUser } from "../../context/UserContext";
+import { useUnlock } from "../../context/UnlockContext";
+
+import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
+import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
+import { removeNumberPostfix, sleep } from "../../../utilities/misc";
+
 const ProfilePage = () => {
+  const user = useUser();
+  const unlock = useUnlock();
+  const { setSigner, orbis, profile, refetchProfile, checkOrbisConnection } = useOrbis();
+
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
@@ -29,23 +42,17 @@ const ProfilePage = () => {
   const { chain, chains } = useNetwork();
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   const [idolData, setIdolData] = useState();
-  const [keyList, setKeyList] = useState();
   const [streamID, setStreamID] = useState();
   const [playbackID, setPlaybackID] = useState();
   const [streamKey, setStreamKey] = useState();
   const [isDoneDeploy, setIsDoneDeploy] = useState(false);
   const [registerData, setRegisterData] = useState();
-  const [profileData, setProfileData] = useState({
-    pfp: "/assets/picture/placeholder.png",
-    bio: "",
-    join_since: "",
-  });
 
   const [salesAndWithdrawAble, setSalesAndWithdrawAble] = useState({
     wdable: 0.0,
     sales: 0.0,
   });
-  const { setSigner, orbis, profile, setProfile } = useOrbis();
+
   let web3;
   const [initEverything, setInitEverything] = useState(false);
   const {
@@ -62,46 +69,51 @@ const ProfilePage = () => {
     setOpenRegisterDialog(false);
   };
 
-  const handleSaveProfile = async (formData) => {
-    handleCloseDialog();
-    ShowToast({
-      message: "Uploading Profile",
-    });
-    const cid = await uploadToIPFS([formData.pfp.target.files[0]]);
-    const fileName = formData.pfp.target.files[0].name;
-    const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+  const handleSaveProfile = async (formData, pfpFile) => {
+    console.log("PFP FILE", pfpFile)
+    try {
+      handleCloseDialog();
+      ShowToast({
+        message: "Uploading Profile",
+        state: "loading",
+        duration: 8000,
+        id: "profile-update"
+      });
 
-    setProfileData({
-      ...formData,
-      pfp: pfp,
-      data: {
-        name: formData.name,
-        bio: formData.bio,
-        join_since: "",
-      },
-    });
+      console.log("orbisconnection", await orbis.isConnected())
 
-    let res = await orbis.updateProfile({
-      ...formData,
-      pfp: pfp,
-      data: {
-        name: formData.name,
-        bio: formData.bio,
-        join_since: "",
-      },
-    });
-    getUserProfile();
-  };
+      if (!pfpFile) {
+        console.log("no pfp change")
+        let res = await orbis.updateProfile(formData);
+      } else {
+        ShowToast({
+          message: "Uploading Profile Picture",
+          state: "loading",
+          id: "profile-update",
+          duration: 10000
+        });
 
-  const getUserProfile = async () => {
-    if (address) {
-      const { data: userDids, error: errorDids } = await orbis.getDids(address);
-      if (!errorDids && userDids.length) {
-        const { data: profileData, error: profileError } =
-          await orbis.getProfile(userDids[0].did);
+        const cid = await uploadToIPFS([pfpFile]);
+        const fileName = pfpFile.name;
+        const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+        console.log("pfp", pfp)
 
-        if (!profileError) setProfileData(profileData.details.profile);
+        let res = await orbis.updateProfile({
+          ...formData,
+          pfp: pfp,
+        });
       }
+
+      await sleep(1500)
+      await refetchProfile()
+
+      ShowToast({
+        message: "Profile Updated",
+        state: "success",
+        id: "profile-update"
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -313,15 +325,10 @@ const ProfilePage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      getAllKey();
+      user.getSubscription();
       setInitEverything(true);
-      getUserProfile();
     }, 1);
   }, []);
-
-  useEffect(() => {
-    getUserProfile();
-  }, [address]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -417,51 +424,18 @@ const ProfilePage = () => {
     }
   };
 
-  const getAllKey = () => {
-    if (!address) {
-      return;
-    }
-    let data = JSON.stringify({
-      query:
-        "query AllKeys($first: Int = 1, $skip: Int, $where: Key_filter, $orderBy: Key_orderBy, $orderDirection: OrderDirection) {\n  keys(\n    first: $first\n    skip: $skip\n    where: $where\n    orderBy: $orderBy\n    orderDirection: $orderDirection\n  ) {\n    id\n    lock {\n      id\n      address\n      name\n      expirationDuration\n      tokenAddress\n      price\n      lockManagers\n      version\n      createdAtBlock\n      totalKeys\n    }\n    tokenId\n    owner\n    manager\n    expiration\n    tokenURI\n    createdAtBlock\n    cancelled\n  }\n}",
-      variables: {
-        first: 1000,
-        where: {
-          owner: address,
-        },
-        orderBy: "expiration",
-        orderDirection: "desc",
-      },
-      operationName: "AllKeys",
-    });
-    let config = {
-      method: "post",
-      url:
-        process.env.NODE_ENV == "production"
-          ? process.env.NEXT_PUBLIC_SUBGRAPH_MAINNET
-          : process.env.NEXT_PUBLIC_SUBGRAPH_TESTNET,
+  const [isLoadingRenew, setIsLoadingRenew] = useState(false);
 
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: data,
-    };
+  const handleRenewKey = async (keyDetail) => {
+    console.log(keyDetail);
+    const tokenId = keyDetail.tokenId;
+    const lockAddress = keyDetail.lock.address;
 
-    axios(config)
-      .then(async (response) => {
-        console.log(response.data.data.keys);
-        setKeyList(response.data.data.keys);
-      })
-      .catch((e) => {});
-  };
+    setIsLoadingRenew(true);
+    await unlock.handleExtendKey(lockAddress, tokenId);
+    setIsLoadingRenew(false);
 
-  const handleRenewKey = (keyID) => {
-    const contracts = new Contract(
-      contractConfig.PGCORE_ADDRESS,
-      PGCORE_ABI.abi,
-      signer
-    );
+    await user.getSubscription();
   };
 
   return (
@@ -478,6 +452,7 @@ const ProfilePage = () => {
                     <div className="flex flex-row justify-between">
                       <div className="items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[230px] flex flex-row">
                         <img
+                          alt=""
                           src={"/assets/icons/star-icon.svg"}
                           className="mr-2 max-h-[20px]"
                         />{" "}
@@ -499,27 +474,43 @@ const ProfilePage = () => {
                       </button>
                     </div>
                     <div className="flex m-5 flex-row p-2">
-                      <CollectionImage
-                        src={`${
-                          profileData?.pfp ?? "/assets/picture/placeholder.png"
-                        }`}
+                      {/* <CollectionImage
+                        src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"
+                          }`}
                         className="max-w-[114px] h-[114px] w-full"
-                      />
-                      <div className="ml-5 lg:mt-[-9px] flex flex-row justify-start w-full  flex-wrap break-all">
-                        <div className="max-w-full lg:pr-5">
-                          <div className="subtitle">Name</div>
-                          <div>{profileData?.name ?? "NOT SET"}</div>
-                          <div className="subtitle lg:mt-5">Join Since</div>
-                          <div>{"-"}</div>
-                        </div>
-                        <div className="max-w-full ml-0 lg:mt-0 lg:ml-5">
-                          <div className="subtitle">Bio</div>
-                          <div>{profileData?.bio ?? "NOT SET"}</div>
-                        </div>
+                      /> */}
+
+                      {/* {JSON.stringify(profile)} */}
+                      <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
+                        <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
                       </div>
+
+                      {/* Profile data */}
+                      <div className="ml-5 lg:mt-[-9px] w-full max-w-[30rem]">
+                        <div className="grid grid-cols-12 gap-4">
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Name</div>
+                            <div>{profile?.username ?? "NOT SET"}</div>
+                          </div>
+
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Bio</div>
+                            <div>{profile?.details?.profile?.description ?? "NOT SET"}</div>
+                          </div>
+                        </div>
+
+                        {/* <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
+                          <div className="col-span-12 md:col-span-6">
+                            <div className="subtitle">Joined since:</div>
+                            <div>{profile?.name ?? "NOT SET"}</div>
+                          </div>
+                        </div> */}
+                      </div>
+
                     </div>
                   </div>
                 </ShadowBox>
+
                 <ShadowBox className={"shadowBox mt-10"}>
                   <div className="relative">
                     <div className="flex flex-row justify-between">
@@ -639,7 +630,8 @@ const ProfilePage = () => {
                 </ShadowBox>
               </>
             )}
-            {isEmpty(keyList) || isEmpty(address) ? (
+
+            {isEmpty(user.subscription) || isEmpty(address) ? (
               <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10"}`}>
                 <NoItems
                   isFullPage={isEmpty(address) ? true : false}
@@ -656,51 +648,114 @@ const ProfilePage = () => {
                 <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
                   MY SUBSCRIPTION
                 </div>
-                <div className="grid grid-rows-1 lg:grid-cols-4 xl:grid-cols-5 p-2 gap-3 m-4">
-                  {keyList.map((el, index) => {
+                <div className="grid grid-cols-12 p-2 gap-3 m-4">
+                  {user.subscription.map((el, index) => {
                     return (
-                      <div
-                        key={index}
-                        className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
-                      >
-                        <CollectionImage
-                          src={el.tokenURI.slice(0, el.tokenURI.length - 1)}
-                          className="max-w-[222px] md:max-w-[413px] h-full "
-                        />
-                        <div className="flex gap-2 mt-5 subtitle items-center truncate items-start justify-start">
-                          <SvgIconStyle
-                            src={"/assets/icons/verified-icon.svg"}
-                            className="w-[18px] h-[18px] bg-red shrink mr-1"
-                          />
-                          {el.lock.name}
+                      <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                        <div
+                          className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                        >
+                          <div className="flex justify-center items-center w-full h-[14rem] mt-4">
+                            <CollectionImage
+                              src={removeNumberPostfix(el.tokenURI)}
+                              className="h-full"
+                            />
+                          </div>
+
+                          <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
+                            <SvgIconStyle
+                              src={"/assets/icons/verified-icon.svg"}
+                              className="w-[18px] h-[30px] aspect-square bg-red mr-1"
+                            />
+                            {el.lock.name}
+                          </div>
+
+                          <div className="flex flex-wrap f-12-px text-center mt-3">
+                            Playground Subscription
+                          </div>
+                          <div className="f-12-px bg-description mt-5 text-center">
+                            {`Expired at ${new Date(
+                              el.expiration * 1000
+                            ).getDate()} ${new Date(
+                              el.expiration * 1000
+                            ).toLocaleString("default", {
+                              month: "short",
+                            })} ${new Date(el.expiration * 1000).getFullYear()}`}
+                          </div>
+                          <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                            RENEW
+                          </button>
                         </div>
-                        <div className="flex flex-wrap f-12-px text-center mt-3">
-                          Playground Subscription
-                        </div>
-                        <div className="f-12-px bg-description mt-5">
-                          {`Expired at ${new Date(
-                            el.expiration * 1000
-                          ).getDate()} ${new Date(
-                            el.expiration * 1000
-                          ).toLocaleString("default", {
-                            month: "short",
-                          })} ${new Date(el.expiration * 1000).getFullYear()}`}
-                        </div>
-                        <button className="btn btn-primary-large mt-2 mb-3 h-[53px]">
-                          RENEW
-                        </button>
                       </div>
                     );
                   })}
                 </div>
               </ShadowBox>
-            )}
-          </LayoutContainer>
+            )
+            }
+
+            {
+              isConnected &&
+              <ShadowBox className={"shadowBox mt-5"}>
+                <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
+                  MY COLLECTION
+                </div>
+                <div className="grid grid-cols-12 p-2 gap-3 m-4">
+                  {user.userCollection ?
+                    <>
+                      {user.userCollection.length > 0 ?
+                        <>
+                          {user.userCollection.map((item, index) => {
+                            return (
+                              <div key={index} className="border border-black p-2 col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                                <div className="flex justify-center items-center w-full h-[12rem] mt-4 mb-5">
+                                  <img src={item.image} alt="" className="h-full border border-black" />
+                                </div>
+
+                                <div className="subtitle mt-2">
+                                  {item.name}
+                                </div>
+                                <div className="text-sm">
+                                  {item.description}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </>
+                        :
+                        <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10 w-full col-span-12"}`}>
+                          <NoItems
+                            isFullPage={isEmpty(address) ? true : false}
+                            isFullWidth={isEmpty(address) ? false : true}
+                            shadowBox={false}
+                            description={
+                              address
+                                ? "You don't have any collection right now, Buy NFT to engage with your idol"
+                                : "You are not connected 💔 please login using your wallet "
+                            }
+                          />
+                        </div>
+                      }
+                    </>
+                    :
+                    <>
+                      {[1, 2, 3, 4].map((item, index) => {
+                        return (
+                          <div key={index} className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2" />
+                        )
+                      })}
+                    </>
+                  }
+                </div>
+              </ShadowBox>
+            }
+          </LayoutContainer >
         ) : (
           <div></div>
         )}
 
         <EditProfileDialog
+          profile={profile}
           openEditProfile={openEditProfile}
           handleCloseDialog={handleCloseDialog}
           handleSaveProfile={handleSaveProfile}
@@ -713,8 +768,8 @@ const ProfilePage = () => {
             handleRegisterIdol(data);
           }}
         />
-      </div>
-    </Zoom>
+      </div >
+    </Zoom >
   );
 };
 

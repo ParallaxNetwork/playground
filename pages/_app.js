@@ -12,6 +12,8 @@ import '../styles/globals.css'
 import { Toaster } from "react-hot-toast";
 import { Orbis } from '@orbisclub/orbis-sdk'
 import { OrbisProvider } from '../src/context/OrbisContext'
+import { UserProvider } from '../src/context/UserContext'
+import { UnlockProvider } from '../src/context/UnlockContext'
 
 const orbisOptions = {
   PINATA_API_KEY: process.env.PINATA_API_KEY,
@@ -19,7 +21,7 @@ const orbisOptions = {
 }
 const orbis = new Orbis(orbisOptions)
 const { chains, provider, webSocketProvider } = configureChains(
-  process.env.NEXT_PUBLIC_STATE == 'production' ? [polygon] : [polygonMumbai],
+  process.env.NEXT_PUBLIC_STATE === 'production' ? [polygon] : [polygonMumbai],
   [
     infuraProvider({ apiKey: process.env.INFURA_API_KEY }),
     publicProvider()
@@ -42,19 +44,25 @@ const wagmiClient = createClient({
 
 function MyApp({ Component, pageProps }) {
 
-  return <WagmiConfig client={wagmiClient}>
-    <OrbisProvider orbis={orbis}>
-      <Toaster
-        gutter={15}
-        toastOptions={{
-          duration: 3000,
-        }} />
-      <NavBar />
+  return (
+    <WagmiConfig client={wagmiClient}>
+      <OrbisProvider orbis={orbis}>
+        <UnlockProvider>
+          <UserProvider>
+            <Toaster
+              gutter={15}
+              toastOptions={{
+                duration: 3000,
+              }} />
+            <NavBar />
 
-      <Component
-        {...pageProps} />
-    </OrbisProvider>
-  </WagmiConfig>
+            <Component
+              {...pageProps} />
+          </UserProvider>
+        </UnlockProvider>
+      </OrbisProvider>
+    </WagmiConfig>
+  )
 }
 
 export default MyApp
