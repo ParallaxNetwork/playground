@@ -114,8 +114,8 @@ const IndexPage = () => {
                             <div className="w-full">
                               <div className="subtitle">DESCRIPTION</div>
                               <div>{el.description}</div>
-                              <div className="subtitle mt-4">Interest</div>
-                              <div>{el.interest?.join() ?? "-"}</div>
+                              {/* <div className="subtitle mt-4">Interest</div>
+                              <div>{el.interest?.join() ?? "-"}</div> */}
                             </div>
 
                             {/* Perks */}

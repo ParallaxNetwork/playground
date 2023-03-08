@@ -117,10 +117,6 @@ const RegisterDialog = ({
     );
   };
 
-  // useEffect(() => {
-  //   console.log("idolRegisterData", idolRegisterData);
-  // }, [idolRegisterData]);
-
   const onCloseDialog = () => {
     setIdolRegisterData({
       duration: null,
@@ -162,13 +158,7 @@ const RegisterDialog = ({
                 // only accept image
                 accept="image/*"
                 onChange={(val) => {
-                  console.log(val.target)
                   if (!isEmpty(val.target.files)) {
-                    // setIdolRegisterData({
-                    //   ...idolRegisterData,
-                    //   collectionImage: val,
-                    // });
-                    console.log(val.target.files[0])
                     setCollectionImage(val.target.files[0]);
                   }
                 }}
@@ -332,13 +322,6 @@ const RegisterDialog = ({
         <div className="flex flex-row justify-end mt-[10vh]">
           <button
             onClick={async () => {
-              console.log({
-                idolRegisterData,
-                collectionImage,
-                nftFiles,
-              })
-
-
               if (
                 isEmpty(idolRegisterData.amount) ||
                 !collectionImage ||

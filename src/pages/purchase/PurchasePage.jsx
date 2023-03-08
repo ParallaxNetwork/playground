@@ -144,6 +144,7 @@ const PurchasePages = () => {
 
     let images = []
     for (let i = 1; i <= imageTotal; i++) {
+      if(i > 3) break
       const result = await fetch(`${resp.nftImageURI}${i}`);
       const res = await result.json();
       images.push(res.image)

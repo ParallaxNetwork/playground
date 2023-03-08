@@ -47,6 +47,9 @@ const ExploreProvider = ({ children }) => {
         });
       }
     }
+
+    // reverse the array so the newest locks are at the top
+    tempData.reverse();
     
     setExploreData(tempData);
   }
