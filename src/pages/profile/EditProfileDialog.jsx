@@ -81,9 +81,7 @@ const EditProfileDialog = ({
             </div> */}
 
             <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
-              {formData?.pfp &&
-                <img src={formData.pfp} alt="" className="max-w-full max-h-full" />
-              }
+              <img src={formData?.pfp ? formData.pfp : "/assets/picture/placeholder.png"} alt="" className="max-w-full max-h-full" />
             </div>
 
             <label

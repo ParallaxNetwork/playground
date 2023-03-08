@@ -1,10 +1,12 @@
+import Image from "next/image";
 import AlertDialog from "../../components/elements/AlertDialog";
 import CollectionImage from "../../components/elements/CollectionImage";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { isEmpty } from "lodash";
 import { uploadToIPFS, constructMeta } from "../../../utilities/ipfsUploader";
 import { ShowToast } from "../../components/elements/Toaster";
 import CircularProgress from "@mui/material/CircularProgress";
+import { duration } from "@mui/material";
 const RegisterDialog = ({
   openRegisterDialog,
   handleCloseRegisterDialog,
@@ -15,14 +17,14 @@ const RegisterDialog = ({
     price: null,
     numberOfImages: null,
     subName: null,
-    collectionImage: null,
-    nftImage: null,
     nftImageURI: null,
     collectionImageURI: null,
     amount: null,
     description: null,
     interest: null,
   });
+  const [collectionImage, setCollectionImage] = useState(null);
+  const [nftFiles, setNftFiles] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,6 +32,7 @@ const RegisterDialog = ({
     setIsLoading(false);
     return ShowToast({
       message: msg,
+      duration: 10000
     });
   };
 
@@ -39,11 +42,13 @@ const RegisterDialog = ({
     let fileType;
     let uploadedData = [];
     let count = 0;
-    if (isEmpty(idolRegisterData.nftImage)) {
+
+    if (isEmpty(nftFiles)) {
       return handleError("Data must be filled");
     }
+
     //DO CHECKING FILETYPE
-    for (var data of idolRegisterData.nftImage.target.files) {
+    for (var data of Array.from(nftFiles)) {
       if (isEmpty(fileType)) {
         fileType = data.name.split(".").pop();
       }
@@ -96,9 +101,9 @@ const RegisterDialog = ({
   const handleUploadCollectionImage = async () => {
     setIsLoading(true);
     const cid = await uploadToIPFS([
-      idolRegisterData.collectionImage.target.files[0],
+      collectionImage
     ]);
-    const fileName = idolRegisterData.collectionImage.target.files[0].name;
+    const fileName = collectionImage.name;
 
     var tempdatas = idolRegisterData;
     tempdatas[
@@ -112,26 +117,31 @@ const RegisterDialog = ({
     );
   };
 
+  // useEffect(() => {
+  //   console.log("idolRegisterData", idolRegisterData);
+  // }, [idolRegisterData]);
+
+  const onCloseDialog = () => {
+    setIdolRegisterData({
+      duration: null,
+      price: null,
+      numberOfImages: null,
+      subName: null,
+      collectionImage: null,
+      nftImageURI: null,
+      collectionImageURI: null,
+      amount: null,
+      description: null,
+      interest: null,
+    });
+    setIsLoading(false);
+    handleCloseRegisterDialog();
+  }
+
   return (
     <AlertDialog
       open={openRegisterDialog}
-      onClose={() => {
-        setIdolRegisterData({
-          duration: null,
-          price: null,
-          numberOfImages: null,
-          subName: null,
-          collectionImage: null,
-          nftImage: null,
-          nftImageURI: null,
-          collectionImageURI: null,
-          amount: null,
-          description: null,
-          interest: null,
-        });
-        setIsLoading(false);
-        handleCloseRegisterDialog();
-      }}
+      onClose={onCloseDialog}
     >
       <div className="flex flex-row justify-between items-center bg-secondary text-white px-3 py-3 title-secondary border-b-2 border-black">
         REGISTER AND CREATE SUBSCRIPTION
@@ -149,26 +159,22 @@ const RegisterDialog = ({
                 disabled={isLoading}
                 type="file"
                 id="upload-image-collection"
+                // only accept image
+                accept="image/*"
                 onChange={(val) => {
-                  if (!isEmpty(val)) {
-                    setIdolRegisterData({
-                      ...idolRegisterData,
-                      collectionImage: val,
-                    });
+                  console.log(val.target)
+                  if (!isEmpty(val.target.files)) {
+                    // setIdolRegisterData({
+                    //   ...idolRegisterData,
+                    //   collectionImage: val,
+                    // });
+                    console.log(val.target.files[0])
+                    setCollectionImage(val.target.files[0]);
                   }
                 }}
                 className="hidden"
               />
-              <CollectionImage
-                src={` ${
-                  !isEmpty(idolRegisterData.collectionImage)
-                    ? URL.createObjectURL(
-                        idolRegisterData.collectionImage.target.files[0]
-                      )
-                    : "/assets/picture/placeholder.png"
-                }  `}
-                className="max-w-[128px] h-[128px] w-full ml-1"
-              />
+              <SubscriptionPicture collectionImage={collectionImage} />
             </div>
             <div className="flex flex-col justify-start items-start space-y-2">
               <div className="title-secondary mt-2 lg:mt-0">
@@ -192,46 +198,45 @@ const RegisterDialog = ({
               </label>
             </div>
           </div>
-          <div className="flex flex-col lg:flex-row ">
-            <div className="flex flex-col justify-start items-start min-w-[150px]">
-              <input
-                type="file"
-                directory=""
-                webkitdirectory=""
-                disabled={isLoading}
-                multiple
-                id="upload-image-nft"
-                onChange={(val) => {
-                  if (!isEmpty(val)) {
-                    setIdolRegisterData({
-                      ...idolRegisterData,
-                      nftImage: val,
-                    });
-                  }
-                }}
-                className="hidden"
-              />
-              <CollectionImage
-                src={` ${
-                  !isEmpty(idolRegisterData.nftImage)
-                    ? URL.createObjectURL(
-                        idolRegisterData.nftImage.target.files[0]
-                      )
-                    : "/assets/picture/placeholder-folder.png"
-                }  `}
-                className="max-w-[128px] h-[128px] w-full ml-1"
-              />
-            </div>
-            <div className="flex flex-col justify-start items-start space-y-2">
+        </div>
+
+        <div className="flex flex-col">
+          <div className="flex flex-row items-center mt-8">
+            <div className="flex flex-col justify-start items-start">
               <div className="title-secondary mt-2 lg:mt-0">NFT Pictures</div>
               <div className="title-placeholder f-12-px">
                 Put your NFT pictures in one folder and upload here
               </div>
+
+              <NFTPicturesPreview nftFiles={nftFiles} />
+
+
               <label
                 disabled={isLoading}
                 htmlFor="upload-image-nft"
-                className="shadowBoxBtnSmall py-1 max-w-[90px] rounded-md text-center flex flex-row"
+                className="shadowBoxBtnSmall py-1 mt-6 max-w-[90px] rounded-md text-center flex flex-row"
               >
+                <input
+                  type="file"
+                  directory=""
+                  webkitdirectory=""
+                  disabled={isLoading}
+                  multiple
+                  id="upload-image-nft"
+                  // only accept image
+                  accept="image/*"
+                  onChange={(val) => {
+                    if (!isEmpty(val.target.files)) {
+                      // don't pick .DS_Store or any other hidden files
+                      const filteredFiles = Array.from(val.target.files).filter(
+                        (file) => !file.name.startsWith(".")
+                      );
+
+                      setNftFiles(filteredFiles);
+                    }
+                  }}
+                  className="hidden"
+                />
                 <div className="text-center m-auto color-pink font-medium">
                   {isLoading ? (
                     <CircularProgress
@@ -246,6 +251,7 @@ const RegisterDialog = ({
             </div>
           </div>
         </div>
+
         <div className="flex-col flex space-y-4 w-full mt-10">
           <div className="flex flex-col w-full gap-2 ">
             <div className="title-secondary">Subscription Name</div>
@@ -257,7 +263,7 @@ const RegisterDialog = ({
                   subName: e.target.value,
                 });
               }}
-              className=" border-placeholder rounded-md h-full"
+              className="border-placeholder rounded-md h-full"
               placeholder="Name"
             />
           </div>
@@ -326,38 +332,56 @@ const RegisterDialog = ({
         <div className="flex flex-row justify-end mt-[10vh]">
           <button
             onClick={async () => {
+              console.log({
+                idolRegisterData,
+                collectionImage,
+                nftFiles,
+              })
+
+
               if (
                 isEmpty(idolRegisterData.amount) ||
-                isEmpty(idolRegisterData.collectionImage) ||
+                !collectionImage ||
                 isEmpty(idolRegisterData.duration.toString()) ||
-                isEmpty(idolRegisterData.nftImage) ||
+                isEmpty(nftFiles) ||
                 isEmpty(idolRegisterData.price) ||
                 isEmpty(idolRegisterData.subName)
               ) {
                 return ShowToast({
                   message: "Please fill all the required data",
                   state: "error",
+                  duration: 5000
                 });
               }
 
               ShowToast({
-                message:
-                  "Uploading your Subscription images~, dont close this popup!",
+                message: "Uploading your Subscription images~, dont close this popup!",
+                id: "register-idol",
+                duration: 20000
               });
+
               await handleUploadCollectionImage();
+
               ShowToast({
                 message: "Yuhuu your subscription banner has been uploaded",
+                id: "register-idol"
               });
-              setTimeout(async () => {
-                ShowToast({
-                  message: "Uploading your NFT images~, still working 😊",
-                });
-                await handleUploadNFT();
-                ShowToast({
-                  message: "Yesss all set! please confirm the transaction",
-                });
-                handleSubmitRegister(idolRegisterData);
-              }, 2000);
+
+              ShowToast({
+                message: "Uploading your NFT images~, still working 😊",
+                id: "register-idol",
+                duration: 10000
+              });
+              
+              await handleUploadNFT();
+
+              ShowToast({
+                message: "Yesss all set! please confirm the transaction",
+                id: "register-idol",
+                duration: 10000
+              });
+
+              handleSubmitRegister(idolRegisterData);
             }}
             disabled={isLoading}
             className={`btn btn-primary-large`}
@@ -373,5 +397,42 @@ const RegisterDialog = ({
     </AlertDialog>
   );
 };
+
+// Create NFTPicturesPreview component using useMemo 
+const NFTPicturesPreview = ({ nftFiles }) => {
+  return useMemo(() => {
+    if (!isEmpty(nftFiles)) {
+      return (
+        <div className="grid grid-cols-12 gap-1 mt-2">
+          {nftFiles &&
+            Array.from(nftFiles).map((file, index) => {
+              return (
+                <div className="col-span-2 aspect-square" key={index}>
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt=""
+                    className="aspect-square w-full object-cover"
+                  />
+                  {/* <Image src={URL.createObjectURL(file)} alt="NFTtt" width={100} height={100} quality={1} className="w-full aspect-square object-cover" /> */}
+                </div>
+              );
+            })}
+        </div>
+      )
+    }
+  }, [nftFiles]);
+};
+
+// Create SubscriptionPicture component using useMemo
+const SubscriptionPicture = ({ collectionImage }) => {
+  return useMemo(() => {
+    return (
+      <CollectionImage
+        src={collectionImage ? URL.createObjectURL(collectionImage) : "/assets/picture/placeholder.png"}
+        className="max-w-[128px] h-[128px] w-full ml-1"
+      />
+    )
+  }, [collectionImage])
+}
 
 export default RegisterDialog;
