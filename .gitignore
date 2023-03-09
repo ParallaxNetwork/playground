@@ -57,6 +57,3 @@ typechain-types
 # Hardhat files
 cache
 artifacts
-
-# ignore package.lock.json
-package-lock.json
