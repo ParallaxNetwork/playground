@@ -235,6 +235,7 @@ const EngageIdol = ({ selectedIdol, setSelectedIdol }) => {
                 idolAddress={selectedIdol.idolAddress}
                 isBlocked={blocked}
                 account={selectedIdol}
+                isLive={selectedIdol.isLive}
               />
             )}
           </div>

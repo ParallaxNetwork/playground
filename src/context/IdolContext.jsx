@@ -148,7 +148,7 @@ const IdolProvider = ({ children }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       getEngangeData();
-    }, 5000);
+    }, 20000);
     return () => clearInterval(interval);
   }, []);
 

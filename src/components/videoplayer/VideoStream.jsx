@@ -5,7 +5,6 @@ import { useState, useMemo, useCallback, useRef, useEffect, memo } from "react";
 import VideoControl from "./VideoControl";
 import Image from "next/image";
 import { getLivePeerStream } from "../../../pages/api/livepeerAPI";
-import { useRendersCount } from "react-use";
 
 const VideoStream = ({
   playbackID,
@@ -14,8 +13,8 @@ const VideoStream = ({
   idolAddress,
   isBlocked,
   account,
+  isLive
 }) => {
-  const renderCount = useRendersCount()
   const isLoading = useMemo(() => status === "loading", [status]);
   const [vidRef, setVidRef] = useState();
 
@@ -39,24 +38,23 @@ const VideoStream = ({
   }, [playbackID]);
 
   const handleCheckStreamStatus = async () => {
-    console.log("CHECK STREAM STATUS")
-    console.log("SELECTED ACCOUNT", account);
-    const stream = await getLivePeerStream(playbackID);
-    console.log("STREAM", stream);
+    if (!isLive) {
+      setIsActive(false);
+    } else {
+      console.log("CHECK STREAM STATUS")
+      const stream = await getLivePeerStream(playbackID);
+      console.log("STREAM", stream);
+
+      if (stream?.isActive) {
+        console.log("STREAM IS ACTIVE");
+        setIsActive(true);
+      } else {
+        setIsActive(false);
+      }
+    }
 
     setisChecked(true);
-
-    if (stream?.isActive) {
-      console.log("STREAM IS ACTIVE");
-      setIsActive(true);
-    } else {
-      setIsActive(false);
-    }
   };
-
-  useEffect(() => {
-    console.log("Rerendered")
-  }, [])
 
   return (
     <div className="bg-[url('/assets/misc/pattern.svg')] w-full">
@@ -92,10 +90,6 @@ const VideoStream = ({
           <div className="pl-3">
             <div className="subtitle-secondary">{title}</div>
             <p className="text-black">{userName}</p>
-          </div>
-
-          <div>
-            Rerendered {renderCount} times.
           </div>
 
           {/* <VideoControl disabled={isBlocked} vidRef={vidRef} /> */}

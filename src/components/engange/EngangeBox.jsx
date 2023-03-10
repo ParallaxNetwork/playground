@@ -8,7 +8,6 @@ import ShadowBox from '../elements/ShadowBox'
 import LayoutContainer from '../elements/Container';
 
 export default function EngangeBox() {
-  const [chatOnlyView, setChatOnlyView] = useState(false);
   const [selectedIdol, setSelectedIdol] = useState(null);
 
   return (
