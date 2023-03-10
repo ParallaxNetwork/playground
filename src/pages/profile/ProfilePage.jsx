@@ -177,6 +177,7 @@ const ProfilePage = () => {
   };
 
   const getIdolData = async () => {
+    // eslint-disable-next-line no-undef
     return new Promise(async (resolve) => {
       try {
         setIsLoadingSubscription(true);
@@ -207,6 +208,7 @@ const ProfilePage = () => {
   };
 
   const handleCreateStream = async () => {
+    // eslint-disable-next-line no-undef
     return new Promise((resolve) => {
       ShowToast({
         message: "Creating streaming channel for you..",

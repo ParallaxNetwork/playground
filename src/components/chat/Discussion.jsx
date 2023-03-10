@@ -57,10 +57,10 @@ const Discussion = ({
     let res;
     setMessageInput("");
     if (isPrivate) {
-      res = await orbis.sendMessage({
-        conversation_id: context,
-        body: messageInput,
-      });
+      // res = await orbis.sendMessage({
+      //   conversation_id: context,
+      //   body: messageInput,
+      // });
     } else {
       res = await orbis.createPost({
         context: orbisContext,
