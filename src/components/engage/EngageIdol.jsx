@@ -3,18 +3,18 @@ import { Zoom } from "@mui/material";
 import dynamic from "next/dist/shared/lib/dynamic";
 import { memo, useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
-import Discussion from "../../components/chat/Discussion";
-import CircleAvatar from "../../components/elements/CircleAvatar";
-import SvgIconStyle from "../../components/elements/SvgIconStyle";
+import Discussion from "../chat/Discussion"
+import CircleAvatar from "../elements/CircleAvatar"
+import SvgIconStyle from "../elements/SvgIconStyle"
 import Link from "next/link";
 import { isEmpty } from "lodash";
 import { Contract } from "ethers";
 import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { useOrbis } from "../../context/OrbisContext";
-import { useIdol } from "../../context/IdolContext";
+
 const VideoStream = dynamic(
-  () => import("../../components/videoplayer/VideoStream"),
+  () => import("../videoplayer/VideoStream"),
   {
     ssr: false,
   }

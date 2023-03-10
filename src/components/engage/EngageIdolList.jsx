@@ -3,11 +3,11 @@ import { useIdol } from '../../context/IdolContext'
 import CircleAvatar from '../elements/CircleAvatar';
 
 export default function EngageIdolList({ selectedIdol, setSelectedIdol, setChatOnlyView }) {
-  const { engangeData } = useIdol()
+  const { engageData } = useIdol()
 
   return (
     <div className="space-y-5 pb-3">
-      {engangeData.map((el, index) => {
+      {engageData.map((el, index) => {
         return (
           <div
             onClick={() => {

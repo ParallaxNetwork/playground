@@ -11,14 +11,14 @@ const VideoStream = dynamic(
   }
 );
 
-import EngangeBox from '../../components/engange/EngangeBox'
+import EngageBox from '../../components/engage/EngageBox'
 
 const EngagePage = () => {
   return (
     <Zoom in>
       <div>
         <LayoutContainer>
-          <EngangeBox />
+          <EngageBox />
         </LayoutContainer>
       </div>
     </Zoom>

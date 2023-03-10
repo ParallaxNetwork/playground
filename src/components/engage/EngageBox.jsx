@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Zoom } from '@mui/material';
 
-import EngangeExploreIdol from './EngangeExploreIdol'
-import EngangeIdol from './EngangeIdol'
+import EngageExploreIdol from './EngageExploreIdol'
+import EngageIdol from './EngageIdol'
 
 import ShadowBox from '../elements/ShadowBox'
 import LayoutContainer from '../elements/Container';
 
-export default function EngangeBox() {
+export default function EngageBox() {
   const [selectedIdol, setSelectedIdol] = useState(null);
 
   return (
@@ -16,11 +16,11 @@ export default function EngangeBox() {
         <LayoutContainer>
           <ShadowBox className={"shadowBox"}>
             {!selectedIdol &&
-              <EngangeExploreIdol setSelectedIdol={setSelectedIdol} />
+              <EngageExploreIdol setSelectedIdol={setSelectedIdol} />
             }
 
             {selectedIdol &&
-              <EngangeIdol selectedIdol={selectedIdol} setSelectedIdol={setSelectedIdol} />
+              <EngageIdol selectedIdol={selectedIdol} setSelectedIdol={setSelectedIdol} />
             }
           </ShadowBox>
         </LayoutContainer>

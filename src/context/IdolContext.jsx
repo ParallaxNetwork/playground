@@ -1,5 +1,5 @@
 import { Contract, providers } from "ethers";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { contractConfig } from "../../utilities/contractConfig";
 import { PGCORE_ABI } from "../../utilities/PGCoreABI";
 import { lockMeta } from "../pages/explore/lockMeta";
@@ -11,8 +11,8 @@ import getActiveLivePeerStream from "../../pages/api/livepeerAPI";
 const IdolContext = createContext({
   exploreData: null,
   getExploreData: () => { },
-  engangeData: null,
-  getEngangeData: () => { },
+  engageData: null,
+  getEngageData: () => { },
 })
 
 const IdolProvider = ({ children }) => {
@@ -75,8 +75,9 @@ const IdolProvider = ({ children }) => {
   }, []);
 
   // ENGANGE PAGE
-  const [engangeData, setEngangeData] = useState(null);
-  const getEngangeData = async () => {
+  const [engageData, setEngageData] = useState(null);
+  const engageDataRef = useRef(engageData);
+  const getEngageData = async () => {
     const contracts = new Contract(
       contractConfig.PGCORE_ADDRESS,
       PGCORE_ABI.abi,
@@ -116,39 +117,65 @@ const IdolProvider = ({ children }) => {
       }
     }
 
-    console.log("Engange Data", tempData)
+    console.log("Engage Data", tempData)
 
     if (tempData.length > 0) {
       // get active live streams
       const activeStreams = await getActiveLivePeerStream()
       console.log("Active Streams", activeStreams)
 
-      for(let i = 0; i < tempData.length; i++) {
-        for(let j = 0; j < activeStreams.length; j++) {
-          if(tempData[i].streamID == activeStreams[j].id) {
+      for (let i = 0; i < tempData.length; i++) {
+        for (let j = 0; j < activeStreams.length; j++) {
+          if (tempData[i].streamID == activeStreams[j].id) {
             tempData[i].isLive = true;
           }
         }
       }
 
-      setEngangeData(tempData);
+      setEngageData(tempData);
+      engageDataRef.current = tempData;
     }
   }
 
-  const delayedGetEngangeData = async () => {
+  const checkActiveLivestreams = async () => {
+    const tempEngageData = JSON.parse(JSON.stringify(engageDataRef.current));
+
+    if(!tempEngageData) return;
+
+    const activeStreams = await getActiveLivePeerStream()
+    for (let i = 0; i < tempEngageData.length; i++) {
+      for (let j = 0; j < activeStreams.length; j++) {
+        if (tempEngageData[i].streamID == activeStreams[j].id) {
+          tempEngageData[i].isLive = true;
+        }
+      }
+    }
+
+    setEngageData(tempEngageData);
+  }
+
+  const delayedGetEngageData = async () => {
     await sleep(1000)
-    getEngangeData();
+    getEngageData();
   }
 
   useEffect(() => {
-    delayedGetEngangeData();
+    delayedGetEngageData();
   }, []);
 
-  // run fetchIdols every 15 seconds
+  // run fetchIdols every 120 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      getEngangeData();
-    }, 20000);
+      getEngageData();
+    }, 120000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // run checkActiveLivestreams every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkActiveLivestreams();
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -156,8 +183,8 @@ const IdolProvider = ({ children }) => {
     <IdolContext.Provider value={{
       exploreData,
       getExploreData,
-      engangeData,
-      getEngangeData
+      engageData,
+      getEngageData
     }}>
       {children}
     </IdolContext.Provider>

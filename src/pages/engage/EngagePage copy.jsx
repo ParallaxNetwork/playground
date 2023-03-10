@@ -49,7 +49,7 @@ const EngagePage = () => {
   const { orbis, getConversations, conversations, createConversation } = useOrbis();
 
 
-  const { engangeData } = useIdol()
+  const { engageData } = useIdol()
   const [currentPBID, setCurrentPBID] = useState(null);
   const [blocked, setBlocked] = useState(true);
 
@@ -152,23 +152,23 @@ const EngagePage = () => {
   ]);
 
   useEffect(() => {
-    if (engangeData) {
+    if (engageData) {
       if (!currentPBID) {
-        setCurrentPBID(engangeData[0].playbackID);
+        setCurrentPBID(engageData[0].playbackID);
         getConversations();
       }
     }
-  }, [engangeData])
+  }, [engageData])
 
   useEffect(() => {
-    if (!engangeData) {
+    if (!engageData) {
       return
     }
 
     getConversations();
-    setActiveRoom(engangeData[selectedAccount].groupRoom[0]);
-    if (signer && !engangeData && engangeData[0]?.address != "") {
-      checkTokenGate(engangeData[selectedAccount].idolAddress);
+    setActiveRoom(engageData[selectedAccount].groupRoom[0]);
+    if (signer && !engageData && engageData[0]?.address != "") {
+      checkTokenGate(engageData[selectedAccount].idolAddress);
     }
   }, [selectedAccount])
 
@@ -178,17 +178,17 @@ const EngagePage = () => {
   //     return setBlocked(true);
   //   }
 
-  //   if(!engangeData){
+  //   if(!engageData){
   //     return
   //   }
 
   //   if(!currentPBID){
-  //     setCurrentPBID(engangeData[0].playbackID);
+  //     setCurrentPBID(engageData[0].playbackID);
   //   }
   //   getConversations();
-  //   setActiveRoom(engangeData[selectedAccount].groupRoom[0]);
-  //   if (signer && !isLoading && engangeData[0].address != "") {
-  //     checkTokenGate(engangeData[selectedAccount].idolAddress);
+  //   setActiveRoom(engageData[selectedAccount].groupRoom[0]);
+  //   if (signer && !isLoading && engageData[0].address != "") {
+  //     checkTokenGate(engageData[selectedAccount].idolAddress);
   //   }
   // }, [selectedAccount, account, signer]);
 
@@ -197,11 +197,11 @@ const EngagePage = () => {
       <Zoom in={true}>
         <div>
           <LayoutContainer>
-            {!engangeData ? (
+            {!engageData ? (
               <div className="h-[760px] w-full secondary shadowBox flex flex-row flex-wrap p-4">
                 <div className="w-full h-full rounded-md animate-pulse bg-gray-200" />
               </div>
-            ) : engangeData[0].address == "" ? (
+            ) : engageData[0].address == "" ? (
               <NoItems description="No idol registered yet at this time, please come back later" />
             ) : (
               <ShadowBox className={"shadowBox"}>
@@ -214,7 +214,7 @@ const EngagePage = () => {
                           let liveActiveClass = "";
 
                           if (el.title === "LIVE") {
-                            if (engangeData[selectedAccount]?.isLive) {
+                            if (engageData[selectedAccount]?.isLive) {
                               liveActiveClass = "bg-active"
                             } else {
                               liveActiveClass = "bg-gray-500"
@@ -264,12 +264,12 @@ const EngagePage = () => {
                       {/* IDOL ACCOUNT */}
                       <div className="pt-3 pb-2 border-r-2 border-black flex flex-col justify-between">
                         <div className="space-y-5 pb-3">
-                          {engangeData.map((el, index) => {
+                          {engageData.map((el, index) => {
                             return (
                               <div
                                 onClick={() => {
                                   setSelectedAccount(index);
-                                  setCurrentPBID(engangeData[index].playbackID);
+                                  setCurrentPBID(engageData[index].playbackID);
                                   // if (el.isLive == false) {
                                   //   setChatOnlyView(true);
                                   // } else {
@@ -310,17 +310,17 @@ const EngagePage = () => {
                             {/* <div
                             onClick={async () => {
                               const res = await createConversation(
-                                engangeData[selectedAccount].idolDid
+                                engageData[selectedAccount].idolDid
                               );
                               setActiveRoom({
-                                title: engangeData[selectedAccount].userName,
+                                title: engageData[selectedAccount].userName,
                                 context: res,
                                 private: true,
                               });
                             }}
                             className={`mt-2 flex flex-row gap-3 ${
                               activeRoom.title ==
-                                engangeData[selectedAccount].userName &&
+                                engageData[selectedAccount].userName &&
                               "bg-[#F1848D] !text-white"
                             } items-center p-2 rounded-md`}
                           >
@@ -328,18 +328,18 @@ const EngagePage = () => {
                               src={"/assets/icons/chatbubble-icon.svg"}
                               className={`!w-4 !h-4 ${
                                 activeRoom.title ==
-                                engangeData[selectedAccount].userName
+                                engageData[selectedAccount].userName
                                   ? "bg-[#FFECEF]"
                                   : "bg-gray"
                               }`}
                             />
-                            {engangeData[selectedAccount].userName}
+                            {engageData[selectedAccount].userName}
                           </div> */}
                             <div className="f-12-px bg-placeholder mt-2">
                               Group Chat
                             </div>
                             <div className="flex flex-col mt-2">
-                              {engangeData[selectedAccount].groupRoom.map(
+                              {engageData[selectedAccount].groupRoom.map(
                                 (el, index) => {
                                   return (
                                     <div
@@ -376,21 +376,21 @@ const EngagePage = () => {
                       ) : (
                         <MemoizedVideoStream
                           playbackID={
-                            currentPBID ?? engangeData[selectedAccount].playbackID
+                            currentPBID ?? engageData[selectedAccount].playbackID
                           }
                           title={
                             isEmpty(currentPBID)
                               ? "-"
-                              : engangeData[selectedAccount].lockName
+                              : engageData[selectedAccount].lockName
                           }
                           userName={
                             isEmpty(currentPBID)
                               ? "-"
-                              : engangeData[selectedAccount].userName
+                              : engageData[selectedAccount].userName
                           }
-                          idolAddress={engangeData[selectedAccount].idolAddress}
+                          idolAddress={engageData[selectedAccount].idolAddress}
                           isBlocked={blocked}
-                          account={engangeData[selectedAccount]}
+                          account={engageData[selectedAccount]}
                         />
                       )}
                     </div>
@@ -400,7 +400,7 @@ const EngagePage = () => {
                     <div className="lg:w-1/4  border-l-0 border-t-2 lg:border-t-0 lg:border-l-2 border-black secondary min-h-[530px] relative">
                       <Discussion
                         orbisContext={
-                          currentPBID ?? engangeData[selectedAccount].playbackID
+                          currentPBID ?? engageData[selectedAccount].playbackID
                         }
                         isBlocked={blocked}
                       />
@@ -413,24 +413,24 @@ const EngagePage = () => {
           </LayoutContainer>
 
           <div>
-            {(engangeData && selectedAccount && currentPBID) &&
+            {(engageData && selectedAccount && currentPBID) &&
               <VideoStream
                 playbackID={
-                  currentPBID ?? engangeData[selectedAccount].playbackID
+                  currentPBID ?? engageData[selectedAccount].playbackID
                 }
                 title={
                   isEmpty(currentPBID)
                     ? "-"
-                    : engangeData[selectedAccount].lockName
+                    : engageData[selectedAccount].lockName
                 }
                 userName={
                   isEmpty(currentPBID)
                     ? "-"
-                    : engangeData[selectedAccount].userName
+                    : engageData[selectedAccount].userName
                 }
-                idolAddress={engangeData[selectedAccount].idolAddress}
+                idolAddress={engageData[selectedAccount].idolAddress}
                 isBlocked={blocked}
-                account={engangeData[selectedAccount]}
+                account={engageData[selectedAccount]}
               />
             }
           </div>

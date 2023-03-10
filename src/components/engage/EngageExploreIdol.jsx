@@ -3,10 +3,10 @@ import { useIdol } from '../../context/IdolContext'
 import CircleAvatar from '../elements/CircleAvatar'
 import NoItems from '../elements/NoItems'
 
-export default function EngangeExploreIdol({
+export default function EngageExploreIdol({
   setSelectedIdol
 }) {
-  const { engangeData } = useIdol()
+  const { engageData } = useIdol()
 
   const onClickIdol = (idol) => {
     setSelectedIdol(idol)
@@ -19,11 +19,11 @@ export default function EngangeExploreIdol({
       </div>
 
       <div className='flex flex-col'>
-        {engangeData ?
+        {engageData ?
           <>
-            {engangeData.length !== 0 ?
+            {engageData.length !== 0 ?
               <div className='grid grid-cols-12 gap-4 mt-5'>
-                {engangeData.map((idol, index) => {
+                {engageData.map((idol, index) => {
                   return (
                     <button
                       onClick={() => onClickIdol(idol)}
