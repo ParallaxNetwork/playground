@@ -14,7 +14,7 @@ import { Orbis } from '@orbisclub/orbis-sdk'
 import { OrbisProvider } from '../src/context/OrbisContext'
 import { UserProvider } from '../src/context/UserContext'
 import { UnlockProvider } from '../src/context/UnlockContext'
-import { ExploreProvider } from '../src/context/ExploreContext'
+import { IdolProvider } from '../src/context/IdolContext'
 
 const orbisOptions = {
   PINATA_API_KEY: process.env.PINATA_API_KEY,
@@ -51,7 +51,7 @@ function MyApp({ Component, pageProps }) {
       <OrbisProvider orbis={orbis}>
         <UnlockProvider>
           <UserProvider>
-            <ExploreProvider>
+            <IdolProvider>
               <Toaster
                 gutter={15}
                 toastOptions={{
@@ -61,7 +61,7 @@ function MyApp({ Component, pageProps }) {
 
               <Component
                 {...pageProps} />
-            </ExploreProvider>
+            </IdolProvider>
           </UserProvider>
         </UnlockProvider>
       </OrbisProvider>

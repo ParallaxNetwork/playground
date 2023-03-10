@@ -15,6 +15,7 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { lockMeta } from "../explore/lockMeta";
 import { useOrbis } from "../../context/OrbisContext";
+import { useIdol } from "../../context/IdolContext";
 const VideoStream = dynamic(
   () => import("../../components/videoplayer/VideoStream"),
   {
@@ -30,9 +31,11 @@ const EngagePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { providers, provider, getProvider } = useClient();
   const { chain, chains } = useNetwork();
-  const { orbis, getConversations, conversations, createConversation } =
-    useOrbis();
-  const [currentPBID, setCurrentPBID] = useState();
+  const { orbis, getConversations, conversations, createConversation } = useOrbis();
+
+
+  const { engangeData } = useIdol()
+  const [currentPBID, setCurrentPBID] = useState(null);
   const [blocked, setBlocked] = useState(true);
 
   const getUserProfile = async (userAddress) => {
@@ -47,54 +50,54 @@ const EngagePage = () => {
     }
   };
 
-  const fetchIdols = async () => {
-    setIsLoading(true);
-    const contracts = new Contract(
-      contractConfig.PGCORE_ADDRESS,
-      PGCORE_ABI.abi,
-      providers.entries().next().value[1]
-    );
-    const result = await contracts.getAllIdolData(1, 10);
-    let tempData = [];
-    for (var i = 0; i < result.length; i++) {
-      if (
-        result[i].idolAddress != "0x0000000000000000000000000000000000000000"
-      ) {
-        var tempMeta = await lockMeta(chain, result[i].lockAddress);
-        const idolorbis = await getUserProfile(result[i].idolAddress);
+  // const fetchIdols = async () => {
+  //   setIsLoading(true);
+  //   const contracts = new Contract(
+  //     contractConfig.PGCORE_ADDRESS,
+  //     PGCORE_ABI.abi,
+  //     providers.entries().next().value[1]
+  //   );
+  //   const result = await contracts.getAllIdolData(1, 10);
+  //   let tempData = [];
+  //   for (var i = 0; i < result.length; i++) {
+  //     if (
+  //       result[i].idolAddress != "0x0000000000000000000000000000000000000000"
+  //     ) {
+  //       var tempMeta = await lockMeta(chain, result[i].lockAddress);
+  //       const idolorbis = await getUserProfile(result[i].idolAddress);
 
-        tempData.push({
-          img: idolorbis?.profile?.pfp ?? "/assets/picture/placeholder.png",
-          idolDid: idolorbis?.did ?? "",
-          lockName: result[i].lockName,
-          lockAddress: result[i].lockAddress,
-          lockImage: result[i].lockImage,
-          nftKeyAddress: result[i].nftKeyAddress,
-          idolAddress: result[i].idolAddress,
-          playbackID: tempMeta.stream_playbackId,
-          streamID: tempMeta.stream_id,
-          description: tempMeta.description,
-          interest: tempMeta.interest,
-          perks: tempMeta.perks,
-          userName: idolorbis?.profile.name ?? "-",
-          isLive: false,
-          address: result[i].userAddress,
-          groupRoom: [
-            {
-              title: "Fanbase",
-              context: `${tempMeta.stream_id}-${result[i].idolAddress}`,
-            },
-          ],
-        });
-      }
-    }
-    setCurrentPBID(tempData[0].playbackID);
+  //       tempData.push({
+  //         img: idolorbis?.profile?.pfp ?? "/assets/picture/placeholder.png",
+  //         idolDid: idolorbis?.did ?? "",
+  //         lockName: result[i].lockName,
+  //         lockAddress: result[i].lockAddress,
+  //         lockImage: result[i].lockImage,
+  //         nftKeyAddress: result[i].nftKeyAddress,
+  //         idolAddress: result[i].idolAddress,
+  //         playbackID: tempMeta.stream_playbackId,
+  //         streamID: tempMeta.stream_id,
+  //         description: tempMeta.description,
+  //         interest: tempMeta.interest,
+  //         perks: tempMeta.perks,
+  //         userName: idolorbis?.profile.name ?? "-",
+  //         isLive: false,
+  //         address: result[i].userAddress,
+  //         groupRoom: [
+  //           {
+  //             title: "Fanbase",
+  //             context: `${tempMeta.stream_id}-${result[i].idolAddress}`,
+  //           },
+  //         ],
+  //       });
+  //     }
+  //   }
+  //   setCurrentPBID(tempData[0].playbackID);
 
-    if (tempData.length > 0) {
-      setAccount(tempData);
-    }
-    setIsLoading(false);
-  };
+  //   if (tempData.length > 0) {
+  //     setAccount(tempData);
+  //   }
+  //   setIsLoading(false);
+  // };
 
   const checkTokenGate = async (idolAddress) => {
     if (idolAddress == address) {
@@ -120,19 +123,7 @@ const EngagePage = () => {
     context: "private-sinka-123",
   });
 
-  const [account, setAccount] = useState([
-    {
-      img: "",
-      isLive: true,
-      address: "",
-      groupRoom: [
-        {
-          title: "",
-          context: "",
-        },
-      ],
-    },
-  ]);
+  const [account, setAccount] = useState(null);
 
   const [tabs, setTabs] = useState([
     {
@@ -148,30 +139,55 @@ const EngagePage = () => {
   ]);
 
   useEffect(() => {
-    fetchIdols();
-  }, []);
+    if (engangeData) {
+      if(!currentPBID){
+        setCurrentPBID(engangeData[0].playbackID);
+        getConversations();
+      }
+    }
+  }, [engangeData])
 
   useEffect(() => {
-    // setAccount(account);
-    if (!signer) {
-      return setBlocked(true);
+    if(!engangeData){
+      return
     }
+
     getConversations();
-    setActiveRoom(account[selectedAccount].groupRoom[0]);
-    if (signer && !isLoading && account[0].address != "") {
-      checkTokenGate(account[selectedAccount].idolAddress);
+    setActiveRoom(engangeData[selectedAccount].groupRoom[0]);
+    if (signer && !isLoading && engangeData[0].address != "") {
+      checkTokenGate(engangeData[selectedAccount].idolAddress);
     }
-  }, [selectedAccount, account, signer]);
+  }, [selectedAccount])
+
+  // useEffect(() => {
+  //   // setAccount(account);
+  //   if (!signer) {
+  //     return setBlocked(true);
+  //   }
+
+  //   if(!engangeData){
+  //     return
+  //   }
+
+  //   if(!currentPBID){
+  //     setCurrentPBID(engangeData[0].playbackID);
+  //   }
+  //   getConversations();
+  //   setActiveRoom(engangeData[selectedAccount].groupRoom[0]);
+  //   if (signer && !isLoading && engangeData[0].address != "") {
+  //     checkTokenGate(engangeData[selectedAccount].idolAddress);
+  //   }
+  // }, [selectedAccount, account, signer]);
 
   return (
     <Zoom in={true}>
       <div>
         <LayoutContainer>
-          {isLoading ? (
+          {!engangeData ? (
             <div className="h-[760px] w-full secondary shadowBox flex flex-row flex-wrap p-4">
               <div className="w-full h-full rounded-md animate-pulse bg-gray-200" />
             </div>
-          ) : account[0].address == "" ? (
+          ) : engangeData[0].address == "" ? (
             <NoItems description="No idol registered yet at this time, please come back later" />
           ) : (
             <ShadowBox className={"shadowBox"}>
@@ -184,7 +200,7 @@ const EngagePage = () => {
                         let liveActiveClass = "";
 
                         if(el.title === "LIVE"){
-                          if(account[selectedAccount]?.isLive){
+                          if(engangeData[selectedAccount]?.isLive){
                             liveActiveClass = "bg-active"
                           }else{
                             liveActiveClass = "bg-gray-500"
@@ -234,12 +250,12 @@ const EngagePage = () => {
                     {/* IDOL ACCOUNT */}
                     <div className="pt-3 pb-2 border-r-2 border-black flex flex-col justify-between">
                       <div className="space-y-5 pb-3">
-                        {account.map((el, index) => {
+                        {engangeData.map((el, index) => {
                           return (
                             <div
                               onClick={() => {
                                 setSelectedAccount(index);
-                                setCurrentPBID(account[index].playbackID);
+                                setCurrentPBID(engangeData[index].playbackID);
                                 // if (el.isLive == false) {
                                 //   setChatOnlyView(true);
                                 // } else {
@@ -281,17 +297,17 @@ const EngagePage = () => {
                           {/* <div
                             onClick={async () => {
                               const res = await createConversation(
-                                account[selectedAccount].idolDid
+                                engangeData[selectedAccount].idolDid
                               );
                               setActiveRoom({
-                                title: account[selectedAccount].userName,
+                                title: engangeData[selectedAccount].userName,
                                 context: res,
                                 private: true,
                               });
                             }}
                             className={`mt-2 flex flex-row gap-3 ${
                               activeRoom.title ==
-                                account[selectedAccount].userName &&
+                                engangeData[selectedAccount].userName &&
                               "bg-[#F1848D] !text-white"
                             } items-center p-2 rounded-md`}
                           >
@@ -299,18 +315,18 @@ const EngagePage = () => {
                               src={"/assets/icons/chatbubble-icon.svg"}
                               className={`!w-4 !h-4 ${
                                 activeRoom.title ==
-                                account[selectedAccount].userName
+                                engangeData[selectedAccount].userName
                                   ? "bg-[#FFECEF]"
                                   : "bg-gray"
                               }`}
                             />
-                            {account[selectedAccount].userName}
+                            {engangeData[selectedAccount].userName}
                           </div> */}
                           <div className="f-12-px bg-placeholder mt-2">
                             Group Chat
                           </div>
                           <div className="flex flex-col mt-2">
-                            {account[selectedAccount].groupRoom.map(
+                            {engangeData[selectedAccount].groupRoom.map(
                               (el, index) => {
                                 return (
                                   <div
@@ -349,21 +365,21 @@ const EngagePage = () => {
                     ) : (
                       <VideoStream
                         playbackID={
-                          currentPBID ?? account[selectedAccount].playbackID
+                          currentPBID ?? engangeData[selectedAccount].playbackID
                         }
                         title={
                           isEmpty(currentPBID)
                             ? "-"
-                            : account[selectedAccount].lockName
+                            : engangeData[selectedAccount].lockName
                         }
                         userName={
                           isEmpty(currentPBID)
                             ? "-"
-                            : account[selectedAccount].userName
+                            : engangeData[selectedAccount].userName
                         }
-                        idolAddress={account[selectedAccount].idolAddress}
+                        idolAddress={engangeData[selectedAccount].idolAddress}
                         isBlocked={blocked}
-                        account={account[selectedAccount]}
+                        account={engangeData[selectedAccount]}
                       />
                     )}
                   </div>
@@ -373,7 +389,7 @@ const EngagePage = () => {
                   <div className="lg:w-1/4  border-l-0 border-t-2 lg:border-t-0 lg:border-l-2 border-black secondary min-h-[530px] relative">
                     <Discussion
                       orbisContext={
-                        currentPBID ?? account[selectedAccount].playbackID
+                        currentPBID ?? engangeData[selectedAccount].playbackID
                       }
                       isBlocked={blocked}
                     />

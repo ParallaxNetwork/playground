@@ -19,12 +19,12 @@ import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import { lockMeta } from "./lockMeta";
 
 import { useUser } from "../../context/UserContext"
-import { useExplore } from "../../context/ExploreContext";
+import { useIdol } from "../../context/IdolContext";
 
 const IndexPage = () => {
   const user = useUser();
 
-  const { exploreData } = useExplore()
+  const { exploreData } = useIdol()
 
   return (
     <Zoom in={true}>

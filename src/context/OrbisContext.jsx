@@ -10,6 +10,7 @@ const initialValue = {
   refetchProfile: async () => { },
   disconnectOrbis: () => { },
   checkOrbisConnection: () => { },
+  getUserProfile: async () => { },
   connectLit: () => { },
   setProfile: () => { },
   getConversations: () => { },
@@ -77,6 +78,18 @@ const OrbisProvider = ({ children, orbis }) => {
       setProfile(data);
     } else if (autoConnect && provider) {
       await connectOrbis(provider, lit);
+    }
+  };
+
+  const getUserProfile = async (userAddress) => {
+    const { data: userDids, error: errorDids } = await orbis.getDids(
+      userAddress
+    );
+    if (!errorDids && userDids.length) {
+      const { data: profileData, error: profileError } = await orbis.getProfile(
+        userDids[0].did
+      );
+      if (!profileError) return profileData.details;
     }
   };
 
@@ -160,6 +173,7 @@ const OrbisProvider = ({ children, orbis }) => {
         refetchProfile,
         disconnectOrbis,
         checkOrbisConnection,
+        getUserProfile,
         connectLit,
         setProfile,
         getConversations,
