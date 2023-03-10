@@ -10,7 +10,6 @@ import ShadowBox from "../../components/elements/ShadowBox";
 import CollectionImage from "../../components/elements/CollectionImage";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
 import AlertDialog from "../../components/elements/AlertDialog";
-import ImageCarousel from '../../components/elements/ImageCarousel';
 
 import { lockMeta } from "../explore/lockMeta";
 import { useOrbis } from "../../context/OrbisContext";
@@ -163,24 +162,6 @@ const PurchasePages = () => {
 
     setLockDetail(lockDetail);
   };
-
-  // const perks = [
-  //   {
-  //     title: "Group Chat 1 Month",
-  //     description:
-  //       "You can join exclusive group chat with Sinka and get the latest information",
-  //   },
-  //   {
-  //     title: "Private Chat",
-  //     description:
-  //       "You can join exclusive group chat with Sinka and get the latest information",
-  //   },
-  //   {
-  //     title: "Exclusive Live Video Access",
-  //     description:
-  //       "You can join exclusive group chat with Sinka and get the latest information",
-  //   },
-  // ];
 
   // const sellItem = [
   //   {

@@ -3,12 +3,11 @@ import { ethers } from "ethers";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Player, useCreateStream } from "@livepeer/react";
+import { useCreateStream } from "@livepeer/react";
 import { Zoom, CircularProgress } from "@mui/material";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { useAccount, useSigner, useNetwork } from "wagmi";
-import { WalletService } from "@unlock-protocol/unlock-js";
 
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
@@ -281,7 +280,7 @@ const ProfilePage = () => {
         duration: registerData.duration,
         perks: [
           `Group Chat ${registerData.duration / 86400} days`,
-          "Private Chat",
+          // "Private Chat",
           "Exclusive Live Video Access",
         ],
       },

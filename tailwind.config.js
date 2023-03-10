@@ -16,7 +16,6 @@ module.exports = {
       xxl: '1920px',
     },
     extend: {
-
       rotate: {
         '20': '20deg',
       },
@@ -238,6 +237,6 @@ module.exports = {
         ...objFontSizes,
       })
     }),
-   
+
   ]
 }

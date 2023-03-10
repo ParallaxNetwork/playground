@@ -22,6 +22,9 @@ const OrbisContext = createContext(initialValue);
 
 const CONVERSATION_CONTEXT = "playground";
 
+// Some Caching
+let orbisUserProfile = {}
+
 const OrbisProvider = ({ children, orbis }) => {
   //   const { signer } = useSigner();
   const [profile, setProfile] = useState(null);
@@ -82,6 +85,10 @@ const OrbisProvider = ({ children, orbis }) => {
   };
 
   const getUserProfile = async (userAddress) => {
+    if (orbisUserProfile[userAddress]){
+      return orbisUserProfile[userAddress];
+    }
+
     const { data: userDids, error: errorDids } = await orbis.getDids(
       userAddress
     );
@@ -89,7 +96,11 @@ const OrbisProvider = ({ children, orbis }) => {
       const { data: profileData, error: profileError } = await orbis.getProfile(
         userDids[0].did
       );
-      if (!profileError) return profileData.details;
+
+      if (!profileError){
+        orbisUserProfile[userAddress] = profileData;
+        return profileData;
+      }
     }
   };
 

@@ -3,6 +3,8 @@
   // disable using next/image
   "rules": {
     "@next/next/no-img-element": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    // show undefined variables
+    "no-undef": "error"
   }
 }

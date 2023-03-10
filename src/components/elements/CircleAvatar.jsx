@@ -8,7 +8,7 @@ const CircleAvatar = ({
   image = null,
   address = null,
 }) => {
- 
+
   const { orbis } = useOrbis();
   const [src, setSrc] = useState();
   const getAvatarCache = () => {
@@ -24,7 +24,6 @@ const CircleAvatar = ({
   };
 
   const getImage = async () => {
-    console.log("getImage", address)
     if (image) {
       // If image is provided
       setSrc(image);
@@ -68,11 +67,11 @@ const CircleAvatar = ({
   return (
     <div className={`relative ${isLive && "pb-2"} btn`}>
       <div
-        className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${
-          (isLive || isActive) && "border-2 border-active"
-        } ${className}`}
+        className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${(isLive || isActive) && "border-2 border-active"
+          } ${className}`}
       >
         <img
+          alt=""
           src={src ?? "/assets/picture/placeholder.png"}
           className="w-full h-full object-cover object-center rounded-full"
         />

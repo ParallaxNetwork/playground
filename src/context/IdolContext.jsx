@@ -6,6 +6,7 @@ import { lockMeta } from "../pages/explore/lockMeta";
 import { useClient, useNetwork } from "wagmi";
 import { useOrbis } from "./OrbisContext";
 import { sleep } from "../../utilities/misc";
+import getActiveLivePeerStream from "../../pages/api/livepeerAPI";
 
 const IdolContext = createContext({
   exploreData: null,
@@ -102,9 +103,9 @@ const IdolProvider = ({ children }) => {
           description: tempMeta.description,
           interest: tempMeta.interest,
           perks: tempMeta.perks,
-          userName: idolOrbis?.profile.name ?? "-",
+          userName: idolOrbis?.username ?? "-",
           isLive: false,
-          address: result[i].userAddress,
+          address: result[i].idolAddress,
           groupRoom: [
             {
               title: "Fanbase",
@@ -115,8 +116,21 @@ const IdolProvider = ({ children }) => {
       }
     }
 
-    console.log("tempData", tempData)
-    if(tempData.length > 0) {
+    console.log("Engange Data", tempData)
+
+    if (tempData.length > 0) {
+      // get active live streams
+      const activeStreams = await getActiveLivePeerStream()
+      console.log("Active Streams", activeStreams)
+
+      for(let i = 0; i < tempData.length; i++) {
+        for(let j = 0; j < activeStreams.length; j++) {
+          if(tempData[i].streamID == activeStreams[j].id) {
+            tempData[i].isLive = true;
+          }
+        }
+      }
+
       setEngangeData(tempData);
     }
   }
@@ -134,7 +148,7 @@ const IdolProvider = ({ children }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       getEngangeData();
-    }, 15000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 

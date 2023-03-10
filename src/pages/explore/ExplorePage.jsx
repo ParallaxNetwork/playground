@@ -133,6 +133,11 @@ const IndexPage = () => {
                                   <></>
                                 ) : (
                                   el.perks.map((child, i) => {
+                                    // HIDE PRIVATE CHAT
+                                    if(child === "Private Chat"){
+                                      return ""
+                                    }
+
                                     return (
                                       <div
                                         key={i}
