@@ -75,6 +75,21 @@ const EngageIdol = ({ selectedIdol, setSelectedIdol }) => {
     }
   }, [selectedIdol])
 
+  useEffect(() => {
+    let temp = JSON.parse(JSON.stringify(tabs));
+    for (var i = 0; i < temp.length; i++) {
+      temp[i].isActive = false;
+    }
+
+    if(chatOnlyView){
+      temp[0].isActive = true;
+    }else if(!chatOnlyView){
+      temp[1].isActive = true;
+    }
+
+    setTabs(temp);
+  }, [chatOnlyView])
+
   return (
     <>
       <div className="flex flex-col lg:flex-row">
@@ -104,19 +119,6 @@ const EngageIdol = ({ selectedIdol, setSelectedIdol }) => {
                       ) {
                         setChatOnlyView(true);
                       }
-
-                      let temp = tabs;
-                      for (var i = 0; i < temp.length; i++) {
-                        temp[i].isActive = false;
-                      }
-
-                      if (el.isActive) {
-                        temp[index].isActive = false;
-                      } else {
-                        temp[index].isActive = true;
-                      }
-
-                      setTabs(temp);
                     }}
                     key={index}
                     className={`flex flex-row border-r-2 border-r-black p-4 w-full 

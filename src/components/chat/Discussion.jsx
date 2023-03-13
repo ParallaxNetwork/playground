@@ -38,7 +38,9 @@ const Discussion = ({
   };
 
   useEffect(() => {
+    setDiscussionData([]);
     getOrbisData(true);
+    isScrollingManually = false;
   }, [fire]);
 
   // run getOrbisData(false) function every 7 seconds
@@ -89,23 +91,25 @@ const Discussion = ({
       // scroll to most bottom of containerRef based on chatRef height
       if (!isScrollingManually) {
         containerRef.current.scrollTo({
-          top: containerRef.current.scrollHeight + 400,
+          top: containerRef.current.scrollHeight,
           behavior: "smooth",
         });
       }
     }
-  }, [discussionData])
+  }, [discussionData, chatRef.current])
 
   // Detect is used scrolling containerRef, disable auto scroll to bottom
   useEffect(() => {
     let isScrolling;
+    if(!containerRef.current) return;
+
     containerRef.current.addEventListener("scroll", () => {
       window.clearTimeout(isScrolling);
       isScrolling = setTimeout(() => {
-        // is scrolled to bottom
+        // if containerRef scrolled within 10px from bottom, enable auto scroll to bottom
         if (
-          containerRef.current.scrollTop + containerRef.current.clientHeight >=
-          containerRef.current.scrollHeight
+          containerRef.current?.scrollHeight - containerRef.current?.scrollTop <=
+          containerRef.current?.clientHeight + 10
         ) {
           isScrollingManually = false;
         } else {
@@ -126,15 +130,13 @@ const Discussion = ({
         <div className="h-full flex flex-col" ref={chatRef}>
           {isBlocked ? (
             <div className="text-center h-full flex flex-col items-center justify-center">
-              <div className="mt-[15vh]">
-                {`You don't have subscription, Please Subscribe to this channel first!`}
-              </div>
+              {`You don't have subscription, Please Subscribe to this channel first!`}
             </div>
           ) : isLoading ? (
-            <div className="text-center h-full flex flex-col items-center justify-center">
+            <div className="text-center m-auto flex flex-col items-center justify-center">
               <CircularProgress
                 color="error"
-                className="!w-[40px] !h-[40px] mt-[20vh]"
+                className="!w-[40px] !h-[40px]"
               />
             </div>
           ) : (
