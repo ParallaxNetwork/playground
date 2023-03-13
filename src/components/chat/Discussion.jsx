@@ -121,7 +121,7 @@ const Discussion = ({
     <div className="flex flex-col h-full">
       <div
         ref={containerRef}
-        className={`p-3 pb-[2rem] w-full gro max-h-[44rem] overflow-scroll`}
+        className={`p-3 pb-[2rem] w-full grow h-[42rem] overflow-scroll`}
       >
         <div className="h-full flex flex-col" ref={chatRef}>
           {isBlocked ? (
@@ -176,7 +176,7 @@ const Discussion = ({
             }`}
         >
           <div
-            className={`flex flex-row h-full w-full w-[1000px] md:w-[1000px] lg:w-[77%] xl:w-[80%] space-x-3 ${isAbsolute && "!w-full"
+            className={`flex flex-row h-full w-full space-x-3 ${isAbsolute && "!w-full"
               } `}
           >
             <input

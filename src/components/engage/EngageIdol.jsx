@@ -211,13 +211,15 @@ const EngageIdol = ({ selectedIdol, setSelectedIdol }) => {
                     )}
                   </div>
                 </div>
-                <Discussion
-                  isAbsolute={false}
-                  orbisContext={activeRoom?.context}
-                  fire={activeRoom?.context}
-                  isPrivate={activeRoom?.private}
-                  isBlocked={blocked}
-                />
+                <div className="w-full flex flex-col h-full">
+                  <Discussion
+                    isAbsolute={false}
+                    orbisContext={activeRoom?.context}
+                    fire={activeRoom?.context}
+                    isPrivate={activeRoom?.private}
+                    isBlocked={blocked}
+                  />
+                </div>
               </div>
             ) : (
               <VideoStream
