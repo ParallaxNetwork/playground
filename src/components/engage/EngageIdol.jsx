@@ -120,8 +120,8 @@ const EngageIdol = ({ selectedIdol, setSelectedIdol }) => {
                     }}
                     key={index}
                     className={`flex flex-row border-r-2 border-r-black p-4 w-full 
-                              font-medium max-w-[157px] justify-center ${liveActiveClass}
-                              ${el.isActive ? "border-b-4 border-b-white" : "border-b-4 border-b-transparent"}`}
+                      font-medium max-w-[157px] justify-center ${liveActiveClass}
+                      ${el.isActive ? "border-b-4 border-b-white" : "border-b-4 border-b-transparent"}`}
                   >
                     <img className="icons mr-2" src={el.icon} alt="" />
                     <div className="title-secondary">{el.title}</div>
