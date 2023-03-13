@@ -7,10 +7,13 @@ const CircleAvatar = ({
   isActive = false,
   image = null,
   address = null,
+  withPopover = false,
 }) => {
 
   const { orbis } = useOrbis();
   const [src, setSrc] = useState();
+  const [profileData, setProfileData] = useState();
+
   const getAvatarCache = () => {
     const avatarCache = localStorage.getItem("avatarCache");
     if (avatarCache === null) {
@@ -43,6 +46,9 @@ const CircleAvatar = ({
       if (!error && data.length > 0) {
         if (data[0].details?.profile?.pfp) {
           setSrc(data[0].details?.profile?.pfp);
+          setProfileData(data[0]);
+
+          console.log(data[0])
 
           const tempAvatar = `{"${address}": "${data[0].details?.profile?.pfp}"}`;
           const avatarData = JSON.parse(tempAvatar);
@@ -65,7 +71,7 @@ const CircleAvatar = ({
   }, [image, address]);
 
   return (
-    <div className={`relative ${isLive && "pb-2"} btn`}>
+    <div className={`relative ${isLive && "pb-2"} btn popover-container`}>
       <div
         className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${(isLive || isActive) && "border-2 border-active"
           } ${className}`}
@@ -82,6 +88,22 @@ const CircleAvatar = ({
           </div>
         )}
       </div>
+
+      {/* POPOVER */}
+      {profileData?.username &&
+        <div className="relative">
+          <div className="absolute pointer-events-none bg-white border-black border popover-item p-2 z-50 right-0 opacity-0 transition-all duration-150" style={{ transform: 'translateX(105%) translateY(-90%)' }}>
+            <div className="min-w-[8rem] max-w-[12rem]">
+              <div className="whitespace-nowrap font-semibold">
+                {profileData?.username}
+              </div>
+              <div className="text-sm">
+                {profileData?.details?.profile?.description}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   );
 };

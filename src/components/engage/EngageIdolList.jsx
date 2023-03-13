@@ -24,6 +24,7 @@ export default function EngageIdolList({ selectedIdol, setSelectedIdol, setChatO
             <CircleAvatar
               address={el.idolAddress}
               isLive={el.isLive}
+              withPopover={true}
             />
             <div
               className={`absolute top-0 left-0 w-[5px] max-h-[55px] h-full transition-all duration-150 ${selectedIdol?.idolAddress === el?.idolAddress && "bg-highlight"} rounded-br-lg rounded-tr-lg`}
