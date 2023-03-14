@@ -2,13 +2,20 @@ import React from 'react'
 import { useIdol } from '../../context/IdolContext'
 import CircleAvatar from '../elements/CircleAvatar'
 import NoItems from '../elements/NoItems'
+import { useOrbis } from '../../context/OrbisContext'
 
 export default function EngageExploreIdol({
   setSelectedIdol
 }) {
   const { engageData } = useIdol()
+  const { getUserProfile } = useOrbis()
 
-  const onClickIdol = (idol) => {
+  const onClickIdol = async (idol) => {
+    if(idol?.address){
+      const idolProfile = await getUserProfile(idol?.address)
+      idol.orbisProfile = idolProfile
+    }
+    
     setSelectedIdol(idol)
   }
 

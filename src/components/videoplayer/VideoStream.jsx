@@ -88,8 +88,8 @@ const VideoStream = ({
           <CircleAvatar address={idolAddress} isActive={true} key={idolAddress} />
 
           <div className="pl-3">
-            <div className="subtitle-secondary">{title}</div>
-            <p className="text-black">{userName}</p>
+            <div className="subtitle-secondary">{account?.orbisProfile?.username}</div>
+            <p className="text-black">{account?.orbisProfile?.details?.profile?.description}</p>
           </div>
 
           {/* <VideoControl disabled={isBlocked} vidRef={vidRef} /> */}

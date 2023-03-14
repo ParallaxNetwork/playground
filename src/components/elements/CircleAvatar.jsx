@@ -90,7 +90,7 @@ const CircleAvatar = ({
       </div>
 
       {/* POPOVER */}
-      {profileData?.username &&
+      {(profileData?.username && withPopover) &&
         <div className="relative">
           <div className="absolute pointer-events-none bg-white border-black border popover-item p-2 z-50 right-0 opacity-0 transition-all duration-150" style={{ transform: 'translateX(105%) translateY(-90%)' }}>
             <div className="min-w-[8rem] max-w-[12rem]">

@@ -8,6 +8,7 @@ import { Zoom, CircularProgress } from "@mui/material";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { useAccount, useSigner, useNetwork } from "wagmi";
+import { DateTime } from "luxon";
 
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
@@ -27,6 +28,12 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 import { removeNumberPostfix, sleep } from "../../../utilities/misc";
+
+
+const timestampToRelativeTime = (timestamp) => {
+  return DateTime.fromMillis(timestamp * 1000).toRelative({ style: "long" });
+}
+
 
 const ProfilePage = () => {
   const user = useUser();
@@ -441,6 +448,13 @@ const ProfilePage = () => {
 
   const [showExpired, setShowExpired] = useState(false);
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    ShowToast({
+      message: "Copied!",
+    });
+  }
+
   return (
     <Zoom in={true}>
       <div>
@@ -533,13 +547,13 @@ const ProfilePage = () => {
                               </div> */}
                               <div>
                                 <div className="subtitle">{`RMTP URL`}</div>
-                                <div>
+                                <div className="cursor-pointer" onClick={() => handleCopy("rtmp://rtmp.livepeer.com/live")}>
                                   rtmp://rtmp.livepeer.com/live
                                 </div>
                               </div>
                               <div>
                                 <div className="subtitle">{`Stream Key`}</div>
-                                <div>
+                                <div className="cursor-pointer" onClick={() => handleCopy(streamKey)}>
                                   {streamKey ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
@@ -679,14 +693,16 @@ const ProfilePage = () => {
                                 Expired
                               </div>
                               :
-                              <div className="text-xs text-black/40 mt-5 mb-2 text-center">
-                                {`Expired at ${new Date(
+                              <div className="text-xs text-black/60 mt-5 mb-2 text-center">
+                                {/* {`Expired at ${new Date(
                                   el.expiration * 1000
                                 ).getDate()} ${new Date(
                                   el.expiration * 1000
                                 ).toLocaleString("default", {
                                   month: "short",
-                                })} ${new Date(el.expiration * 1000).getFullYear()}`}
+                                })} ${new Date(el.expiration * 1000).getFullYear()}`} */}
+
+                                {`Expires in ${timestampToRelativeTime(el.expiration)}`}
                               </div>
                             }
 
