@@ -638,33 +638,6 @@ const ProfilePage = () => {
                       )}
                     </div>
                   </div>
-
-                  <div className="lg:mt-[-9px] flex flex-col justify-center w-full text-center max-w-lg m-auto flex-wrap break-all p-4">
-                    <div>
-                      <div className="subtitle mb-3">
-                        You have not registered yet, tap below to start
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (address && !isLoadingSubscription) {
-                            setOpenRegisterDialog(true);
-                          }
-                        }}
-                        className="shadowBoxBtn mt-2 mb-3 rounded-md"
-                      >
-                        <div className="p-3 m-auto">
-                          {isLoadingSubscription ? (
-                            <CircularProgress
-                              color="inherit"
-                              className="!w-5 !h-5 mt-1"
-                            />
-                          ) : (
-                            "REGISTER"
-                          )}
-                        </div>
-                      </button>
-                    </div>
-                  </div>
                 </ShadowBox>
               </>
             )}
