@@ -32,7 +32,7 @@ const IdolProvider = ({ children }) => {
       providers.entries().next().value[1]
     );
 
-    const result = await contracts.getAllIdolData(1, 10);
+    const result = await contracts.getAllIdolData(1, 20);
 
     let tempData = [];
     for (var i = 0; i < result.length; i++) {
@@ -40,6 +40,7 @@ const IdolProvider = ({ children }) => {
         result[i].idolAddress != "0x0000000000000000000000000000000000000000"
       ) {
         var tempMeta = await lockMeta(chain, result[i].lockAddress);
+        const idolOrbis = await getUserProfile(result[i].idolAddress);
 
         tempData.push({
           lockName: result[i].lockName,
@@ -52,12 +53,16 @@ const IdolProvider = ({ children }) => {
           description: tempMeta.description,
           interest: tempMeta.interest,
           perks: tempMeta.perks,
+          idolOrbis: idolOrbis,
+          lockMeta: tempMeta,
         });
       }
     }
 
     // reverse the array so the newest locks are at the top
     tempData.reverse();
+
+    console.log("Explore Data", tempData)
 
     setExploreData(tempData);
   }
@@ -83,7 +88,13 @@ const IdolProvider = ({ children }) => {
       PGCORE_ABI.abi,
       providers.entries().next().value[1]
     );
-    const result = await contracts.getAllIdolData(1, 10);
+
+    let idolTotal = await contracts.IDOL_COUNT();
+    idolTotal = idolTotal.toNumber();
+    console.log("Idol Total", idolTotal)
+
+
+    const result = await contracts.getAllIdolData(1, idolTotal);
     let tempData = [];
 
     for (let i = 0; i < result.length; i++) {
@@ -107,6 +118,7 @@ const IdolProvider = ({ children }) => {
           userName: idolOrbis?.username ?? "-",
           isLive: false,
           address: result[i].idolAddress,
+          idolOrbis: idolOrbis,
           groupRoom: [
             {
               title: "Fanbase",

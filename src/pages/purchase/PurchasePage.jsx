@@ -77,7 +77,6 @@ const PurchasePages = () => {
         getUserProfile(resp);
         console.log("GET SAMPLE IMAGE NFT")
         getSampleImagenft(resp);
-
       });
     }
   }, [lockAddress]);
@@ -130,7 +129,7 @@ const PurchasePages = () => {
   }
 
   const getSampleImagenft = async (resp) => {
-    if(!resp?.nftImageURI){
+    if (!resp?.nftImageURI) {
       ShowToast({
         message: "Something went wrong, please try again later",
         state: "error",
@@ -143,7 +142,7 @@ const PurchasePages = () => {
 
     let images = []
     for (let i = 1; i <= imageTotal; i++) {
-      if(i > 3) break
+      if (i > 3) break
       const result = await fetch(`${resp.nftImageURI}${i}`);
       const res = await result.json();
       images.push(res.image)
@@ -312,6 +311,10 @@ const PurchasePages = () => {
 
                             <div className="mt-2">
                               {lockDetail.perks.map((el, index) => {
+                                // HIDE PRIVATE CHAT
+                                if (el === "Private Chat") {
+                                  return ""
+                                }
                                 return (
                                   <div
                                     key={index}
@@ -396,6 +399,10 @@ const PurchasePages = () => {
                 <div className="flex flex-col w-full gap-2">
                   <div className="subtitle">NFT PERKS</div>
                   {lockDetail.perks.map((el, index) => {
+                    // HIDE PRIVATE CHAT
+                    if (el === "Private Chat") {
+                      return ""
+                    }
                     return (
                       <div key={index} className="flex flex-row gap-3">
                         <SvgIconStyle

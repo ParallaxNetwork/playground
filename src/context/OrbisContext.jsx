@@ -99,6 +99,7 @@ const OrbisProvider = ({ children, orbis }) => {
 
       if (!profileError){
         orbisUserProfile[userAddress] = profileData;
+        console.log("getUserProfile", profileData)
         return profileData;
       }
     }

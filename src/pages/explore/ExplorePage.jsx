@@ -1,22 +1,12 @@
-import { Contract } from "@ethersproject/contracts";
 import { Zoom } from "@mui/material";
-import { InjectedConnector } from "@wagmi/core";
 import { isEmpty } from "lodash";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import {
-  useClient,
-  useNetwork,
-} from "wagmi";
 
-import { contractConfig } from "../../../utilities/contractConfig";
-import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import CollectionImage from "../../components/elements/CollectionImage";
 import LayoutContainer from "../../components/elements/Container";
 import NoItems from "../../components/elements/NoItems";
 import ShadowBox from "../../components/elements/ShadowBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { lockMeta } from "./lockMeta";
 
 import { useUser } from "../../context/UserContext"
 import { useIdol } from "../../context/IdolContext";
@@ -73,6 +63,7 @@ const IndexPage = () => {
             ) : (
               exploreData.map((el, index) => {
                 const isSubscribed = user.isSubscribed(el.lockAddress)
+
                 return (
                   <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
                     <Link
@@ -108,8 +99,53 @@ const IndexPage = () => {
                           </div>
                         </div>
 
-                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4">
+                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4 py-0">
                           <div className="ml-0 mt-5 flex flex-col justify-start w-full gap-0 xl:gap-8">
+                            {/* Profile */}
+                            <div className="mb-4">
+                              <div className="flex flex-col sm:flex-row items-start">
+                                {el?.idolOrbis?.details?.profile?.pfp ?
+                                  <img
+                                    src={el?.idolOrbis?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}
+                                    alt=""
+                                    className="w-full max-w-[4rem] ring-black ring-2 mx-auto"
+                                  />
+                                  :
+                                  <div
+                                    className="w-full max-w-[4rem] aspect-square bg-gray-200 animate-pulse"
+                                  />
+                                }
+
+                                <div className="text-center items-center sm:items-start sm:text-start w-full ml-4 -mt-2 flex-1 flex flex-col lg:flex-row">
+                                  <div className="break-all w-full flex flex-col">
+                                    <div className="subtitle">
+                                      Username
+                                    </div>
+
+                                    {el?.idolOrbis?.username ?
+                                      <div>
+                                        {`${el?.idolOrbis?.username}`}
+                                      </div>
+                                      :
+                                      <div className="h-8 w-full max-w-[16rem] animate-pulse bg-gray-200 rounded-md" />
+                                    }
+
+                                    <div className="subtitle mt-1">
+                                      Bio
+                                    </div>
+
+                                    {el?.idolOrbis?.details?.profile?.description ?
+                                      <div>
+                                        {`${el?.idolOrbis?.details?.profile?.description}`}
+                                      </div>
+                                      :
+                                      <div className="h-16 w-full max-w-[32rem] animate-pulse bg-gray-200 rounded-md" />
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             {/* Description */}
                             <div className="w-full">
                               <div className="subtitle">DESCRIPTION</div>
@@ -134,7 +170,7 @@ const IndexPage = () => {
                                 ) : (
                                   el.perks.map((child, i) => {
                                     // HIDE PRIVATE CHAT
-                                    if(child === "Private Chat"){
+                                    if (child === "Private Chat") {
                                       return ""
                                     }
 
