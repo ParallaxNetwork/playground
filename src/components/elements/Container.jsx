@@ -1,6 +1,6 @@
 const LayoutContainer = ({ children, className }) => {
   return (
-    <div className={`px-[20px] md:px-[80px] xxl:px-[400px] py-[20px] mb-10 ${className}`}>
+    <div className={`w-full max-w-[100rem] mx-auto px-[2rem] py-[2rem] mb-10 ${className}`}>
       {children}
     </div>
   );

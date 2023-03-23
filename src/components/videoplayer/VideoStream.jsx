@@ -1,10 +1,10 @@
 import CircleAvatar from "../elements/CircleAvatar";
 import SvgIconStyle from "../elements/SvgIconStyle";
 import { Player, useCreateStream } from "@livepeer/react";
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect, memo } from "react";
 import VideoControl from "./VideoControl";
 import Image from "next/image";
-import getLivePeerStream from "../../../pages/api/livepeerAPI";
+import { getLivePeerStream } from "../../../pages/api/livepeerAPI";
 
 const VideoStream = ({
   playbackID,
@@ -13,6 +13,7 @@ const VideoStream = ({
   idolAddress,
   isBlocked,
   account,
+  isLive
 }) => {
   const isLoading = useMemo(() => status === "loading", [status]);
   const [vidRef, setVidRef] = useState();
@@ -37,40 +38,30 @@ const VideoStream = ({
   }, [playbackID]);
 
   const handleCheckStreamStatus = async () => {
-    // console.log("SELECTED ACCOUNT", account);
-    const stream = await getLivePeerStream(playbackID);
-    // console.log("STREAM", stream);
+    if (!isLive) {
+      setIsActive(false);
+    } else {
+      console.log("CHECK STREAM STATUS")
+      const stream = await getLivePeerStream(playbackID);
+      console.log("STREAM", stream);
+
+      if (stream?.isActive) {
+        console.log("STREAM IS ACTIVE");
+        setIsActive(true);
+      } else {
+        setIsActive(false);
+      }
+    }
 
     setisChecked(true);
-
-    if (stream?.isActive) {
-      setIsActive(true);
-    } else {
-      setIsActive(false);
-    }
   };
 
   return (
     <div className="bg-[url('/assets/misc/pattern.svg')] w-full">
       <div className="p-5">
-        {/* <img
-          src="/assets/picture/sample2.png"
-          className="rounded-lg m-auto w-full"
-          alt=""
-        /> */}
-
-        {/* {stream?.playbackId && (
-          <Player
-            title={stream?.name}
-            playbackId={stream?.playbackId}
-            autoPlay
-            muted
-          />
-        )} */}
-
         {isChecked ? (
           <>
-            {isBlocked || !account?.isLive ? (
+            {isBlocked || !isActive ? (
               <img
                 src="/assets/picture/blockbanner.png"
                 className="rounded-lg m-auto w-full"
@@ -95,17 +86,17 @@ const VideoStream = ({
 
         <div className="flex flex-row pt-4 items-center flex-wrap">
           <CircleAvatar address={idolAddress} isActive={true} key={idolAddress} />
-          
+
           <div className="pl-3">
-            <div className="subtitle-secondary">{title}</div>
-            <p className="text-black">{userName}</p>
+            <div className="subtitle-secondary">{account?.orbisProfile?.username}</div>
+            <p className="text-black">{account?.orbisProfile?.details?.profile?.description}</p>
           </div>
 
-          <VideoControl disabled={isBlocked} vidRef={vidRef} />
+          {/* <VideoControl disabled={isBlocked} vidRef={vidRef} /> */}
         </div>
       </div>
     </div>
   );
 };
 
-export default VideoStream;
+export default memo(VideoStream);

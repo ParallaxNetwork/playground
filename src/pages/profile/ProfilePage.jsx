@@ -3,12 +3,12 @@ import { ethers } from "ethers";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Player, useCreateStream } from "@livepeer/react";
+import { useCreateStream } from "@livepeer/react";
 import { Zoom, CircularProgress } from "@mui/material";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { useAccount, useSigner, useNetwork } from "wagmi";
-import { WalletService } from "@unlock-protocol/unlock-js";
+import { DateTime } from "luxon";
 
 import LayoutContainer from "../../components/elements/Container";
 import ShadowBox from "../../components/elements/ShadowBox";
@@ -28,6 +28,12 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 import { removeNumberPostfix, sleep } from "../../../utilities/misc";
+
+
+const timestampToRelativeTime = (timestamp) => {
+  return DateTime.fromMillis(timestamp * 1000).toRelative({ style: "long" });
+}
+
 
 const ProfilePage = () => {
   const user = useUser();
@@ -178,6 +184,7 @@ const ProfilePage = () => {
   };
 
   const getIdolData = async () => {
+    // eslint-disable-next-line no-undef
     return new Promise(async (resolve) => {
       try {
         setIsLoadingSubscription(true);
@@ -208,6 +215,7 @@ const ProfilePage = () => {
   };
 
   const handleCreateStream = async () => {
+    // eslint-disable-next-line no-undef
     return new Promise((resolve) => {
       ShowToast({
         message: "Creating streaming channel for you..",
@@ -281,7 +289,7 @@ const ProfilePage = () => {
         duration: registerData.duration,
         perks: [
           `Group Chat ${registerData.duration / 86400} days`,
-          "Private Chat",
+          // "Private Chat",
           "Exclusive Live Video Access",
         ],
       },
@@ -438,6 +446,15 @@ const ProfilePage = () => {
     await user.getSubscription();
   };
 
+  const [showExpired, setShowExpired] = useState(false);
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    ShowToast({
+      message: "Copied!",
+    });
+  }
+
   return (
     <Zoom in={true}>
       <div>
@@ -474,12 +491,6 @@ const ProfilePage = () => {
                       </button>
                     </div>
                     <div className="flex m-5 flex-row p-2">
-                      {/* <CollectionImage
-                        src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"
-                          }`}
-                        className="max-w-[114px] h-[114px] w-full"
-                      /> */}
-
                       {/* {JSON.stringify(profile)} */}
                       <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
                         <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
@@ -498,15 +509,7 @@ const ProfilePage = () => {
                             <div>{profile?.details?.profile?.description ?? "NOT SET"}</div>
                           </div>
                         </div>
-
-                        {/* <div className="grid-cols-12 gap-4 mt-2 md:mt-0">
-                          <div className="col-span-12 md:col-span-6">
-                            <div className="subtitle">Joined since:</div>
-                            <div>{profile?.name ?? "NOT SET"}</div>
-                          </div>
-                        </div> */}
                       </div>
-
                     </div>
                   </div>
                 </ShadowBox>
@@ -521,44 +524,36 @@ const ProfilePage = () => {
                     <div className="flex m-5 flex-row p-2">
                       {idolData ? (
                         <div className="flex flex-col items-start gap-5 w-full">
-                          <div className="flex flex-col break-all gap-5">
-                            <div>
-                              <div className="subtitle">{`Subscription & Stream Name`}</div>
-                              <div>{idolData.lockName}</div>
-                            </div>
-                            <div>
-                              <div className="subtitle">{`Public Lock Protocol Address`}</div>
-                              <div>{idolData.lockAddress}</div>
-                            </div>
-                            <div>
-                              <div className="subtitle">{`Latest Subscription & NFT Address`}</div>
-                              <div>{idolData.nftKeyAddress}</div>
-                            </div>
-                          </div>
-                          <div className="flex-col items-start justify-start space-y-0 w-full shadowBox mt-3">
+                          <div className="flex-col items-start justify-start space-y-0 w-full shadowBox">
                             <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black">
                               STREAM CONFIG
                             </div>
                             <div className="p-4 gap-3 flex flex-col pb-8">
-                              <div>
+                              {/* <div>
                                 <div className="subtitle">{`Stream ID`}</div>
                                 <div>
                                   {streamID ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
                                 </div>
-                              </div>
-                              <div>
+                              </div> */}
+                              {/* <div>
                                 <div className="subtitle">{`Playback ID`}</div>
                                 <div>
                                   {playbackID ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
                                 </div>
+                              </div> */}
+                              <div>
+                                <div className="subtitle">{`RMTP URL`}</div>
+                                <div className="cursor-pointer" onClick={() => handleCopy("rtmp://rtmp.livepeer.com/live")}>
+                                  rtmp://rtmp.livepeer.com/live
+                                </div>
                               </div>
                               <div>
                                 <div className="subtitle">{`Stream Key`}</div>
-                                <div>
+                                <div className="cursor-pointer" onClick={() => handleCopy(streamKey)}>
                                   {streamKey ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
@@ -596,6 +591,22 @@ const ProfilePage = () => {
                               </div>
                             </div>
                           </div>
+
+                          {/* Additional Lock Infor */}
+                          {/* <div className="flex flex-col break-all gap-5 mt-5">
+                            <div>
+                              <div className="subtitle">{`Subscription & Stream Name`}</div>
+                              <div>{idolData.lockName}</div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Public Lock Protocol Address`}</div>
+                              <div>{idolData.lockAddress}</div>
+                            </div>
+                            <div>
+                              <div className="subtitle">{`Latest Subscription & NFT Address`}</div>
+                              <div>{idolData.nftKeyAddress}</div>
+                            </div>
+                          </div> */}
                         </div>
                       ) : (
                         <div className="lg:mt-[-9px] flex flex-col justify-center w-full text-center max-w-lg m-auto flex-wrap break-all p-4">
@@ -650,45 +661,71 @@ const ProfilePage = () => {
                 </div>
                 <div className="grid grid-cols-12 p-2 gap-3 m-4">
                   {user.subscription.map((el, index) => {
-                    return (
-                      <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
-                        <div
-                          className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
-                        >
-                          <div className="flex justify-center items-center w-full h-[14rem] mt-4">
-                            <CollectionImage
-                              src={removeNumberPostfix(el.tokenURI)}
-                              className="h-full"
-                            />
-                          </div>
+                    const isExpired = new Date(el.expiration * 1000) < new Date();
 
-                          <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
-                            <SvgIconStyle
-                              src={"/assets/icons/verified-icon.svg"}
-                              className="w-[18px] h-[30px] aspect-square bg-red mr-1"
-                            />
-                            {el.lock.name}
-                          </div>
+                    if (!isExpired || showExpired) {
+                      return (
+                        <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                          <div
+                            className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
+                          >
+                            <div className="flex justify-center items-center w-full h-[14rem] mt-4">
+                              <CollectionImage
+                                src={removeNumberPostfix(el.tokenURI)}
+                                className="h-full"
+                              />
+                            </div>
 
-                          <div className="flex flex-wrap f-12-px text-center mt-3">
-                            Playground Subscription
+                            <div className="flex gap-2 mt-5 subtitle items-center truncate justify-start">
+                              <SvgIconStyle
+                                src={"/assets/icons/verified-icon.svg"}
+                                className="w-[18px] h-[30px] aspect-square bg-red mr-1"
+                              />
+                              {el.lock.name}
+                            </div>
+
+                            <div className="flex flex-wrap f-12-px text-center mt-3">
+                              Playground Subscription
+                            </div>
+
+                            {isExpired ?
+                              <div className="text-xs text-red-500 mt-5 mb-2 text-center">
+                                Expired
+                              </div>
+                              :
+                              <div className="text-xs text-black/60 mt-5 mb-2 text-center">
+                                {/* {`Expired at ${new Date(
+                                  el.expiration * 1000
+                                ).getDate()} ${new Date(
+                                  el.expiration * 1000
+                                ).toLocaleString("default", {
+                                  month: "short",
+                                })} ${new Date(el.expiration * 1000).getFullYear()}`} */}
+
+                                {`Expires in ${timestampToRelativeTime(el.expiration)}`}
+                              </div>
+                            }
+
+                            {/* <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
+                              RENEW
+                            </button> */}
                           </div>
-                          <div className="f-12-px bg-description mt-5 text-center">
-                            {`Expired at ${new Date(
-                              el.expiration * 1000
-                            ).getDate()} ${new Date(
-                              el.expiration * 1000
-                            ).toLocaleString("default", {
-                              month: "short",
-                            })} ${new Date(el.expiration * 1000).getFullYear()}`}
-                          </div>
-                          <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
-                            RENEW
-                          </button>
                         </div>
-                      </div>
-                    );
+                      );
+                    }
                   })}
+                </div>
+                <div>
+                  <button
+                    onClick={() => {
+                      setShowExpired(!showExpired);
+                    }}
+                    className="shadowBoxBtnSmall w-fit px-5 h-[40px] rounded-md m-3 mb-5 mx-auto"
+                  >
+                    <div className="m-auto">
+                      {showExpired ? "Hide Expired" : "Show Expired"}
+                    </div>
+                  </button>
                 </div>
               </ShadowBox>
             )

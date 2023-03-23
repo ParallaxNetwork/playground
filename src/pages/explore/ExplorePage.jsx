@@ -1,95 +1,27 @@
-import { Contract } from "@ethersproject/contracts";
 import { Zoom } from "@mui/material";
-import { InjectedConnector } from "@wagmi/core";
 import { isEmpty } from "lodash";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import {
-  useAccount,
-  useClient,
-  useConnect,
-  useNetwork,
-  useProvider,
-  useSigner,
-} from "wagmi";
 
-import { contractConfig } from "../../../utilities/contractConfig";
-import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import CollectionImage from "../../components/elements/CollectionImage";
 import LayoutContainer from "../../components/elements/Container";
 import NoItems from "../../components/elements/NoItems";
 import ShadowBox from "../../components/elements/ShadowBox";
 import SvgIconStyle from "../../components/elements/SvgIconStyle";
-import { lockMeta } from "./lockMeta";
 
 import { useUser } from "../../context/UserContext"
+import { useIdol } from "../../context/IdolContext";
 
 const IndexPage = () => {
   const user = useUser();
 
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-  const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const { providers, provider, getProvider } = useClient();
-  const { chain, chains } = useNetwork();
-  const prov = useProvider();
-  const [isLoading, setIsLoading] = useState(false);
-  const [idolData, setIdolData] = useState(null);
-
-  const fetchIdols = async () => {
-    const contracts = new Contract(
-      contractConfig.PGCORE_ADDRESS,
-      PGCORE_ABI.abi,
-      providers.entries().next().value[1]
-    );
-    const result = await contracts.getAllIdolData(1, 10);
-
-    let tempData = [];
-    for (var i = 0; i < result.length; i++) {
-      if (
-        result[i].idolAddress != "0x0000000000000000000000000000000000000000"
-      ) {
-        var tempMeta = await lockMeta(chain, result[i].lockAddress);
-
-        tempData.push({
-          lockName: result[i].lockName,
-          lockAddress: result[i].lockAddress,
-          lockImage: result[i].lockImage,
-          nftKeyAddress: result[i].nftKeyAddress,
-          idolAddress: result[i].idolAddress,
-          playbackID: tempMeta.stream_playbackId,
-          streamID: tempMeta.stream_id,
-          description: tempMeta.description,
-          interest: tempMeta.interest,
-          perks: tempMeta.perks,
-        });
-      }
-    }
-    // console.log("explore data", tempData);
-
-    setIdolData(tempData);
-  };
-
-  useEffect(() => {
-    fetchIdols();
-  }, []);
-
-  // run fetchIdols every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchIdols();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { exploreData } = useIdol()
 
   return (
     <Zoom in={true}>
       <div>
         <LayoutContainer>
           <div className="space-y-10 mb-10">
-            {idolData === null ? (
+            {exploreData === null ? (
               <div className="w-full text-center space-y-10">
                 {[1, 2].map((el, index) => {
                   return (
@@ -126,11 +58,12 @@ const IndexPage = () => {
                   );
                 })}
               </div>
-            ) : isEmpty(idolData) ? (
+            ) : isEmpty(exploreData) ? (
               <NoItems description="no idol registered at this time, come back later" />
             ) : (
-              idolData.map((el, index) => {
+              exploreData.map((el, index) => {
                 const isSubscribed = user.isSubscribed(el.lockAddress)
+
                 return (
                   <ShadowBox key={index} className={"shadowBoxBtnSmall"}>
                     <Link
@@ -166,14 +99,59 @@ const IndexPage = () => {
                           </div>
                         </div>
 
-                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4">
+                        <div className="col-span-12 md:col-span-7 lg:col-span-9 p-4 py-0">
                           <div className="ml-0 mt-5 flex flex-col justify-start w-full gap-0 xl:gap-8">
+                            {/* Profile */}
+                            <div className="mb-4">
+                              <div className="flex flex-col sm:flex-row items-start">
+                                {el?.idolOrbis?.details?.profile?.pfp ?
+                                  <img
+                                    src={el?.idolOrbis?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}
+                                    alt=""
+                                    className="w-full max-w-[4rem] ring-black ring-2 mx-auto"
+                                  />
+                                  :
+                                  <div
+                                    className="w-full max-w-[4rem] aspect-square bg-gray-200 animate-pulse"
+                                  />
+                                }
+
+                                <div className="text-center items-center sm:items-start sm:text-start w-full ml-4 -mt-2 flex-1 flex flex-col lg:flex-row">
+                                  <div className="break-all w-full flex flex-col">
+                                    <div className="subtitle">
+                                      Username
+                                    </div>
+
+                                    {el?.idolOrbis?.username ?
+                                      <div>
+                                        {`${el?.idolOrbis?.username}`}
+                                      </div>
+                                      :
+                                      <div className="h-8 w-full max-w-[16rem] animate-pulse bg-gray-200 rounded-md" />
+                                    }
+
+                                    <div className="subtitle mt-1">
+                                      Bio
+                                    </div>
+
+                                    {el?.idolOrbis?.details?.profile?.description ?
+                                      <div>
+                                        {`${el?.idolOrbis?.details?.profile?.description}`}
+                                      </div>
+                                      :
+                                      <div className="h-16 w-full max-w-[32rem] animate-pulse bg-gray-200 rounded-md" />
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             {/* Description */}
                             <div className="w-full">
                               <div className="subtitle">DESCRIPTION</div>
                               <div>{el.description}</div>
-                              <div className="subtitle mt-4">Interest</div>
-                              <div>{el.interest?.join() ?? "-"}</div>
+                              {/* <div className="subtitle mt-4">Interest</div>
+                              <div>{el.interest?.join() ?? "-"}</div> */}
                             </div>
 
                             {/* Perks */}
@@ -191,6 +169,11 @@ const IndexPage = () => {
                                   <></>
                                 ) : (
                                   el.perks.map((child, i) => {
+                                    // HIDE PRIVATE CHAT
+                                    if (child === "Private Chat") {
+                                      return ""
+                                    }
+
                                     return (
                                       <div
                                         key={i}

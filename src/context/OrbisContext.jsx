@@ -10,6 +10,7 @@ const initialValue = {
   refetchProfile: async () => { },
   disconnectOrbis: () => { },
   checkOrbisConnection: () => { },
+  getUserProfile: async () => { },
   connectLit: () => { },
   setProfile: () => { },
   getConversations: () => { },
@@ -20,6 +21,9 @@ const initialValue = {
 const OrbisContext = createContext(initialValue);
 
 const CONVERSATION_CONTEXT = "playground";
+
+// Some Caching
+let orbisUserProfile = {}
 
 const OrbisProvider = ({ children, orbis }) => {
   //   const { signer } = useSigner();
@@ -77,6 +81,27 @@ const OrbisProvider = ({ children, orbis }) => {
       setProfile(data);
     } else if (autoConnect && provider) {
       await connectOrbis(provider, lit);
+    }
+  };
+
+  const getUserProfile = async (userAddress) => {
+    if (orbisUserProfile[userAddress]){
+      return orbisUserProfile[userAddress];
+    }
+
+    const { data: userDids, error: errorDids } = await orbis.getDids(
+      userAddress
+    );
+    if (!errorDids && userDids.length) {
+      const { data: profileData, error: profileError } = await orbis.getProfile(
+        userDids[0].did
+      );
+
+      if (!profileError){
+        orbisUserProfile[userAddress] = profileData;
+        console.log("getUserProfile", profileData)
+        return profileData;
+      }
     }
   };
 
@@ -160,6 +185,7 @@ const OrbisProvider = ({ children, orbis }) => {
         refetchProfile,
         disconnectOrbis,
         checkOrbisConnection,
+        getUserProfile,
         connectLit,
         setProfile,
         getConversations,

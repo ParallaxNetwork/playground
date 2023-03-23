@@ -1,5 +1,5 @@
 import SvgIconStyle from "../elements/SvgIconStyle";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOrbis } from "../../context/OrbisContext";
 import CircleAvatar from "../elements/CircleAvatar";
 import { isEmpty } from "lodash";
@@ -7,6 +7,8 @@ import { DateTime } from "luxon";
 import { shortAddress, didToAddress } from "../../../utilities/addressUtils";
 
 import { CircularProgress } from "@mui/material";
+
+let isScrollingManually = false;
 const Discussion = ({
   orbisContext,
   isAbsolute = true,
@@ -36,17 +38,23 @@ const Discussion = ({
   };
 
   useEffect(() => {
+    setDiscussionData([]);
     getOrbisData(true);
+    isScrollingManually = false;
   }, [fire]);
 
   // run getOrbisData(false) function every 7 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       if (orbisContext) getOrbisData(false);
-    }, 7000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [orbisContext]);
+
+  const containerRef = useRef(null);
+  const chatRef = useRef(null);
+  const chatEndRef = useRef(null);
 
   const handleSend = async () => {
     setIsSending(true);
@@ -57,10 +65,10 @@ const Discussion = ({
     let res;
     setMessageInput("");
     if (isPrivate) {
-      res = await orbis.sendMessage({
-        conversation_id: context,
-        body: messageInput,
-      });
+      // res = await orbis.sendMessage({
+      //   conversation_id: context,
+      //   body: messageInput,
+      // });
     } else {
       res = await orbis.createPost({
         context: orbisContext,
@@ -68,36 +76,67 @@ const Discussion = ({
       });
     }
 
+    isScrollingManually = false;
+
     if (res.status == 200) {
       setTimeout(() => {
         if (orbisContext) getOrbisData();
-
         setIsSending(false);
       }, 2000);
     }
   };
 
+  useEffect(() => {
+    if (chatRef.current) {
+      // scroll to most bottom of containerRef based on chatRef height
+      if (!isScrollingManually) {
+        containerRef.current.scrollTo({
+          top: containerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [discussionData, chatRef.current])
+
+  // Detect is used scrolling containerRef, disable auto scroll to bottom
+  useEffect(() => {
+    let isScrolling;
+    if(!containerRef.current) return;
+
+    containerRef.current.addEventListener("scroll", () => {
+      window.clearTimeout(isScrolling);
+      isScrolling = setTimeout(() => {
+        // if containerRef scrolled within 10px from bottom, enable auto scroll to bottom
+        if (
+          containerRef.current?.scrollHeight - containerRef.current?.scrollTop <=
+          containerRef.current?.clientHeight + 10
+        ) {
+          isScrollingManually = false;
+        } else {
+          isScrollingManually = true;
+        }
+      }, 66);
+    });
+  }, []);
+
   const timestampToRelativeTime = (timestamp) =>
     DateTime.fromMillis(timestamp * 1000).toRelative({ style: "short" });
   return (
-    <>
+    <div className="flex flex-col h-full">
       <div
-        className={` ${
-          isAbsolute && "absolute"
-        } overflow-auto h-full p-3 pb-[8vh] w-full max-h-[650px]`}
+        ref={containerRef}
+        className={`p-3 pb-[2rem] w-full grow h-[42rem] overflow-scroll`}
       >
-        <div>
+        <div className="h-full flex flex-col" ref={chatRef}>
           {isBlocked ? (
             <div className="text-center h-full flex flex-col items-center justify-center">
-              <div className="mt-[15vh]">
-                {`You don't have subscription, Please Subscribe to this channel`}
-              </div>
+              {`You don't have subscription, Please Subscribe to this channel first!`}
             </div>
           ) : isLoading ? (
-            <div className="text-center h-full flex flex-col items-center justify-center">
+            <div className="text-center m-auto flex flex-col items-center justify-center">
               <CircularProgress
                 color="error"
-                className="!w-[40px] !h-[40px] mt-[20vh]"
+                className="!w-[40px] !h-[40px]"
               />
             </div>
           ) : (
@@ -128,44 +167,49 @@ const Discussion = ({
               );
             })
           )}
+          <div className="hidden" ref={chatEndRef} />
         </div>
       </div>
-      {/* ---- */}
-      {/* REPLY BOX */}
-      <div
-        className={`flex ${
-          isAbsolute ? "h-[4.61440rem]" : "h-[4rem]"
-        } bg-placeholder absolute bottom-0 w-full pl-3 pr-3 pb-4  justify-end ${
-          isAbsolute && "pt-4"
-        }`}
-      >
+
+      {!isBlocked &&
         <div
-          className={`flex flex-row h-full w-full w-[1000px] md:w-[1000px] lg:w-[77%] xl:w-[80%] space-x-3 ${
-            isAbsolute && "!w-full"
-          } `}
+          className={`flex ${isAbsolute ? "h-[4.61440rem]" : "h-[4rem]"
+            } bg-placeholder w-full pl-3 pr-3 pb-4  justify-end ${isAbsolute && "pt-4"
+            }`}
         >
-          <input
-            onChange={(e) => setMessageInput(e.target.value)}
-            value={messageInput}
-            className="inputBox border-placeholder rounded-md h-full w-full bg-input "
-          />
-          <button
-            onClick={handleSend}
-            disabled={isSending || isBlocked}
-            className="w-[50px] shadowBoxBtnSmall bg-placeholder rounded-md"
+          <div
+            className={`flex flex-row h-full w-full space-x-3 ${isAbsolute && "!w-full"
+              } `}
           >
-            {isSending ? (
-              <CircularProgress color="inherit" className="!w-5 !h-5 m-auto" />
-            ) : (
-              <SvgIconStyle
-                src={"/assets/icons/send-icon.svg"}
-                className="w-7 h-7 bg-highlight m-auto"
-              />
-            )}
-          </button>
+            <input
+              onChange={(e) => setMessageInput(e.target.value)}
+              value={messageInput}
+              className="inputBox border-placeholder rounded-md h-full w-full bg-input "
+              // run handleSend function when user press enter
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSend();
+                }
+              }}
+            />
+            <button
+              onClick={handleSend}
+              disabled={isSending || isBlocked}
+              className="w-[50px] shadowBoxBtnSmall bg-placeholder rounded-md"
+            >
+              {isSending ? (
+                <CircularProgress color="inherit" className="!w-5 !h-5 m-auto" />
+              ) : (
+                <SvgIconStyle
+                  src={"/assets/icons/send-icon.svg"}
+                  className="w-7 h-7 bg-highlight m-auto"
+                />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-    </>
+      }
+    </div>
   );
 };
 
