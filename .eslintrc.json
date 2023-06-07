@@ -5,6 +5,8 @@
     "@next/next/no-img-element": "off",
     "react-hooks/exhaustive-deps": "off",
     // show undefined variables
-    "no-undef": "error"
+    "no-undef": "error",
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-page-custom-font": "off"
   }
 }
