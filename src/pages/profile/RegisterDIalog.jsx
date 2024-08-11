@@ -8,10 +8,12 @@ import { ShowToast } from "../../components/elements/Toaster";
 import CircularProgress from "@mui/material/CircularProgress";
 import { duration } from "@mui/material";
 import { constructMetaWeb2, uploadFile } from "../../../utilities/aws";
+import { useAccount } from "wagmi";
 const RegisterDialog = ({
   openRegisterDialog,
   handleCloseRegisterDialog,
   handleSubmitRegister,
+  doConfig,
 }) => {
   const [idolRegisterData, setIdolRegisterData] = useState({
     duration: null,
@@ -28,6 +30,8 @@ const RegisterDialog = ({
   const [nftFiles, setNftFiles] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const { address } = useAccount();
 
   const handleError = (msg) => {
     setIsLoading(false);
@@ -84,7 +88,12 @@ const RegisterDialog = ({
     const uploadedImages = await Promise.all(
       uploadedData.map(async (data, index) => {
         console.log("data", data);
-        const { objectKey } = await uploadFile(data, "nft", index);
+        const { objectKey } = await uploadFile(
+          data,
+          "playground/nft/" + address,
+          index,
+          doConfig
+        );
         return `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
       })
     );
@@ -108,12 +117,26 @@ const RegisterDialog = ({
     // var tempdata = idolRegisterData;
     // tempdata["numberOfImages"] = uploadedData.length;
     // tempdata["nftImageURI"] = `https://${finalCID}.ipfs.nftstorage.link/`;
-    const { objectKey } = await uploadFile(tempJSON, "nft", "metadata");
+    const uploadedMetadata = await Promise.all(
+      uploadedData.map(async (data, index) => {
+        console.log("data", data);
+        const { objectKey } = await uploadFile(
+          data,
+          "playground/nft/metadata/" + address,
+          index,
+          doConfig
+        );
+        return `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+      })
+    );
+    console.log("uploadedMetadata", uploadedMetadata);
+
     var tempdata = idolRegisterData;
     tempdata["numberOfImages"] = uploadedData.length;
     tempdata[
       "nftImageURI"
-    ] = `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+      // ] = `${process.env.NEXT_PUBLIC_API_URL}/nft/metadata/resolve`;
+    ] = uploadedMetadata[0];
 
     setIdolRegisterData(tempdata);
     // setIdolRegisterData({
@@ -121,9 +144,9 @@ const RegisterDialog = ({
     //   numberOfImages: uploadedData.length,
     //   nftImageURI: `https://${finalCID}.ipfs.nftstorage.link/`,
     // });
-    console.log(
-      `cid nftimage ${`${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`}`
-    );
+    // console.log(
+    //   `cid nftimage ${`${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`}`
+    // );
     setIsLoading(false);
   };
 
@@ -132,8 +155,9 @@ const RegisterDialog = ({
     // const cid = await uploadToIPFS([collectionImage]);
     const { objectKey } = await uploadFile(
       collectionImage,
-      "collection",
-      "collectionImage"
+      "playground/collection/" + address,
+      "collectionImage",
+      doConfig
     );
     const fileName = collectionImage.name;
 

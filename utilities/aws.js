@@ -1,17 +1,18 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-export const s3Client = new S3Client({
-  endpoint: process.env.DO_SPACES_ORIGIN,
-  forcePathStyle: false, // Configures to use subdomain/virtual calling format.
-  region: "us-east-1", // Must be "us-east-1" when creating new Spaces. Otherwise, use the region in your endpoint (e.g. nyc3).
-  credentials: {
-    accessKeyId: process.env.DO_SPACES_ID, // Access key pair. You can create access key pairs using the control panel or API.
-    secretAccessKey: process.env.DO_SPACES_SECRET, // Secret access key defined through an environment variable.
-  },
-});
-
-export async function uploadFile(file, directory, filename) {
+export async function uploadFile(file, directory, filename, doConfig) {
   console.log(file, directory, filename);
+
+  const s3Client = new S3Client({
+    endpoint: doConfig.DO_SPACES_ORIGIN,
+    forcePathStyle: false, // Configures to use subdomain/virtual calling format.
+    region: "us-east-1", // Must be "us-east-1" when creating new Spaces. Otherwise, use the region in your endpoint (e.g. nyc3).
+    credentials: {
+      accessKeyId: doConfig.DO_SPACES_ID, // Access key pair. You can create access key pairs using the control panel or API.
+      secretAccessKey: doConfig.DO_SPACES_SECRET, // Secret access key defined through an environment variable.
+    },
+  });
+
   const fileBuffer = await file.arrayBuffer();
   const timestamp = Date.now();
   filename = filename ?? `${timestamp}-${file.name}`;
@@ -19,7 +20,7 @@ export async function uploadFile(file, directory, filename) {
 
   await s3Client.send(
     new PutObjectCommand({
-      Bucket: process.env.DO_SPACES_BUCKET,
+      Bucket: doConfig.DO_SPACES_BUCKET,
       Key: `${objectKey}`,
       Body: Buffer.from(fileBuffer),
       ContentType: file.type,

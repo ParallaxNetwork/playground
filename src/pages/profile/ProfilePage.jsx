@@ -33,7 +33,7 @@ const timestampToRelativeTime = (timestamp) => {
   return DateTime.fromMillis(timestamp * 1000).toRelative({ style: "long" });
 };
 
-const ProfilePage = () => {
+const ProfilePage = ({ props }) => {
   const user = useUser();
   const unlock = useUnlock();
   const { setSigner, orbis, profile, refetchProfile, checkOrbisConnection } =
@@ -106,10 +106,17 @@ const ProfilePage = () => {
 
         const { objectKey } = await uploadFile(
           pfpFile,
-          "profile",
-          pfpFile.name
+          "playground/profile/" + address,
+          // pfpFile.name,
+          "pfp",
+          {
+            DO_SPACES_ID: props.DO_SPACES_ID,
+            DO_SPACES_SECRET: props.DO_SPACES_SECRET,
+            DO_SPACES_BUCKET: props.DO_SPACES_BUCKET,
+            DO_SPACES_ORIGIN: props.DO_SPACES_ORIGIN,
+          }
         );
-        const pfp = `${env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+        const pfp = `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
         console.log("pfp", pfp);
 
         let res = await orbis.updateProfile({
@@ -846,6 +853,12 @@ const ProfilePage = () => {
           handleCloseRegisterDialog={handleCloseRegisterDialog}
           handleSubmitRegister={(data) => {
             handleRegisterIdol(data);
+          }}
+          doConfig={{
+            DO_SPACES_ID: props.DO_SPACES_ID,
+            DO_SPACES_SECRET: props.DO_SPACES_SECRET,
+            DO_SPACES_BUCKET: props.DO_SPACES_BUCKET,
+            DO_SPACES_ORIGIN: props.DO_SPACES_ORIGIN,
           }}
         />
       </div>
