@@ -57,9 +57,9 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          "https://rpc.ankr.com/eth_goerli"
+          "https://eth-sepolia.g.alchemy.com/v2/AA_3hqDc7Go_zI5Zq-3dC79Hvc5XvQMi"
         ),
-      network_id: 5,
+      network_id: 11155111,
       // network_id: 3,
       confirmations: 2,
       timeoutBlocks: 300,

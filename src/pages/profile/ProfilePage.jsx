@@ -1,4 +1,3 @@
-
 import { ethers } from "ethers";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
@@ -28,17 +27,17 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 import { removeNumberPostfix, sleep } from "../../../utilities/misc";
-
+import { uploadFile } from "../../../utilities/aws";
 
 const timestampToRelativeTime = (timestamp) => {
   return DateTime.fromMillis(timestamp * 1000).toRelative({ style: "long" });
-}
-
+};
 
 const ProfilePage = () => {
   const user = useUser();
   const unlock = useUnlock();
-  const { setSigner, orbis, profile, refetchProfile, checkOrbisConnection } = useOrbis();
+  const { setSigner, orbis, profile, refetchProfile, checkOrbisConnection } =
+    useOrbis();
 
   const [streamName, setStreamName] = useState("Stream");
   const [openEditProfile, setOpenEditProfile] = useState(false);
@@ -76,33 +75,42 @@ const ProfilePage = () => {
   };
 
   const handleSaveProfile = async (formData, pfpFile) => {
-    console.log("PFP FILE", pfpFile)
+    console.log("PFP FILE", pfpFile);
     try {
       handleCloseDialog();
       ShowToast({
         message: "Uploading Profile",
         state: "loading",
         duration: 8000,
-        id: "profile-update"
+        id: "profile-update",
       });
 
-      console.log("orbisconnection", await orbis.isConnected())
+      console.log("orbisconnection", await orbis.isConnected());
 
       if (!pfpFile) {
-        console.log("no pfp change")
+        console.log("no pfp change");
         let res = await orbis.updateProfile(formData);
+        console.log("orbis update", res);
       } else {
         ShowToast({
           message: "Uploading Profile Picture",
           state: "loading",
           id: "profile-update",
-          duration: 10000
+          duration: 10000,
         });
 
-        const cid = await uploadToIPFS([pfpFile]);
-        const fileName = pfpFile.name;
-        const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
-        console.log("pfp", pfp)
+        // const cid = await uploadToIPFS([pfpFile]);
+        // const fileName = pfpFile.name;
+        // const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+        // console.log("pfp", pfp)
+
+        const { objectKey } = await uploadFile(
+          pfpFile,
+          "profile",
+          pfpFile.name
+        );
+        const pfp = `${env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+        console.log("pfp", pfp);
 
         let res = await orbis.updateProfile({
           ...formData,
@@ -110,13 +118,13 @@ const ProfilePage = () => {
         });
       }
 
-      await sleep(1500)
-      await refetchProfile()
+      await sleep(1500);
+      await refetchProfile();
 
       ShowToast({
         message: "Profile Updated",
         state: "success",
-        id: "profile-update"
+        id: "profile-update",
       });
     } catch (error) {
       console.log(error);
@@ -373,7 +381,8 @@ const ProfilePage = () => {
       if (receipt.status == 1) {
         getSalesAndWithdrawAble(idolData);
         ShowToast({
-          message: "Withdraw Initialized! now you can proceed to withdrawable button",
+          message:
+            "Withdraw Initialized! now you can proceed to withdrawable button",
         });
       }
     } catch (e) {
@@ -453,7 +462,7 @@ const ProfilePage = () => {
     ShowToast({
       message: "Copied!",
     });
-  }
+  };
 
   return (
     <Zoom in={true}>
@@ -493,7 +502,14 @@ const ProfilePage = () => {
                     <div className="flex m-5 flex-row p-2">
                       {/* {JSON.stringify(profile)} */}
                       <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
-                        <img src={`${profile?.details?.profile?.pfp ?? "/assets/picture/placeholder.png"}`} alt="" className="max-w-full max-h-full" />
+                        <img
+                          src={`${
+                            profile?.details?.profile?.pfp ??
+                            "/assets/picture/placeholder.png"
+                          }`}
+                          alt=""
+                          className="max-w-full max-h-full"
+                        />
                       </div>
 
                       {/* Profile data */}
@@ -506,7 +522,10 @@ const ProfilePage = () => {
 
                           <div className="col-span-12 md:col-span-6">
                             <div className="subtitle">Bio</div>
-                            <div>{profile?.details?.profile?.description ?? "NOT SET"}</div>
+                            <div>
+                              {profile?.details?.profile?.description ??
+                                "NOT SET"}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -547,13 +566,21 @@ const ProfilePage = () => {
                               </div> */}
                               <div>
                                 <div className="subtitle">{`RMTP URL`}</div>
-                                <div className="cursor-pointer" onClick={() => handleCopy("rtmp://rtmp.livepeer.com/live")}>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    handleCopy("rtmp://rtmp.livepeer.com/live")
+                                  }
+                                >
                                   rtmp://rtmp.livepeer.com/live
                                 </div>
                               </div>
                               <div>
                                 <div className="subtitle">{`Stream Key`}</div>
-                                <div className="cursor-pointer" onClick={() => handleCopy(streamKey)}>
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={() => handleCopy(streamKey)}
+                                >
                                   {streamKey ?? (
                                     <div className="h-6 w-full max-w-[300px] bg-gray-200 animate-pulse"></div>
                                   )}
@@ -661,14 +688,16 @@ const ProfilePage = () => {
                 </div>
                 <div className="grid grid-cols-12 p-2 gap-3 m-4">
                   {user.subscription.map((el, index) => {
-                    const isExpired = new Date(el.expiration * 1000) < new Date();
+                    const isExpired =
+                      new Date(el.expiration * 1000) < new Date();
 
                     if (!isExpired || showExpired) {
                       return (
-                        <div key={index} className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
-                          <div
-                            className="flex flex-col items-center border-2 border-black p-5 lg:p-2"
-                          >
+                        <div
+                          key={index}
+                          className="col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2"
+                        >
+                          <div className="flex flex-col items-center border-2 border-black p-5 lg:p-2">
                             <div className="flex justify-center items-center w-full h-[14rem] mt-4">
                               <CollectionImage
                                 src={removeNumberPostfix(el.tokenURI)}
@@ -688,11 +717,11 @@ const ProfilePage = () => {
                               Playground Subscription
                             </div>
 
-                            {isExpired ?
+                            {isExpired ? (
                               <div className="text-xs text-red-500 mt-5 mb-2 text-center">
                                 Expired
                               </div>
-                              :
+                            ) : (
                               <div className="text-xs text-black/60 mt-5 mb-2 text-center">
                                 {/* {`Expired at ${new Date(
                                   el.expiration * 1000
@@ -702,9 +731,11 @@ const ProfilePage = () => {
                                   month: "short",
                                 })} ${new Date(el.expiration * 1000).getFullYear()}`} */}
 
-                                {`Expires in ${timestampToRelativeTime(el.expiration)}`}
+                                {`Expires in ${timestampToRelativeTime(
+                                  el.expiration
+                                )}`}
                               </div>
-                            }
+                            )}
 
                             {/* <button onClick={() => handleRenewKey(el)} className="btn btn-primary-large mt-2 mb-3 h-[53px]">
                               RENEW
@@ -728,39 +759,48 @@ const ProfilePage = () => {
                   </button>
                 </div>
               </ShadowBox>
-            )
-            }
+            )}
 
-            {
-              isConnected &&
+            {isConnected && (
               <ShadowBox className={"shadowBox mt-5"}>
                 <div className="flex flex-row shrink grow-0 bg-secondary text-white px-5 py-3 title-primary border-b-2 border-r-2 border-black max-w-[270px]">
                   MY COLLECTION
                 </div>
                 <div className="grid grid-cols-12 p-2 gap-3 m-4">
-                  {user.userCollection ?
+                  {user.userCollection ? (
                     <>
-                      {user.userCollection.length > 0 ?
+                      {user.userCollection.length > 0 ? (
                         <>
                           {user.userCollection.map((item, index) => {
                             return (
-                              <div key={index} className="border border-black p-2 col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2">
+                              <div
+                                key={index}
+                                className="border border-black p-2 col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2"
+                              >
                                 <div className="flex justify-center items-center w-full h-[12rem] mt-4 mb-5">
-                                  <img src={item.image} alt="" className="h-full border border-black" />
+                                  <img
+                                    src={item.image}
+                                    alt=""
+                                    className="h-full border border-black"
+                                  />
                                 </div>
 
-                                <div className="subtitle mt-2">
-                                  {item.name}
-                                </div>
+                                <div className="subtitle mt-2">{item.name}</div>
                                 <div className="text-sm">
                                   {item.description}
                                 </div>
                               </div>
-                            )
+                            );
                           })}
                         </>
-                        :
-                        <div className={` ${isEmpty(address) ? "" : "mt-10 mb-10 w-full col-span-12"}`}>
+                      ) : (
+                        <div
+                          className={` ${
+                            isEmpty(address)
+                              ? ""
+                              : "mt-10 mb-10 w-full col-span-12"
+                          }`}
+                        >
                           <NoItems
                             isFullPage={isEmpty(address) ? true : false}
                             isFullWidth={isEmpty(address) ? false : true}
@@ -772,21 +812,24 @@ const ProfilePage = () => {
                             }
                           />
                         </div>
-                      }
+                      )}
                     </>
-                    :
+                  ) : (
                     <>
                       {[1, 2, 3, 4].map((item, index) => {
                         return (
-                          <div key={index} className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2" />
-                        )
+                          <div
+                            key={index}
+                            className="w-full h-[16rem] bg-gray-200 animate-pulse rounded-md col-span-12 md:col-span-6 lg:col-span-3 xl:col-span-2"
+                          />
+                        );
                       })}
                     </>
-                  }
+                  )}
                 </div>
               </ShadowBox>
-            }
-          </LayoutContainer >
+            )}
+          </LayoutContainer>
         ) : (
           <div></div>
         )}
@@ -805,8 +848,8 @@ const ProfilePage = () => {
             handleRegisterIdol(data);
           }}
         />
-      </div >
-    </Zoom >
+      </div>
+    </Zoom>
   );
 };
 

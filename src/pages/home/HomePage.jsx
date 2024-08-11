@@ -3,7 +3,7 @@ import Marquee from "react-fast-marquee";
 import { useEffect, useState } from "react";
 import { isEmpty } from "lodash";
 import Link from "next/link";
-import ImageCarousel from '../../components/elements/ImageCarousel';
+import ImageCarousel from "../../components/elements/ImageCarousel";
 // import { Image } from 'next/image';
 
 const MARQUEE_KEYWORDS = [
@@ -33,15 +33,15 @@ const SAMPLES = [
   "/assets/picture/sample/sample3.jpg",
   "/assets/picture/sample/sample4.jpg",
   "/assets/picture/sample/sample5.jpg",
-]
+];
 
 // BANNER
 const BANNERS = [
   "/assets/picture/banner/banner-1.jpg",
   "/assets/picture/banner/banner-2.jpg",
   "/assets/picture/banner/banner-3.jpg",
-  "/assets/picture/banner/banner-4.jpg"
-]
+  "/assets/picture/banner/banner-4.jpg",
+];
 
 // MAIN FEATURES
 const MAIN_FEATURES = [
@@ -56,25 +56,26 @@ const POWERED_BY = [
     description: "Secure and private chatting with",
     thumbnail: "/assets/picture/logo/thumbnail_orbis.png",
     title: "Orbis Protocol",
-    link: "https://orbis.club"
+    link: "https://orbis.club",
   },
   {
     description: "High-quality video streaming with",
     thumbnail: "/assets/picture/logo/thumbnail_livepeer.png",
     title: "Livepeer",
-    link: "https://livepeer.org"
+    link: "https://livepeer.org",
   },
   {
     description: "Controlled access and benefit with",
     thumbnail: "/assets/picture/logo/thumbnail_unlock.png",
     title: "Unlock Protocol",
-    link: "https://unlock-protocol.com"
+    link: "https://unlock-protocol.com",
   },
+  // change with manta
   {
     description: "Buy NFTs and enjoy low transaction fees with",
     thumbnail: "/assets/picture/logo/thumbnail_polygon.png",
     title: "Polygon Network",
-    link: "https://polygon.network"
+    link: "https://polygon.network",
   },
 ];
 
@@ -83,7 +84,7 @@ const BENEFITS = [
   "🤩 Join a community of die-hard fans just like you",
   "🎉 Own a piece of digital memorabilia",
   "💖 Get closer to the artists you love",
-  "💫 Enjoy a personalized and unique fan experience"
+  "💫 Enjoy a personalized and unique fan experience",
 ];
 
 const HomePage = () => {
@@ -123,19 +124,20 @@ const HomePage = () => {
                   <div className="flex flex-col h-full px-6 py-10 justify-center items-center">
                     <div className="text-base max-w-[54rem]">
                       Imagine getting up-close and personal with your favorite
-                      artist. Not just a {'"'}like{'"'} or {'"'}comment{'"'}, but
+                      artist. Not just a {'"'}like{'"'} or {'"'}comment{'"'},
+                      but
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;real, direct engagement.&nbsp;
                       </span>
                       <br />
                       <br />
-                      That{"'"}s what Playground offers - the chance to own a piece
-                      of your favorite artist and unlock
+                      That{"'"}s what Playground offers - the chance to own a
+                      piece of your favorite artist and unlock
                       <span className="text-secondary whitespace-nowrap font-semibold">
                         &nbsp;exclusive experiences&nbsp;
                       </span>
-                      you can{"'"}t get anywhere else. Buy an NFT, get VIP access.
-                      It{"'"}s that simple.
+                      you can{"'"}t get anywhere else. Buy an NFT, get VIP
+                      access. It{"'"}s that simple.
                     </div>
                   </div>
                 </div>
@@ -186,7 +188,10 @@ const HomePage = () => {
                 <div className="grid grid-cols-12">
                   {POWERED_BY.map((item, index) => {
                     return (
-                      <div className="col-span-6 border border-black sm:col-span-3" key={index}>
+                      <div
+                        className="col-span-6 border border-black sm:col-span-3"
+                        key={index}
+                      >
                         <div className="bg-white flex flex-col h-full">
                           <img
                             src={item.thumbnail}
@@ -197,7 +202,12 @@ const HomePage = () => {
                           <div className="bg-cream p-2 text-center flex-1 flex flex-col justify-end">
                             <div>{item.description}</div>
 
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold">
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-lg font-semibold"
+                            >
                               {item.title}
                             </a>
                           </div>
