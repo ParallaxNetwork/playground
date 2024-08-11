@@ -129,18 +129,26 @@ const RegisterDialog = ({
 
   const handleUploadCollectionImage = async () => {
     setIsLoading(true);
-    const cid = await uploadToIPFS([collectionImage]);
+    // const cid = await uploadToIPFS([collectionImage]);
+    const { objectKey } = await uploadFile(
+      collectionImage,
+      "collection",
+      "collectionImage"
+    );
     const fileName = collectionImage.name;
 
     var tempdatas = idolRegisterData;
+    // tempdatas[
+    //   "collectionImageURI"
+    // ] = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
     tempdatas[
       "collectionImageURI"
-    ] = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+    ] = `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
 
     setIdolRegisterData(tempdatas);
 
     console.log(
-      `cid collection ${`https://${cid}.ipfs.nftstorage.link/${fileName}`}`
+      `cid collection ${`${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`}`
     );
   };
 
