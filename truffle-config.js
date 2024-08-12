@@ -53,14 +53,12 @@ module.exports = {
       skipDryRun: true,
     },
     eth_testnet: {
-      // provider: () => new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`),
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          "https://rpc.ankr.com/eth_goerli"
+          "https://eth-sepolia.g.alchemy.com/v2/AA_3hqDc7Go_zI5Zq-3dC79Hvc5XvQMi"
         ),
-      network_id: 5,
-      // network_id: 3,
+      network_id: 11155111,
       confirmations: 2,
       timeoutBlocks: 300,
       skipDryRun: true,

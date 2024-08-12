@@ -25,6 +25,10 @@ const networks = {
     80001: {
         unlockAddress: "0x1FF7e338d5E582138C46044dc238543Ce555C963",
         provider: "https://rpc.unlock-protocol.com/80001"
+    },
+    11155111: {
+        unlockAddress: "0x36b34e10295cCE69B652eEB5a8046041074515Da",
+        provider: "https://rpc.unlock-protocol.com/11155111"
     }
 }
 
