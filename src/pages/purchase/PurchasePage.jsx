@@ -19,7 +19,11 @@ import MerchandiseDialog from "./MerchandiseDialog";
 
 import { useUser } from "../../context/UserContext";
 import { useUnlock } from "../../context/UnlockContext";
-import { getCIDFromNFTStorageLink, getIPFSFileCount } from "../../../utilities/ipfsUtils";
+import {
+  getCIDFromNFTStorageLink,
+  getIPFSFileCount,
+} from "../../../utilities/ipfsUtils";
+import { resolveSchemeThirdweb } from "../../../utilities/thirdweb";
 
 const PurchasePages = () => {
   const user = useUser();
@@ -71,11 +75,11 @@ const PurchasePages = () => {
 
   useEffect(() => {
     if (lockAddress) {
-      console.log("LOCK ADDRESS", lockAddress)
+      console.log("LOCK ADDRESS", lockAddress);
       lockMeta(chain, lockAddress).then((resp) => {
-        console.log("GET USER PROFILE")
+        console.log("GET USER PROFILE");
         getUserProfile(resp);
-        console.log("GET SAMPLE IMAGE NFT")
+        console.log("GET SAMPLE IMAGE NFT");
         getSampleImagenft(resp);
       });
     }
@@ -87,9 +91,8 @@ const PurchasePages = () => {
         resp.idolAddress
       );
       if (!errorDids && userDids.length) {
-        const { data: profileData, error: profileError } = await orbis.getProfile(
-          userDids[0].did
-        );
+        const { data: profileData, error: profileError } =
+          await orbis.getProfile(userDids[0].did);
         console.log(profileData);
         if (!profileError) setProfileData(profileData.details.profile);
       }
@@ -99,8 +102,8 @@ const PurchasePages = () => {
   };
 
   useEffect(() => {
-    console.log("PROFILE DATA", profileData)
-  }, [profileData])
+    console.log("PROFILE DATA", profileData);
+  }, [profileData]);
 
   const handlePurchase = async () => {
     if (!signer) {
@@ -112,7 +115,10 @@ const PurchasePages = () => {
     }
 
     setIsLoading(true);
-    const purchase = await unlock.handlePurchaseSubscription(nftAddress, lockDetail);
+    const purchase = await unlock.handlePurchaseSubscription(
+      nftAddress,
+      lockDetail
+    );
 
     if (purchase.status === "success") {
       handleCloseDialog();
@@ -126,7 +132,7 @@ const PurchasePages = () => {
     setIsLoading(true);
     await unlock.handleExtendKey(lockAddress, "1");
     setIsLoading(false);
-  }
+  };
 
   const getSampleImagenft = async (resp) => {
     if (!resp?.nftImageURI) {
@@ -134,18 +140,20 @@ const PurchasePages = () => {
         message: "Something went wrong, please try again later",
         state: "error",
         duration: 5000,
-      })
-      return
+      });
+      return;
     }
 
-    const imageTotal = await getIPFSFileCount(getCIDFromNFTStorageLink(resp.nftImageURI))
+    const imageTotal = await getIPFSFileCount(
+      getCIDFromNFTStorageLink(resp.nftImageURI)
+    );
 
-    let images = []
+    let images = [];
     for (let i = 1; i <= imageTotal; i++) {
-      if (i > 3) break
+      if (i > 3) break;
       const result = await fetch(`${resp.nftImageURI}${i}`);
       const res = await result.json();
-      images.push(res.image)
+      images.push(res.image);
     }
 
     const result = await fetch(`${resp.nftImageURI}1`);
@@ -155,7 +163,7 @@ const PurchasePages = () => {
       ...resp,
       nftImageURI: images,
       nftDescription: res.description,
-    }
+    };
 
     console.log("LOCK DETAIL", lockDetail);
 
@@ -194,59 +202,47 @@ const PurchasePages = () => {
 
         <ShadowBox className={"shadowBox mb-10"}>
           <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-primary border-b-2 border-black">
-            <div>
-              {lockDetail && `${lockDetail.stream_name}`}
-            </div>
+            <div>{lockDetail && `${lockDetail.stream_name}`}</div>
 
             <div className="flex flex-row items-center">
-              {lockDetail && user.isSubscribed(lockDetail.lockAddress) &&
+              {lockDetail && user.isSubscribed(lockDetail.lockAddress) && (
                 <div className="bg-white text-black text-sm mr-2 border border-black p-2 font-semibold">
                   Subscribed
                 </div>
-              }
+              )}
               <img src="/assets/icons/hearts-icon.svg" alt="" />
             </div>
           </div>
 
           <div className="p-7">
             <div className="flex flex-col sm:flex-row items-start">
-              {profileData?.pfp ?
+              {profileData?.pfp ? (
                 <img
                   src={profileData.pfp ?? "/assets/picture/placeholder.png"}
                   alt=""
                   className="w-full max-w-[10rem] ring-black ring-2 mx-auto"
                 />
-                :
-                <div
-                  className="w-full max-w-[10rem] aspect-square bg-gray-200 animate-pulse"
-                />
-              }
+              ) : (
+                <div className="w-full max-w-[10rem] aspect-square bg-gray-200 animate-pulse" />
+              )}
 
               <div className="mt-5 text-center items-center sm:items-start sm:text-start w-full sm:ml-4 sm:mt-0 flex-1 flex flex-col lg:flex-row">
                 <div className="break-all w-full flex flex-col">
-                  <div className="subtitle">
-                    Profile
-                  </div>
+                  <div className="subtitle">Profile</div>
 
-                  {profileData?.username ?
-                    <div>
-                      {`${profileData.username}`}
-                    </div>
-                    :
+                  {profileData?.username ? (
+                    <div>{`${profileData.username}`}</div>
+                  ) : (
                     <div className="h-8 w-full max-w-[16rem] animate-pulse bg-gray-200 rounded-md" />
-                  }
+                  )}
 
-                  <div className="subtitle mt-4">
-                    Bio
-                  </div>
+                  <div className="subtitle mt-4">Bio</div>
 
-                  {profileData?.description ?
-                    <div>
-                      {`${profileData.description}`}
-                    </div>
-                    :
+                  {profileData?.description ? (
+                    <div>{`${profileData.description}`}</div>
+                  ) : (
                     <div className="h-16 w-full max-w-[32rem] animate-pulse bg-gray-200 rounded-md" />
-                  }
+                  )}
 
                   {/* <div className="subtitle mt-4">Interest</div>
                   <div>{`${lockDetail.interest ?? "-"}`}</div> */}
@@ -255,13 +251,16 @@ const PurchasePages = () => {
             </div>
 
             <div className="mt-10">
-              {lockDetail ?
+              {lockDetail ? (
                 <Zoom in>
                   <div className="p-3 border-2 border-black w-full grid grid-cols-12 gap-4">
                     <div className="col-span-12 md:col-span-4 xl:col-span-3">
                       <div className="max-w-[18rem] mx-auto mb-4 md:max-w-none md:mb-none flex flex-col w-full gap-3">
                         <img
-                          src={lockDetail?.collectionImageURI ?? "/assets/picture/placeholder.png"}
+                          src={
+                            lockDetail?.collectionImageURI ??
+                            "/assets/picture/placeholder.png"
+                          }
                           alt=""
                           className="border-2 border-black ring-black ring-2 h-fit object-contain"
                         />
@@ -270,8 +269,13 @@ const PurchasePages = () => {
                           {lockDetail?.nftImageURI?.map((item, index) => {
                             if (index < 3) {
                               return (
-                                <img key={index} src={item} alt="" className="ring-black w-[32%] ring-2 object-contain" />
-                              )
+                                <img
+                                  key={index}
+                                  src={item}
+                                  alt=""
+                                  className="ring-black w-[32%] ring-2 object-contain"
+                                />
+                              );
                             }
                           })}
                         </div>
@@ -286,26 +290,29 @@ const PurchasePages = () => {
                               {lockDetail.nftDescription}
                             </div>
                             <div className="f-12-px secondary">
-                              Automatically owned every subscription purchased, 1pcs on
-                              random
+                              Automatically owned every subscription purchased,
+                              1pcs on random
                             </div>
                             <div className="subtitle mt-2">{`${ethers.utils.formatEther(
-                              parseInt(lockDetail.price.hex.toString()).toString()
+                              parseInt(
+                                lockDetail.price.hex.toString()
+                              ).toString()
                             )} MATIC`}</div>
                           </div>
                         </div>
 
                         <div className="max-w-[380px]">
                           <div className="subtitle">DESCRIPTION</div>
-                          <div>
-                            {lockDetail.description}
-                          </div>
+                          <div>{lockDetail.description}</div>
                         </div>
 
                         <div className="flex flex-col lg:flex-row w-full justify-between mb-4">
                           <div className="mt-5 lg:mt-0 justify-end flex flex-col">
                             <div className="flex flex-row space-x-3">
-                              <img src="/assets/icons/verified-icon.svg" alt="" />
+                              <img
+                                src="/assets/icons/verified-icon.svg"
+                                alt=""
+                              />
                               <div className="subtitle">NFT PERKS</div>
                             </div>
 
@@ -313,7 +320,7 @@ const PurchasePages = () => {
                               {lockDetail.perks.map((el, index) => {
                                 // HIDE PRIVATE CHAT
                                 if (el === "Private Chat") {
-                                  return ""
+                                  return "";
                                 }
                                 return (
                                   <div
@@ -347,9 +354,9 @@ const PurchasePages = () => {
                     </div>
                   </div>
                 </Zoom>
-                :
+              ) : (
                 <div className="h-[30rem] w-full animate-pulse bg-gray-200 rounded-md" />
-              }
+              )}
             </div>
 
             {/* <div className="mt-10">
@@ -373,7 +380,7 @@ const PurchasePages = () => {
         imageSrc={imgMerchandise}
       />
 
-      {lockDetail &&
+      {lockDetail && (
         <AlertDialog open={openPurchaseDialog} onClose={handleCloseDialog}>
           <div className="flex flex-row justify-between items-center bg-secondary text-white px-5 py-3 title-secondary border-b-2 border-black">
             BUY SUBSCRIPTION
@@ -387,7 +394,13 @@ const PurchasePages = () => {
             <div className="flex flex-col lg:flex-row gap-10">
               <div className="flex flex-col justify-start items-center lg:items-start min-w-[180px]">
                 <CollectionImage
-                  src={lockDetail.nftImageURI[0]}
+                  src={
+                    lockDetail.nftImageURI[0]
+                      ? resolveSchemeThirdweb(lockDetail.nftImageURI[0])
+                      : lockDetail.collectionImageURI
+                      ? resolveSchemeThirdweb(lockDetail.collectionImageURI)
+                      : "/assets/picture/placeholder.png"
+                  }
                   className="max-w-[208px] w-full mt-2"
                 />
               </div>
@@ -401,7 +414,7 @@ const PurchasePages = () => {
                   {lockDetail.perks.map((el, index) => {
                     // HIDE PRIVATE CHAT
                     if (el === "Private Chat") {
-                      return ""
+                      return "";
                     }
                     return (
                       <div key={index} className="flex flex-row gap-3">
@@ -434,7 +447,7 @@ const PurchasePages = () => {
             </div>
           </div>
         </AlertDialog>
-      }
+      )}
     </>
   );
 };

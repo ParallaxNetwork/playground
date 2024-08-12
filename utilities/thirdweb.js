@@ -7,7 +7,16 @@ export const client = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID,
 });
 
-export const resolveSchemeThirdweb = async (uri) => {
+export const resolveSchemeThirdweb = (uri) => {
+  if (
+    !uri.startsWith("ipfs://") &&
+    !uri.startsWith("ipns://") &&
+    !uri.startsWith("https://") &&
+    !uri.startsWith("http://")
+  ) {
+    return uri;
+  }
+
   return resolveScheme({
     client,
     uri,
@@ -43,7 +52,7 @@ export const constructMetaThirdweb = async ({ data, cid }) => {
   const promises = _cids.map(async (c, i) => {
     const fileData = JSON.stringify({
       name: `${data.title} #${i + 1}`,
-      image: await resolveSchemeThirdweb(c),
+      image: resolveSchemeThirdweb(c),
       description: data.description,
     });
     const blob = new Blob([fileData], { type: "text/plain" });

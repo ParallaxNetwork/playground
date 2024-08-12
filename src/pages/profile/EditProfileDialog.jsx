@@ -4,6 +4,7 @@ import CollectionImage from "../../components/elements/CollectionImage";
 import { isEmpty } from "lodash";
 
 import { useOrbis } from "../../context/OrbisContext";
+import { resolveSchemeThirdweb } from "../../../utilities/thirdweb";
 
 const EditProfileDialog = ({
   openEditProfile,
@@ -11,11 +12,11 @@ const EditProfileDialog = ({
   handleSaveProfile,
   profilePicture = "/assets/picture/placeholder.png",
 }) => {
-  const { profile, refetchProfile } = useOrbis()
+  const { profile, refetchProfile } = useOrbis();
 
   const [pfpFile, setPfpFile] = useState(null);
   const [formData, setFormData] = useState({
-    pfp: profile?.details?.profile?.pfp ?? '',
+    pfp: profile?.details?.profile?.pfp ?? "",
     cover: profile?.details?.profile?.cover ?? null,
     data: profile?.details?.profile?.data ?? null,
     username: profile?.username ?? "",
@@ -25,14 +26,14 @@ const EditProfileDialog = ({
   useEffect(() => {
     if (openEditProfile) {
       setFormData({
-        pfp: profile?.details?.profile?.pfp ?? '',
+        pfp: profile?.details?.profile?.pfp ?? "",
         cover: profile?.details?.profile?.cover || null,
         data: profile?.details?.profile?.data || null,
-        username: profile?.details?.profile?.username || '',
-        description: profile?.details?.profile?.description || null
-      })
+        username: profile?.details?.profile?.username || "",
+        description: profile?.details?.profile?.description || null,
+      });
     }
-  }, [openEditProfile, profile])
+  }, [openEditProfile, profile]);
 
   return (
     <AlertDialog
@@ -58,7 +59,9 @@ const EditProfileDialog = ({
       <div className="p-5">
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex flex-col justify-start items-center lg:items-center gap-4 min-w-[180px]">
-            <div className="title-secondary font-bold mr-auto">Profile Picture</div>
+            <div className="title-secondary font-bold mr-auto">
+              Profile Picture
+            </div>
             <input
               type="file"
               id="upload-pfp"
@@ -66,7 +69,7 @@ const EditProfileDialog = ({
               accept="image/*"
               onChange={(val) => {
                 if (!isEmpty(val)) {
-                  console.log(val.target.files[0])
+                  console.log(val.target.files[0]);
                   setFormData({
                     ...formData,
                     pfp: URL.createObjectURL(val.target.files[0]),
@@ -81,7 +84,15 @@ const EditProfileDialog = ({
             </div> */}
 
             <div className="aspect-square w-full max-w-[12rem] max-h-[12rem] ring-2 ring-black flex items-center justify-center">
-              <img src={formData?.pfp ? formData.pfp : "/assets/picture/placeholder.png"} alt="" className="max-w-full max-h-full" />
+              <img
+                src={`${
+                  profile?.details?.profile?.pfp
+                    ? resolveSchemeThirdweb(profile?.details?.profile?.pfp)
+                    : "/assets/picture/placeholder.png"
+                }`}
+                alt=""
+                className="max-w-full max-h-full"
+              />
             </div>
 
             <label
@@ -119,14 +130,12 @@ const EditProfileDialog = ({
                       ...formData,
                       description: val.target.value,
                     });
-
                   }
                 }}
                 rows={10}
                 className="p-3 border-placeholder rounded-md h-full resize-none"
               />
             </div>
-
           </div>
         </div>
         <div className="flex flex-row justify-end mt-[10vh]">

@@ -1,6 +1,7 @@
 import { useOrbis } from "../../context/OrbisContext";
 import { useState, useEffect } from "react";
 import makeBlockie from "ethereum-blockies-base64";
+import { resolveSchemeThirdweb } from "../../../utilities/thirdweb";
 const CircleAvatar = ({
   className = "",
   isLive = false,
@@ -9,7 +10,6 @@ const CircleAvatar = ({
   address = null,
   withPopover = false,
 }) => {
-
   const { orbis } = useOrbis();
   const [src, setSrc] = useState();
   const [profileData, setProfileData] = useState();
@@ -48,7 +48,7 @@ const CircleAvatar = ({
           setSrc(data[0].details?.profile?.pfp);
           setProfileData(data[0]);
 
-          console.log(data[0])
+          console.log(data[0]);
 
           const tempAvatar = `{"${address}": "${data[0].details?.profile?.pfp}"}`;
           const avatarData = JSON.parse(tempAvatar);
@@ -73,12 +73,15 @@ const CircleAvatar = ({
   return (
     <div className={`relative ${isLive && "pb-2"} btn popover-container`}>
       <div
-        className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${(isLive || isActive) && "border-2 border-active"
-          } ${className}`}
+        className={`bg-cover w-[33px] lg:w-[52px] h-[33px] lg:h-[52px] rounded-full overflow-hidden ${
+          (isLive || isActive) && "border-2 border-active"
+        } ${className}`}
       >
         <img
           alt=""
-          src={src ?? "/assets/picture/placeholder.png"}
+          src={`${
+            src ? resolveSchemeThirdweb(src) : "/assets/picture/placeholder.png"
+          }`}
           className="w-full h-full object-cover object-center rounded-full"
         />
         {isLive && (
@@ -90,9 +93,12 @@ const CircleAvatar = ({
       </div>
 
       {/* POPOVER */}
-      {(profileData?.username && withPopover) &&
+      {profileData?.username && withPopover && (
         <div className="relative">
-          <div className="absolute pointer-events-none bg-white border-black border popover-item p-2 z-50 right-0 opacity-0 transition-all duration-150" style={{ transform: 'translateX(105%) translateY(-90%)' }}>
+          <div
+            className="absolute pointer-events-none bg-white border-black border popover-item p-2 z-50 right-0 opacity-0 transition-all duration-150"
+            style={{ transform: "translateX(105%) translateY(-90%)" }}
+          >
             <div className="min-w-[8rem] max-w-[12rem]">
               <div className="whitespace-nowrap font-semibold">
                 {profileData?.username}
@@ -103,7 +109,7 @@ const CircleAvatar = ({
             </div>
           </div>
         </div>
-      }
+      )}
     </div>
   );
 };

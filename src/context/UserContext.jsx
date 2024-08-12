@@ -1,18 +1,18 @@
 import { useAccount, useSigner } from "wagmi";
 import axios from "axios";
-import { useContext, createContext, useState, useEffect } from 'react';
-import { contractConfig } from '../../utilities/contractConfig';
-import { PGSUBS_ABI } from '../../utilities/PGSubsABI';
-import { Contract } from '@ethersproject/contracts';
-import { PGCORE_ABI } from '../../utilities/PGCoreABI';
+import { useContext, createContext, useState, useEffect } from "react";
+import { contractConfig } from "../../utilities/contractConfig";
+import { PGSUBS_ABI } from "../../utilities/PGSubsABI";
+import { Contract } from "@ethersproject/contracts";
+import { PGCORE_ABI } from "../../utilities/PGCoreABI";
 
 const UserContext = createContext({
   subscription: null,
-  getSubscription: () => { },
-  isSubscribed: () => { },
+  getSubscription: () => {},
+  isSubscribed: () => {},
 
   userCollection: null,
-  getUserCollection: () => { }
+  getUserCollection: () => {},
 });
 
 const UserProvider = ({ children }) => {
@@ -22,7 +22,7 @@ const UserProvider = ({ children }) => {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
-  }, [])
+  }, []);
 
   // SUBSCRIPTION
   const [subscription, setSubscription] = useState(null);
@@ -62,7 +62,7 @@ const UserProvider = ({ children }) => {
       .then(async (response) => {
         setSubscription(response.data.data.keys);
       })
-      .catch((e) => { });
+      .catch((e) => {});
   };
 
   const isSubscribed = (lockAddress) => {
@@ -71,8 +71,10 @@ const UserProvider = ({ children }) => {
     }
 
     // check if lockAddress is in subscription, no case sensitive
-    return subscription.some((key) => key.lock.address.toUpperCase() === lockAddress.toUpperCase());
-  }
+    return subscription.some(
+      (key) => key.lock.address.toUpperCase() === lockAddress.toUpperCase()
+    );
+  };
 
   // Renew Subscription
   // const handleRenewKey = (nftAddress) => {
@@ -89,7 +91,7 @@ const UserProvider = ({ children }) => {
         getUserCollection();
       }
     }
-  }, [address, signer])
+  }, [address, signer]);
 
   // run getSubscription every 30 seconds
   useEffect(() => {
@@ -104,8 +106,7 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     console.log("Subscription", subscription);
-  }, [subscription])
-
+  }, [subscription]);
 
   // GET USER NFTs
   const [userCollection, setUserCollection] = useState(null);
@@ -125,7 +126,9 @@ const UserProvider = ({ children }) => {
     // assign res.nftKeyAddress to nftKeyAddresses if it's not empty
     const nftKeyAddresses = [];
     for (let i = 0; i < res.length; i += 1) {
-      if (res[i].nftKeyAddress !== "0x0000000000000000000000000000000000000000") {
+      if (
+        res[i].nftKeyAddress !== "0x0000000000000000000000000000000000000000"
+      ) {
         nftKeyAddresses.push(res[i].nftKeyAddress);
       }
     }
@@ -134,7 +137,7 @@ const UserProvider = ({ children }) => {
     let collection = [];
     let collectionIds = [];
 
-    for(let i = 0; i < nftKeyAddresses.length; i += 1) {
+    for (let i = 0; i < nftKeyAddresses.length; i += 1) {
       const contracts = new Contract(
         nftKeyAddresses[i],
         PGSUBS_ABI.abi,
@@ -152,15 +155,15 @@ const UserProvider = ({ children }) => {
         if (checkOwnership === address) {
           collectionIds.push({
             tokenId: j,
-            nftKeyAddress: nftKeyAddresses[i]
+            nftKeyAddress: nftKeyAddresses[i],
           });
         }
-      };
+      }
     }
 
     // console.log("Owned NFT ID", collectionIds)
 
-    for(let i=0; i <collectionIds.length; i += 1){
+    for (let i = 0; i < collectionIds.length; i += 1) {
       const contracts = new Contract(
         collectionIds[i].nftKeyAddress,
         PGSUBS_ABI.abi,
@@ -168,16 +171,18 @@ const UserProvider = ({ children }) => {
       );
 
       const tokenURI = await contracts.tokenURI(collectionIds[i].tokenId);
-      const tokenData = await axios.get(tokenURI);
+      const tokenData = await axios.get(tokenURI).catch((e) => {
+        console.error(e);
+      });
       collection.push({
-        ...tokenData.data,
+        ...(tokenData?.data || {}),
         tokenId: collectionIds[i],
       });
     }
 
     console.log("Collection", collection);
     setUserCollection(collection);
-  }
+  };
 
   if (!isMounted) {
     return "";
@@ -191,7 +196,7 @@ const UserProvider = ({ children }) => {
         isSubscribed,
 
         userCollection,
-        getUserCollection
+        getUserCollection,
       }}
     >
       {children}
@@ -201,6 +206,6 @@ const UserProvider = ({ children }) => {
 
 const useUser = () => {
   return useContext(UserContext);
-}
+};
 
 export { UserProvider, useUser };

@@ -91,7 +91,7 @@ const RegisterDialog = ({
     const nftImageCID = finalCID?.[0]?.match(/^ipfs:\/\/[^/]+/)[0];
     var tempdata = idolRegisterData;
     tempdata["numberOfImages"] = uploadedData.length;
-    tempdata["nftImageURI"] = await resolveSchemeThirdweb(nftImageCID);
+    tempdata["nftImageURI"] = resolveSchemeThirdweb(nftImageCID);
 
     setIdolRegisterData(tempdata);
     // setIdolRegisterData({
@@ -109,11 +109,11 @@ const RegisterDialog = ({
     const fileName = collectionImage.name;
 
     var tempdatas = idolRegisterData;
-    tempdatas["collectionImageURI"] = await resolveSchemeThirdweb(cid);
+    tempdatas["collectionImageURI"] = resolveSchemeThirdweb(cid);
 
     setIdolRegisterData(tempdatas);
 
-    console.log(`cid collection ${await resolveSchemeThirdweb(cid)}`);
+    console.log(`cid collection ${resolveSchemeThirdweb(cid)}`);
   };
 
   const onCloseDialog = () => {
