@@ -40,16 +40,17 @@ export const constructMetaThirdweb = async ({ data, cid }) => {
     uri: _cids[0],
   });
 
-  _cids.forEach((c, i) => {
+  const promises = _cids.map(async (c, i) => {
     const fileData = JSON.stringify({
       name: `${data.title} #${i + 1}`,
-      image: resolveSchemeThirdweb(c),
+      image: await resolveSchemeThirdweb(c),
       description: data.description,
     });
     const blob = new Blob([fileData], { type: "text/plain" });
     var file = new File([blob], `${i + 1}`);
-    tempJSON.push(file);
+    return file;
   });
+  tempJSON = await Promise.all(promises);
 
   return { tempJSON, nftImage };
 };
