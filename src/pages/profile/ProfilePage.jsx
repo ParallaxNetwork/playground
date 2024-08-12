@@ -100,29 +100,34 @@ const ProfilePage = ({ props }) => {
         });
 
         // const cid = await uploadToIPFS([pfpFile]);
-        // const fileName = pfpFile.name;
+        const cid = await uploadToIPFS(pfpFile);
+        const fileName = pfpFile.name;
         // const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
-        // console.log("pfp", pfp)
-
-        const { objectKey } = await uploadFile(
-          pfpFile,
-          "playground/profile/" + address,
-          // pfpFile.name,
-          "pfp",
-          {
-            DO_SPACES_ID: props.DO_SPACES_ID,
-            DO_SPACES_SECRET: props.DO_SPACES_SECRET,
-            DO_SPACES_BUCKET: props.DO_SPACES_BUCKET,
-            DO_SPACES_ORIGIN: props.DO_SPACES_ORIGIN,
-          }
-        );
-        const pfp = `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+        const pfp = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${cid}`;
+        // https://chocolate-chief-deer-219.mypinata.cloud/ipfs/QmaQGRA8zLoHhBZXy36pboggntpvxRkaqKYp4VDxrngWQp
         console.log("pfp", pfp);
+
+        // const { objectKey } = await uploadFile(
+        //   pfpFile,
+        //   "playground/profile/" + address,
+        //   // pfpFile.name,
+        //   "pfp",
+        //   {
+        //     DO_SPACES_ID: props.DO_SPACES_ID,
+        //     DO_SPACES_SECRET: props.DO_SPACES_SECRET,
+        //     DO_SPACES_BUCKET: props.DO_SPACES_BUCKET,
+        //     DO_SPACES_ORIGIN: props.DO_SPACES_ORIGIN,
+        //   }
+        // );
+        // const pfp = `${process.env.NEXT_PUBLIC_DO_SPACES_CDN}/${objectKey}`;
+        // console.log("pfp", pfp);
 
         let res = await orbis.updateProfile({
           ...formData,
           pfp: pfp,
         });
+
+        console.log("orbis update", res);
       }
 
       await sleep(1500);
