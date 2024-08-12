@@ -28,6 +28,7 @@ import { PGCORE_ABI } from "../../../utilities/PGCoreABI";
 import { contractConfig } from "../../../utilities/contractConfig";
 import { uploadToIPFS } from "../../../utilities/ipfsUploader";
 import { removeNumberPostfix, sleep } from "../../../utilities/misc";
+import { uploadToIPFSThirdweb } from "../../../utilities/thirdweb";
 
 
 const timestampToRelativeTime = (timestamp) => {
@@ -99,9 +100,7 @@ const ProfilePage = () => {
           duration: 10000
         });
 
-        const cid = await uploadToIPFS([pfpFile]);
-        const fileName = pfpFile.name;
-        const pfp = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+        const pfp = await uploadToIPFSThirdweb([pfpFile]);
         console.log("pfp", pfp)
 
         let res = await orbis.updateProfile({

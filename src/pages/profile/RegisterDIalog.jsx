@@ -7,6 +7,11 @@ import { uploadToIPFS, constructMeta } from "../../../utilities/ipfsUploader";
 import { ShowToast } from "../../components/elements/Toaster";
 import CircularProgress from "@mui/material/CircularProgress";
 import { duration } from "@mui/material";
+import {
+  constructMetaThirdweb,
+  resolveSchemeThirdweb,
+  uploadToIPFSThirdweb,
+} from "../../../utilities/thirdweb";
 const RegisterDialog = ({
   openRegisterDialog,
   handleCloseRegisterDialog,
@@ -32,7 +37,7 @@ const RegisterDialog = ({
     setIsLoading(false);
     return ShowToast({
       message: msg,
-      duration: 10000
+      duration: 10000,
     });
   };
 
@@ -69,12 +74,10 @@ const RegisterDialog = ({
       );
     }
     //UPLOAD IMAGE TO IPFS -> RETURN CID
-    const cid = await uploadToIPFS(uploadedData);
+    const cid = await uploadToIPFSThirdweb(uploadedData);
     //CONSTRUCT / CREATE METADATA BY IMAGE CID
-    const { tempJSON, nftImage } = await constructMeta({
+    const { tempJSON, nftImage } = await constructMetaThirdweb({
       cid: cid,
-      dataLength: uploadedData.length,
-      type: fileType,
       data: {
         title: idolRegisterData.subName,
         description: `Official NFT created by ${idolRegisterData.subName}`,
@@ -83,10 +86,12 @@ const RegisterDialog = ({
     // setProfileImage(nftImage);
 
     //FINAL CID GENERATED
-    const finalCID = await uploadToIPFS(tempJSON);
+    const finalCID = await uploadToIPFSThirdweb(tempJSON);
+
+    const nftImageCID = finalCID?.[0]?.match(/^ipfs:\/\/[^/]+/)[0];
     var tempdata = idolRegisterData;
     tempdata["numberOfImages"] = uploadedData.length;
-    tempdata["nftImageURI"] = `https://${finalCID}.ipfs.nftstorage.link/`;
+    tempdata["nftImageURI"] = await resolveSchemeThirdweb(nftImageCID);
 
     setIdolRegisterData(tempdata);
     // setIdolRegisterData({
@@ -94,27 +99,21 @@ const RegisterDialog = ({
     //   numberOfImages: uploadedData.length,
     //   nftImageURI: `https://${finalCID}.ipfs.nftstorage.link/`,
     // });
-    console.log(`cid nftimage ${`https://${finalCID}.ipfs.nftstorage.link/`}`);
+    console.log(`cid nftimage ${tempdata["nftImageURI"]}`);
     setIsLoading(false);
   };
 
   const handleUploadCollectionImage = async () => {
     setIsLoading(true);
-    const cid = await uploadToIPFS([
-      collectionImage
-    ]);
+    const cid = await uploadToIPFSThirdweb([collectionImage]);
     const fileName = collectionImage.name;
 
     var tempdatas = idolRegisterData;
-    tempdatas[
-      "collectionImageURI"
-    ] = `https://${cid}.ipfs.nftstorage.link/${fileName}`;
+    tempdatas["collectionImageURI"] = await resolveSchemeThirdweb(cid);
 
     setIdolRegisterData(tempdatas);
 
-    console.log(
-      `cid collection ${`https://${cid}.ipfs.nftstorage.link/${fileName}`}`
-    );
+    console.log(`cid collection ${await resolveSchemeThirdweb(cid)}`);
   };
 
   const onCloseDialog = () => {
@@ -132,13 +131,10 @@ const RegisterDialog = ({
     });
     setIsLoading(false);
     handleCloseRegisterDialog();
-  }
+  };
 
   return (
-    <AlertDialog
-      open={openRegisterDialog}
-      onClose={onCloseDialog}
-    >
+    <AlertDialog open={openRegisterDialog} onClose={onCloseDialog}>
       <div className="flex flex-row justify-between items-center bg-secondary text-white px-3 py-3 title-secondary border-b-2 border-black">
         REGISTER AND CREATE SUBSCRIPTION
         <img
@@ -199,7 +195,6 @@ const RegisterDialog = ({
               </div>
 
               <NFTPicturesPreview nftFiles={nftFiles} />
-
 
               <label
                 disabled={isLoading}
@@ -333,35 +328,36 @@ const RegisterDialog = ({
                 return ShowToast({
                   message: "Please fill all the required data",
                   state: "error",
-                  duration: 5000
+                  duration: 5000,
                 });
               }
 
               ShowToast({
-                message: "Uploading your Subscription images~, dont close this popup!",
+                message:
+                  "Uploading your Subscription images~, dont close this popup!",
                 id: "register-idol",
-                duration: 20000
+                duration: 20000,
               });
 
               await handleUploadCollectionImage();
 
               ShowToast({
                 message: "Yuhuu your subscription banner has been uploaded",
-                id: "register-idol"
+                id: "register-idol",
               });
 
               ShowToast({
                 message: "Uploading your NFT images~, still working 😊",
                 id: "register-idol",
-                duration: 10000
+                duration: 10000,
               });
-              
+
               await handleUploadNFT();
 
               ShowToast({
                 message: "Yesss all set! please confirm the transaction",
                 id: "register-idol",
-                duration: 10000
+                duration: 10000,
               });
 
               handleSubmitRegister(idolRegisterData);
@@ -381,7 +377,7 @@ const RegisterDialog = ({
   );
 };
 
-// Create NFTPicturesPreview component using useMemo 
+// Create NFTPicturesPreview component using useMemo
 const NFTPicturesPreview = ({ nftFiles }) => {
   return useMemo(() => {
     if (!isEmpty(nftFiles)) {
@@ -401,7 +397,7 @@ const NFTPicturesPreview = ({ nftFiles }) => {
               );
             })}
         </div>
-      )
+      );
     }
   }, [nftFiles]);
 };
@@ -411,11 +407,15 @@ const SubscriptionPicture = ({ collectionImage }) => {
   return useMemo(() => {
     return (
       <CollectionImage
-        src={collectionImage ? URL.createObjectURL(collectionImage) : "/assets/picture/placeholder.png"}
+        src={
+          collectionImage
+            ? URL.createObjectURL(collectionImage)
+            : "/assets/picture/placeholder.png"
+        }
         className="max-w-[128px] h-[128px] w-full ml-1"
       />
-    )
-  }, [collectionImage])
-}
+    );
+  }, [collectionImage]);
+};
 
 export default RegisterDialog;
